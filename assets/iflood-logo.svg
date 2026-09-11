@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- iFlood brand mark: navy arc (eye/sunrise) over a cyan-to-blue double wave -->
+  <defs>
+    <linearGradient id="waveGradTop" x1="10" y1="0" x2="90" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="waveGradBottom" x1="10" y1="0" x2="90" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Navy arc: open ring like a rising sun / watching eye -->
+  <path d="M 20 46 A 30 30 0 1 1 80 46" stroke="#1a0dab" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="50" cy="40" r="6" fill="#1a0dab"/>
+
+  <!-- Double wave beneath -->
+  <path d="M 8 66 Q 22 56 36 66 T 64 66 T 92 66" stroke="url(#waveGradTop)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M 8 82 Q 22 72 36 82 T 64 82 T 92 82" stroke="url(#waveGradBottom)" stroke-width="7" stroke-linecap="round"/>
+</svg>

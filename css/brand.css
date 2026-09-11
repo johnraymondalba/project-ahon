@@ -1,0 +1,39 @@
+/*
+  iFlood / Project AHON — shared brand tokens.
+  Loaded by every page (landing, citizen, LGU) so the identity stays
+  identical across the dark phone UI and the light dashboard UI.
+*/
+:root {
+    /* Core brand */
+    --brand-indigo: #1a0dab;      /* logo arc, headings */
+    --brand-indigo-dark: #130a80;
+    --brand-cyan: #38bdf8;        /* wave gradient start */
+    --brand-blue: #1d4ed8;        /* wave gradient end */
+    --brand-navy: #0f172a;        /* dark screens / phone UI */
+
+    /* Status colors (shared meaning across citizen + LGU views) */
+    --status-sos: #FF4D4D;
+    --status-civilian: #4D94FF;
+    --status-rescuer: #2ECC71;
+    --status-senior: #FFD700;
+    --status-volunteer: #FF69B4;
+    --status-offline: #7F8C8D;
+
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body { font-family: var(--font-family); }
+
+.brand-logo-mark { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.brand-logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+
+.brand-gradient-text {
+    background: linear-gradient(90deg, var(--brand-cyan), var(--brand-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.brand-tagline { color: var(--brand-indigo); font-weight: 700; letter-spacing: 0.3px; }

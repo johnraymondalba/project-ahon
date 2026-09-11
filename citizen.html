@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>iFlood | Citizen App</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/brand.css" />
+    <link rel="stylesheet" href="css/citizen.css" />
+</head>
+<body>
+
+    <a class="back-to-select" href="index.html"><i class="fa-solid fa-arrow-left"></i> Role select</a>
+
+    <div class="phone-case">
+        <div class="phone-screen">
+
+            <div id="map"></div>
+
+            <div class="ui-layer">
+                <!-- TOP BAR -->
+                <div class="top-bar pointer-events-auto">
+                    <div class="brand-container">
+                        <div class="brand-logo">
+                            <img src="assets/iflood-logo.svg" alt="iFlood Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <div class="brand-text">
+                            <h1>iFlood</h1>
+                            <p>NABUA MESH NET</p>
+                            <div class="mesh-status-pill" id="meshStatusPill">
+                                <div class="mesh-status-dot" id="meshStatusDot"></div>
+                                <div>
+                                    <div class="mesh-status-text" id="meshStatusText">MESH ONLINE</div>
+                                    <div class="mesh-status-sub" id="meshStatusSub">2 hops to LGU</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="legend-wrapper">
+                        <div class="legend-toggle" onclick="toggleLegend()">
+                            <i class="fa-solid fa-list-ul"></i>
+                        </div>
+                        <div class="legend-box minimized" id="legendBox">
+                            <div class="legend-item"><div class="l-dot" style="background:var(--color-sos)"></div><span class="l-text">SOS Active</span></div>
+                            <div class="legend-item"><div class="l-dot" style="background:var(--color-rescuer)"></div><span class="l-text">Rescuer</span></div>
+                            <div class="legend-item"><div class="l-dot" style="background:var(--color-user)"></div><span class="l-text">Civilian / Safe</span></div>
+                            <div class="legend-item"><div class="l-dot" style="background:var(--color-senior)"></div><span class="l-text">Senior / PWD</span></div>
+                            <div class="legend-item"><div class="l-dot" style="background:var(--color-volunteer)"></div><span class="l-text">Volunteer</span></div>
+                            <div class="legend-item"><div class="l-dot" style="background:var(--color-offline)"></div><span class="l-text">Last Signal Found</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SOS BROADCAST BANNER -->
+                <div class="sos-banner" id="sosBanner">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    High-priority broadcast — cutting through mesh traffic
+                </div>
+
+                <!-- BOTTOM CONTROLS -->
+                <div class="bottom-sheet pointer-events-auto" id="bottomSheet">
+                    <div class="handle-area" onclick="toggleSheet()">
+                        <div class="handle-bar"></div>
+                    </div>
+
+                    <div class="volunteer-switch-container">
+                        <span class="v-label">VOLUNTEER MODE</span>
+                        <label class="switch">
+                            <input type="checkbox" id="volunteerCheck" onchange="toggleVolunteer()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="sos-btn" id="sosBtn" onclick="toggleSOS()">
+                        <i class="fa-solid fa-broadcast-tower" style="color:white; font-size: 20px;"></i>
+                        <div class="sos-text">
+                            <h2 id="sosLabel">BROADCAST SOS</h2>
+                        </div>
+                    </div>
+
+                    <div class="section-label">MY SITUATION</div>
+                    <div class="status-chips-row">
+                        <div class="chip active-safe" id="chip-safe" onclick="setStatus('SAFE')">SAFE</div>
+                        <div class="chip" id="chip-trapped" onclick="setStatus('TRAPPED')">TRAPPED</div>
+                        <div class="chip" id="chip-injured" onclick="setStatus('INJURED')">INJURED</div>
+                    </div>
+
+                    <div class="section-label">SUPPLIES NEEDED</div>
+                    <div class="status-grid">
+                        <div class="grid-item" id="btn-water" onclick="toggleNeed('water')"><i class="fa-solid fa-droplet"></i><span>Water</span></div>
+                        <div class="grid-item" id="btn-food" onclick="toggleNeed('food')"><i class="fa-solid fa-utensils"></i><span>Food</span></div>
+                        <div class="grid-item" id="btn-meds" onclick="toggleNeed('meds')"><i class="fa-solid fa-briefcase-medical"></i><span>Meds</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/mesh-simulator.js"></script>
+    <script src="js/citizen-map.js"></script>
+    <script src="js/citizen-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iFlood | LGU Command Center</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/brand.css" />
+    <link rel="stylesheet" href="css/lgu.css" />
+</head>
+<body>
+
+    <header class="lgu-header">
+        <div class="brand-container">
+            <div class="brand-logo-mark brand-logo" style="width:38px;height:38px;">
+                <img src="assets/iflood-logo.svg" alt="iFlood Logo">
+            </div>
+            <div>
+                <h1>iFlood <span style="font-weight:600; color:var(--lgu-text-muted); font-size:12px;">Command Center</span></h1>
+                <p>Nabua, Camarines Sur &middot; Live Priority Map</p>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="mesh-health-strip">
+                <div class="mesh-health-item"><span class="mesh-health-dot" id="meshHealthDot"></span> <span id="meshHealthLabel">Network healthy</span></div>
+                <div class="mesh-health-item"><i class="fa-solid fa-mobile-screen"></i> <span id="meshPhoneCount">0</span> phone nodes</div>
+                <div class="mesh-health-item"><i class="fa-solid fa-tower-cell"></i> <span id="meshLoraCount">0</span> LoRa relays</div>
+            </div>
+            <a class="role-switch-link" href="index.html"><i class="fa-solid fa-arrow-left"></i> Role select</a>
+            <a class="role-switch-link" href="citizen.html"><i class="fa-solid fa-mobile-screen-button"></i> Citizen app</a>
+        </div>
+    </header>
+
+    <main class="lgu-main">
+        <section class="summary-cards">
+            <div class="summary-card critical">
+                <div class="summary-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div><div class="summary-count" id="countCritical">0</div><div class="summary-label">Critical</div></div>
+            </div>
+            <div class="summary-card high">
+                <div class="summary-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+                <div><div class="summary-count" id="countHigh">0</div><div class="summary-label">High Priority</div></div>
+            </div>
+            <div class="summary-card cleared">
+                <div class="summary-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div><div class="summary-count" id="countCleared">0</div><div class="summary-label">Cleared</div></div>
+            </div>
+        </section>
+
+        <section class="content-grid">
+            <!-- LIVE PRIORITY MAP -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Live Priority Map</h2>
+                    <span class="hint">Tap a marker to see victim details and route</span>
+                </div>
+                <div id="lguMap"></div>
+                <div class="map-fallback" id="lguMapFallback" style="display:none;">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <div class="map-fallback-msg">Live map requires a Google Maps API key.<br>Add <code>GOOGLE_MAPS_API_KEY</code> to <code>js/config.js</code> — see README.md.</div>
+                </div>
+                <div class="map-legend">
+                    <div class="legend-item"><span class="l-dot" style="background:#FF4D4D"></span> SOS / Injured</div>
+                    <div class="legend-item"><span class="l-dot" style="background:#d97706"></span> Trapped</div>
+                    <div class="legend-item"><span class="l-dot" style="background:#2ECC71"></span> Rescuer</div>
+                    <div class="legend-item"><span class="l-dot" style="background:#4D94FF"></span> Safe / Civilian</div>
+                    <div class="legend-item"><span class="l-dot" style="background:#FF69B4"></span> Volunteer</div>
+                    <div class="legend-item"><span class="l-dot" style="background:#7F8C8D"></span> Last Signal (offline)</div>
+                </div>
+            </div>
+
+            <!-- PRIORITY LIST + AI TRIAGE -->
+            <div class="panel">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="tabList">Priority List</button>
+                    <button class="tab-btn" data-tab="tabAi">AI Triage</button>
+                </div>
+
+                <div class="tab-panel active" id="tabList">
+                    <div class="table-toolbar">
+                        <input type="text" id="searchInput" placeholder="Search name or ID…">
+                        <select id="statusFilter">
+                            <option value="ALL">All statuses</option>
+                            <option value="SOS">SOS</option>
+                            <option value="INJURED">Injured</option>
+                            <option value="TRAPPED">Trapped</option>
+                            <option value="SAFE">Safe</option>
+                            <option value="OFFLINE">Offline</option>
+                        </select>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="priority-table">
+                            <thead>
+                                <tr>
+                                    <th data-sort="name">Reporter</th>
+                                    <th data-sort="status">Status</th>
+                                    <th>Location</th>
+                                    <th>Supplies</th>
+                                    <th data-sort="tier">Priority</th>
+                                    <th data-sort="updated">Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody id="priorityTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="tabAi">
+                    <div class="panel-header" style="border-bottom:none;">
+                        <span class="hint">AI-suggested priority score and reasoning per report</span>
+                        <button class="btn" id="runTriageBtn">Re-run AI Triage</button>
+                    </div>
+                    <div class="ai-triage-list" id="aiTriageList"></div>
+                </div>
+            </div>
+
+            <!-- DETAIL PANEL -->
+            <div class="panel detail-panel">
+                <div class="panel-header"><h2>Victim Details &amp; Route</h2></div>
+                <div id="detailPanelBody"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/mesh-simulator.js"></script>
+    <script src="js/gemini-triage.js"></script>
+    <script src="js/lgu-map.js"></script>
+    <script src="js/lgu-dashboard.js"></script>
+</body>
+</html>
