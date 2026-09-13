@@ -40,6 +40,9 @@
                     </div>
 
                     <div class="legend-wrapper">
+                        <div class="legend-toggle" onclick="showSosGate()" title="Back to SOS screen">
+                            <i class="fa-solid fa-house"></i>
+                        </div>
                         <div class="legend-toggle" onclick="toggleLegend()">
                             <i class="fa-solid fa-list-ul"></i>
                         </div>
@@ -97,6 +100,42 @@
                 </div>
             </div>
 
+            <!-- SOS / VOLUNTEER ENTRY GATE — shown first, every time the app loads -->
+            <div class="sos-gate" id="sosGate">
+                <div class="gate-brand">
+                    <div class="brand-logo">
+                        <img src="assets/iflood-logo.svg" alt="iFlood Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                    <h1>iFlood</h1>
+                    <p>Are you in danger?</p>
+                </div>
+
+                <div class="gate-main" id="gateMain">
+                    <button class="gate-sos-btn" id="gateSosBtn" onclick="gateTapSOS()">
+                        <i class="fa-solid fa-tower-broadcast"></i>
+                        <span>SOS</span>
+                    </button>
+                    <p class="gate-sos-hint">Tap to broadcast an emergency signal to nearby mesh nodes and LGU responders</p>
+
+                    <div class="gate-divider"><span>or</span></div>
+
+                    <button class="gate-volunteer-btn" onclick="gateContinueAsVolunteer()">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                        I'm Volunteering / I'm Safe
+                    </button>
+                </div>
+
+                <div class="gate-confirm" id="gateConfirm">
+                    <i class="fa-solid fa-triangle-exclamation gate-confirm-icon"></i>
+                    <h2>Send SOS broadcast?</h2>
+                    <p>This will alert nearby mesh nodes and LGU responders that you need help.</p>
+                    <div class="gate-confirm-actions">
+                        <button class="gate-cancel-btn" onclick="gateCancelSOS()">Cancel</button>
+                        <button class="gate-confirm-btn" onclick="gateConfirmSOS()">Yes, Send SOS</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -106,5 +145,6 @@
     <script src="js/mesh-simulator.js"></script>
     <script src="js/citizen-map.js"></script>
     <script src="js/citizen-app.js"></script>
+    <script src="js/citizen-gate.js"></script>
 </body>
 </html>

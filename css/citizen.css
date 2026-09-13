@@ -210,3 +210,57 @@ input:checked + .slider:before { transform: translateX(18px); }
 .bg-last-seen { background: var(--color-offline); opacity: 0.7; border: 2px solid #555; }
 
 @keyframes pulse-sos { 0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); } 100% { box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); } }
+
+/* --- SOS / VOLUNTEER ENTRY GATE --- */
+.sos-gate {
+    position: absolute; inset: 0; z-index: 3000;
+    background: radial-gradient(circle at 50% 30%, rgba(255,77,77,0.14), transparent 60%), var(--bg-dark);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 24px; text-align: center; gap: 26px;
+}
+.sos-gate.hidden { display: none; }
+
+.gate-brand { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.gate-brand .brand-logo { width: 48px; height: 48px; border-radius: 12px; overflow: hidden; }
+.gate-brand h1 { color: white; font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+.gate-brand p { color: var(--text-gray); font-size: 13px; }
+
+.gate-main { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+.sos-gate.confirming .gate-main { display: none; }
+
+.gate-sos-btn {
+    width: 190px; height: 190px; border-radius: 50%;
+    background: var(--color-sos); border: none; color: white;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; animation: pulse-sos-gate 1.8s infinite;
+}
+.gate-sos-btn i { font-size: 30px; }
+.gate-sos-btn span { font-size: 26px; font-weight: 900; letter-spacing: 1px; }
+@keyframes pulse-sos-gate {
+    0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.55); }
+    70% { box-shadow: 0 0 0 24px rgba(255, 77, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+}
+
+.gate-sos-hint { color: var(--text-gray); font-size: 12px; max-width: 230px; line-height: 1.5; }
+
+.gate-divider { display: flex; align-items: center; width: 100%; max-width: 240px; color: var(--text-gray); font-size: 11px; gap: 10px; }
+.gate-divider::before, .gate-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
+
+.gate-volunteer-btn {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255, 105, 180, 0.1); border: 1px solid var(--color-volunteer);
+    color: var(--color-volunteer); font-size: 13px; font-weight: 700;
+    padding: 12px 22px; border-radius: 30px; cursor: pointer; transition: 0.2s;
+}
+.gate-volunteer-btn:hover { background: rgba(255, 105, 180, 0.2); }
+
+.gate-confirm { display: none; flex-direction: column; align-items: center; gap: 12px; max-width: 280px; }
+.sos-gate.confirming .gate-confirm { display: flex; }
+.gate-confirm-icon { color: var(--color-sos); font-size: 32px; }
+.gate-confirm h2 { color: white; font-size: 18px; font-weight: 800; }
+.gate-confirm p { color: var(--text-gray); font-size: 12px; line-height: 1.5; }
+.gate-confirm-actions { display: flex; gap: 12px; margin-top: 8px; width: 100%; }
+.gate-cancel-btn, .gate-confirm-btn { flex: 1; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+.gate-cancel-btn { background: rgba(255,255,255,0.08); color: var(--text-white); border-color: rgba(255,255,255,0.15); }
+.gate-confirm-btn { background: var(--color-sos); color: white; }

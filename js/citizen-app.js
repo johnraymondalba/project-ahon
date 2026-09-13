@@ -36,6 +36,8 @@
     };
 
     // --- BROADCAST SOS ---
+    window.isSOSActive = function () { return appState.sos; };
+
     window.toggleSOS = function () {
         appState.sos = !appState.sos;
         const btn = document.getElementById('sosBtn');
