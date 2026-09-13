@@ -12,16 +12,18 @@ mesh network is simulated so the app is fully demo-able in a browser.
   LGU) styled as chart-legend entries.
 - **`citizen.html`** — mobile-first, dark "Typhoon Track Chart" instrument
   UI: an SOS/Volunteer entry gate, then a tab-paged instrument book (Map /
-  Status / Supplies / Volunteer) over a live, tile-free mesh chart, one-tap
-  status (Safe/Trapped/Injured), supply-need chips, Volunteer Mode, a
+  Status / Supplies / Volunteer) over a live mesh chart on real OpenStreetMap
+  street tiles (no API key, tinted dark to fit the night-instrument world),
+  one-tap status (Safe/Trapped/Injured), supply-need chips, Volunteer Mode, a
   persistent SOS broadcast bar, a mesh connectivity indicator, and "ghost
   node" last-signal markers for nodes that have gone offline.
 - **`lgu.html`** — desktop-first, light paper-chart "Command Center"
-  dashboard: a full-bleed live priority chart (Google Maps when
-  `GOOGLE_MAPS_API_KEY` is set, otherwise a chart-native fallback that plots
-  the same mesh nodes as vector markers — no key needed), a slide-in drawer
-  with a sortable/filterable priority list, an AI Triage panel (Gemini), and
-  a mesh/network health strip. Reports are deep-linkable (`lgu.html#N04`).
+  dashboard: a full-bleed live priority chart on real street tiles (Google
+  Maps when `GOOGLE_MAPS_API_KEY` is set, otherwise the same OpenStreetMap
+  tiles as the citizen app, tinted cream — no key needed either way), a
+  slide-in drawer with a sortable/filterable priority list, an AI Triage
+  panel (Gemini), and a mesh/network health strip. Reports are deep-linkable
+  (`lgu.html#N04`).
 - **`iFlood.html`** — the original single-file mockup; now just redirects
   to `index.html`. Kept only so old bookmarks/links still resolve.
 
@@ -38,12 +40,12 @@ js/
   config.example.js     committed template for config.js
   mock-data.js          shared mock mesh dataset (~13 nodes around Nabua)
   mesh-simulator.js     interval that randomly nudges node statuses, simulating live mesh traffic
-  citizen-map.js         Leaflet map logic for the citizen app (tile-free — nodes plot as vector markers on the chart-paper ground)
+  citizen-map.js         Leaflet map logic for the citizen app (OpenStreetMap tiles, no API key, tinted dark)
   citizen-app.js         citizen app UI/state (status, needs, SOS, volunteer mode, mesh indicator)
   citizen-gate.js        SOS/Volunteer entry gate (confirm-before-broadcast flow)
   citizen-tabs.js        instrument-book spine tab switching (Map/Status/Supplies/Volunteer)
   landing-chart.js       landing page's animated hop-relay plotting sequence
-  lgu-map.js             LGU chart layer — Google Maps when a key is configured, otherwise the same tile-free vector-marker fallback as the citizen app
+  lgu-map.js             LGU chart layer — Google Maps when a key is configured, otherwise the same OpenStreetMap-tiled fallback as the citizen app
   lgu-dashboard.js        LGU dashboard UI/state (table, cards, detail panel, health strip)
   lgu-drawer.js           slide-in drawer toggle for the priority list / AI triage / details panel
   lgu-deeplink.js         opens a report directly from a URL hash (lgu.html#N04)

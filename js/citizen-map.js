@@ -1,7 +1,8 @@
 /*
   Citizen app map layer (Leaflet — no API key needed, used purely for local
   tile rendering of the phone-mockup "live mesh map"; the LGU dashboard uses
-  Google Maps instead, see js/lgu-map.js).
+  Google Maps when a key is configured, and the same OSM-based fallback
+  otherwise, see js/lgu-map.js).
 
   Reads the shared MESH_NODES / NABUA_CENTER from mock-data.js and the
   appState object owned by citizen-app.js.
@@ -9,13 +10,16 @@
 (function () {
     const CENTER = [window.NABUA_CENTER.lat, window.NABUA_CENTER.lng];
 
-    // No base tile layer: the phone screen's own graticule chart pattern
-    // (css/citizen.css) is the map ground. This is deliberate, not a missing
-    // basemap — every node, link, and range ring is drawn as a plotted mark
-    // on that chart, exactly like the landing page's hero chart, rather than
-    // a realistic street map. It also avoids depending on a third-party tile
-    // provider (and its "API key required" watermark) for a demo prototype.
-    const map = L.map('map', { zoomControl: false, attributionControl: false }).setView(CENTER, 15);
+    const map = L.map('map', { zoomControl: false, attributionControl: true }).setView(CENTER, 15);
+
+    // Real OpenStreetMap street tiles (no API key) so responders can see the
+    // actual streets/terrain each plotted node sits on, not just an abstract
+    // grid — tinted dark via CSS (see .leaflet-tile-pane filter in
+    // css/citizen.css) to fit the night-instrument chart world.
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
 
     const networkLayer = L.layerGroup().addTo(map);
     const sosPulseLayer = L.layerGroup().addTo(map);

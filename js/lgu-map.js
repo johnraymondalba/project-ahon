@@ -128,8 +128,17 @@
 
             map = L.map(mapEl, {
                 zoomControl: true,
-                attributionControl: false,
+                attributionControl: true,
             }).setView([window.NABUA_CENTER.lat, window.NABUA_CENTER.lng], 14);
+
+            // Real OpenStreetMap street tiles (no API key) so staff can see
+            // the actual streets/terrain each report sits on — tinted to the
+            // cream chart-paper register via CSS (see css/lgu.css).
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            }).addTo(map);
+
             markersLayer = L.layerGroup().addTo(map);
 
             ready = true;

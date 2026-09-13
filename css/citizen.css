@@ -69,7 +69,16 @@ body {
     position: relative;
 }
 
-#map { height: 100%; width: 100%; z-index: 1; background: transparent; }
+#map { height: 100%; width: 100%; z-index: 1; background: var(--chart-ground); }
+
+/* Tint real OSM tiles into the night-instrument chart world instead of
+   showing them in daylight color. */
+#map .leaflet-tile-pane { filter: invert(1) hue-rotate(190deg) brightness(0.92) contrast(1.05) saturate(0.5); }
+#map .leaflet-control-attribution {
+    background: rgba(5, 9, 15, 0.75); color: var(--chart-ink-dim);
+    font-family: var(--font-mono); font-size: 8.5px;
+}
+#map .leaflet-control-attribution a { color: var(--chart-ink-dim); }
 
 .ui-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 1000; display: flex; flex-direction: column; justify-content: space-between; }
 .pointer-events-auto { pointer-events: auto; }

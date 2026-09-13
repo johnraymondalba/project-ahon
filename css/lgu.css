@@ -97,10 +97,19 @@ a { color: inherit; }
 .map-legend .legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; color: var(--lgu-text-muted); font-weight: 500; }
 .map-legend .l-dot { width: 9px; height: 9px; border-radius: 50%; }
 
-/* Chart-native fallback markers (js/lgu-map.js, no tile layer / no API key) */
+/* Chart-native fallback markers (js/lgu-map.js, no API key needed) */
 .lgu-marker-icon { background: none; border: none; }
 .lgu-marker-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--chart-paper-ink); box-shadow: 0 1px 3px rgba(10, 22, 40, 0.25); cursor: pointer; }
-.leaflet-container { background: transparent; font-family: var(--font-body); }
+.leaflet-container { background: var(--chart-paper); font-family: var(--font-body); }
+
+/* Tint real OSM tiles into the cream chart-paper register instead of
+   showing them in default daylight color. */
+.leaflet-tile-pane { filter: grayscale(0.35) sepia(0.18) brightness(1.04) contrast(0.96); }
+.leaflet-control-attribution {
+    background: rgba(251, 250, 244, 0.85) !important; color: var(--lgu-text-muted) !important;
+    font-family: var(--font-mono); font-size: 9.5px;
+}
+.leaflet-control-attribution a { color: var(--lgu-text-muted) !important; }
 
 /* --- DRAWER TOGGLE / PANEL --- */
 .drawer-toggle {
