@@ -3,47 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iFlood | Project AHON</title>
+    <title>AHON | Project AHON</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="css/brand.css" />
     <link rel="stylesheet" href="css/landing.css" />
 </head>
 <body>
-    <div class="landing-wrap">
-        <div class="landing-hero">
-            <div class="brand-logo-mark">
-                <img src="assets/logo.svg" alt="iFlood Logo">
+    <div class="chart-page">
+
+        <div class="chart-grid" aria-hidden="true"></div>
+
+        <header class="chart-title-block">
+            <div class="chart-title-mark">
+                <img src="assets/logo.svg" alt="">
             </div>
-            <h1>iFlood</h1>
-            <p class="tagline">Project AHON — Alert, Help, Offline Network</p>
-            <p class="tagline"><span class="brand-gradient-text">Only takes One Hop to Help</span></p>
-            <p class="blurb">
-                An offline-first, BLE-mesh disaster response network for flood-prone Nabua and Naga City,
-                Camarines Sur. No internet or cell signal required — reports hop phone-to-phone until they
-                reach an LGU gateway node.
-            </p>
-        </div>
+            <div class="chart-title-text">
+                <h1>AHON</h1>
+                <p>PROJECT AHON &middot; NABUA / NAGA CITY, CAMSUR</p>
+            </div>
+        </header>
 
-        <div class="role-grid">
-            <a class="role-card" href="citizen.html">
-                <div class="role-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
-                <h2>I'm a Citizen</h2>
-                <p>Broadcast your status and needs over the mesh, see nearby responders, and volunteer to help others nearby — even with zero signal.</p>
-                <span class="go">Open Citizen App <i class="fa-solid fa-arrow-right"></i></span>
-            </a>
+        <p class="chart-scale-note mono">CHART NO. 1 &middot; SCALE 1 : LOCAL MESH &middot; PLOT REF NABUA-14N</p>
 
-            <a class="role-card" href="lgu.html">
-                <div class="role-icon"><i class="fa-solid fa-chart-line"></i></div>
-                <h2>I'm LGU / Command Center</h2>
-                <p>Monitor every incoming report on a live map, let AI triage rank who needs help first, and dispatch teams with confidence.</p>
-                <span class="go">Open Command Center <i class="fa-solid fa-arrow-right"></i></span>
-            </a>
-        </div>
+        <main class="chart-plot-area">
+            <svg class="chart-plot" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <g class="plot-links" id="plotLinks"></g>
+                <g class="plot-trace" id="plotTrace"></g>
+                <g class="plot-nodes" id="plotNodes"></g>
+            </svg>
 
-        <p class="landing-footnote">
-            Only takes One Hop to Help. &middot; Prototype for BETT Show Asia — mesh network, map data, and AI
-            triage are simulated for demo purposes. See README.md for connecting real Google Maps &amp; Gemini API keys.
+            <div class="plot-readout mono" id="plotReadout">
+                <div class="readout-row"><span class="readout-label">STATUS</span><span class="readout-value" id="readoutStatus">AWAITING REPORT</span></div>
+                <div class="readout-row"><span class="readout-label">HOPS</span><span class="readout-value" id="readoutHops">0</span></div>
+                <div class="readout-row"><span class="readout-label">POS</span><span class="readout-value" id="readoutPos">13.4045N 123.2968E</span></div>
+            </div>
+        </main>
+
+        <p class="chart-thesis">
+            A report leaves one phone with zero signal and hops, node to node, until it reaches help.
+            <span class="chart-thesis-accent">Only takes one hop to help.</span>
         </p>
+
+        <nav class="chart-legend" aria-label="Choose your role">
+            <a class="legend-entry" href="citizen.html">
+                <span class="legend-glyph legend-glyph--civilian" aria-hidden="true"></span>
+                <span class="legend-entry-text">
+                    <span class="legend-entry-title">CITIZEN</span>
+                    <span class="legend-entry-desc">Broadcast your status and needs over the mesh, see nearby responders, or volunteer to help others — even with zero signal.</span>
+                </span>
+                <i class="fa-solid fa-arrow-right legend-arrow" aria-hidden="true"></i>
+            </a>
+            <a class="legend-entry" href="lgu.html">
+                <span class="legend-glyph legend-glyph--gateway" aria-hidden="true"></span>
+                <span class="legend-entry-text">
+                    <span class="legend-entry-title">LGU / COMMAND CENTER</span>
+                    <span class="legend-entry-desc">Monitor every incoming report on a live chart, let AI triage rank who needs help first, and dispatch teams with confidence.</span>
+                </span>
+                <i class="fa-solid fa-arrow-right legend-arrow" aria-hidden="true"></i>
+            </a>
+        </nav>
+
+        <footer class="chart-footnote mono">
+            PROTOTYPE FOR BETT SHOW ASIA &middot; MESH NETWORK, MAP DATA &amp; AI TRIAGE ARE SIMULATED FOR DEMO PURPOSES &middot; SEE README.md
+        </footer>
     </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/landing-chart.js"></script>
 </body>
 </html>

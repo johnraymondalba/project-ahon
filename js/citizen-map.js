@@ -9,8 +9,13 @@
 (function () {
     const CENTER = [window.NABUA_CENTER.lat, window.NABUA_CENTER.lng];
 
+    // No base tile layer: the phone screen's own graticule chart pattern
+    // (css/citizen.css) is the map ground. This is deliberate, not a missing
+    // basemap — every node, link, and range ring is drawn as a plotted mark
+    // on that chart, exactly like the landing page's hero chart, rather than
+    // a realistic street map. It also avoids depending on a third-party tile
+    // provider (and its "API key required" watermark) for a demo prototype.
     const map = L.map('map', { zoomControl: false, attributionControl: false }).setView(CENTER, 15);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
 
     const networkLayer = L.layerGroup().addTo(map);
     const sosPulseLayer = L.layerGroup().addTo(map);

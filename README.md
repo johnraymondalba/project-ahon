@@ -1,22 +1,29 @@
-# iFlood — Project AHON
+# AHON
 
-*Alert, Help, Offline Network.* An offline-first, BLE-mesh disaster response
+*Project AHON — Alert, Help, Offline Network.* An offline-first, BLE-mesh disaster response
 prototype for flood-prone Nabua and Naga City, Camarines Sur. Built as a
 web demo for BETT Show Asia — there's no real BLE/LoRa hardware here, the
 mesh network is simulated so the app is fully demo-able in a browser.
 
 ## What's in here
 
-- **`index.html`** — landing page with the role selector (Citizen vs LGU).
-- **`citizen.html`** — mobile-first, dark phone-mockup UI: live mesh map,
-  one-tap status (Safe/Trapped/Injured), supply-need chips, Volunteer Mode,
-  Broadcast SOS, a mesh connectivity indicator, and "ghost node" last-signal
-  markers for nodes that have gone offline.
-- **`lgu.html`** — desktop-first, light "Command Center" dashboard: a live
-  priority map (Google Maps), summary cards, a sortable/filterable priority
-  list, an AI Triage panel (Gemini), and a mesh/network health strip.
+- **`index.html`** — landing page: a live plotting-chart hero (a report
+  hopping node-to-node to an LGU gateway) with the role selector (Citizen vs
+  LGU) styled as chart-legend entries.
+- **`citizen.html`** — mobile-first, dark "Typhoon Track Chart" instrument
+  UI: an SOS/Volunteer entry gate, then a tab-paged instrument book (Map /
+  Status / Supplies / Volunteer) over a live, tile-free mesh chart, one-tap
+  status (Safe/Trapped/Injured), supply-need chips, Volunteer Mode, a
+  persistent SOS broadcast bar, a mesh connectivity indicator, and "ghost
+  node" last-signal markers for nodes that have gone offline.
+- **`lgu.html`** — desktop-first, light paper-chart "Command Center"
+  dashboard: a full-bleed live priority chart (Google Maps when
+  `GOOGLE_MAPS_API_KEY` is set, otherwise a chart-native fallback that plots
+  the same mesh nodes as vector markers — no key needed), a slide-in drawer
+  with a sortable/filterable priority list, an AI Triage panel (Gemini), and
+  a mesh/network health strip. Reports are deep-linkable (`lgu.html#N04`).
 - **`iFlood.html`** — the original single-file mockup; now just redirects
-  to `index.html` since its content was split into the files above.
+  to `index.html`. Kept only so old bookmarks/links still resolve.
 
 ### JS/CSS layout
 
@@ -31,10 +38,15 @@ js/
   config.example.js     committed template for config.js
   mock-data.js          shared mock mesh dataset (~13 nodes around Nabua)
   mesh-simulator.js     interval that randomly nudges node statuses, simulating live mesh traffic
-  citizen-map.js         Leaflet map logic for the citizen app
+  citizen-map.js         Leaflet map logic for the citizen app (tile-free — nodes plot as vector markers on the chart-paper ground)
   citizen-app.js         citizen app UI/state (status, needs, SOS, volunteer mode, mesh indicator)
-  lgu-map.js             Google Maps integration for the LGU dashboard
+  citizen-gate.js        SOS/Volunteer entry gate (confirm-before-broadcast flow)
+  citizen-tabs.js        instrument-book spine tab switching (Map/Status/Supplies/Volunteer)
+  landing-chart.js       landing page's animated hop-relay plotting sequence
+  lgu-map.js             LGU chart layer — Google Maps when a key is configured, otherwise the same tile-free vector-marker fallback as the citizen app
   lgu-dashboard.js        LGU dashboard UI/state (table, cards, detail panel, health strip)
+  lgu-drawer.js           slide-in drawer toggle for the priority list / AI triage / details panel
+  lgu-deeplink.js         opens a report directly from a URL hash (lgu.html#N04)
   gemini-triage.js        Gemini API call + rule-based fallback for AI Triage
 assets/
   logo.svg                brand mark (circular navy arc over a cyan double-wave) — used across the app

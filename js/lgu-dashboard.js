@@ -183,7 +183,12 @@
         renderTable();
         renderDetail();
         if (node) window.lguMap.drawRouteTo(node);
+        // Deep-linkable case reference: reflect the selection in the URL
+        // (no new history entry, no re-triggering hashchange) so a report
+        // can be bookmarked or shared and reopened directly. See lgu-deeplink.js.
+        if (id) history.replaceState(null, '', `#${id}`);
     }
+    window.lguSelectNode = selectNode;
 
     // --- AI TRIAGE ORCHESTRATION ---
     async function runTriage() {

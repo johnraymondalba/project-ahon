@@ -1,2 +1,27 @@
 # Local API keys — copy js/config.example.js to js/config.js and fill in real values
 js/config.js
+
+# Vercel CLI local cache (created by `vercel dev` / `vercel build`)
+.vercel
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Coding-assistant tool installations (Claude Code, Gemini CLI, etc.) — these
+# install the same bundled skill files (including a compiled binary) under
+# .claude/, .agent/, and .gemini/. They're per-machine tool state, not project
+# source, and shouldn't be pushed to GitHub.
+.claude/
+.agent/
+.gemini/
+
+# Impeccable design-skill working files: session-local scratch (decision
+# payloads fed to the local decision page, raw question/answer logs, and
+# point-in-time review screenshots). The durable design docs it also writes
+# (PRODUCT.md, DESIGN.md, .impeccable/surfaces/, .impeccable/config.json,
+# .impeccable/design.json) are kept and committed on purpose.
+.impeccable/decision-*.json
+.impeccable/brief-*.md
+.impeccable/questions/
+.impeccable/review/

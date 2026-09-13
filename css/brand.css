@@ -1,39 +1,80 @@
 /*
-  iFlood / Project AHON — shared brand tokens.
+  AHON — shared brand tokens: the Typhoon Track Chart world.
   Loaded by every page (landing, citizen, LGU) so the identity stays
-  identical across the dark phone UI and the light dashboard UI.
+  identical across the dark night-instrument register (citizen, landing)
+  and the light paper-chart register (LGU, sustained desk work).
+
+  Direction: PAGASA storm-track plotting charts & ham-radio hurricane nets.
+  See .impeccable/surfaces/*.md for the full direction contracts.
 */
+@import url('https://fonts.googleapis.com/css2?family=Overpass:wght@400;500;600;700&family=Overpass+Mono:wght@400;500;600;700&display=swap');
+
 :root {
-    /* Core brand */
-    --brand-indigo: #1a0dab;      /* logo arc, headings */
-    --brand-indigo-dark: #130a80;
-    --brand-cyan: #38bdf8;        /* wave gradient start */
-    --brand-blue: #1d4ed8;        /* wave gradient end */
-    --brand-navy: #0f172a;        /* dark screens / phone UI */
+    /* Chart world — dark (night instrument) register: landing, citizen app */
+    --chart-ground: #0A1628;
+    --chart-ground-raised: #101F36;
+    --chart-graticule: #24334A;
+    --chart-graticule-soft: #1A2740;
+    --chart-ink: #F2EFE6;
+    --chart-ink-dim: #9BA9C2;
 
-    /* Status colors (shared meaning across citizen + LGU views) */
-    --status-sos: #FF4D4D;
-    --status-civilian: #4D94FF;
-    --status-rescuer: #2ECC71;
-    --status-senior: #FFD700;
-    --status-volunteer: #FF69B4;
-    --status-offline: #7F8C8D;
+    /* Chart world — light (paper chart) register: LGU command center */
+    --chart-paper: #F2EFE6;
+    --chart-paper-raised: #FBFAF4;
+    --chart-paper-line: #C9C0AA;
+    --chart-paper-ink: #0A1628;
+    --chart-paper-ink-dim: #5B6478;
 
-    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* Signal accents — shared meaning across both registers */
+    --signal-amber: #F5B942;
+    --signal-amber-dim: #8A6A26;
+    --signal-critical: #E8452C;
+    --signal-critical-fill: #B8341F;
+    --signal-critical-text: #FF6A52;
+    --signal-cleared: #4A9B6E;
+    --signal-info: #6FA8D8;
+
+    /* Status colors (shared meaning across citizen + LGU node rendering) */
+    --status-sos: var(--signal-critical);
+    --status-civilian: var(--signal-info);
+    --status-rescuer: var(--signal-cleared);
+    --status-senior: var(--signal-amber);
+    --status-volunteer: #8B7FD1;
+    --status-offline: #6B7688;
+
+    /* Legacy aliases kept for older component CSS not yet migrated */
+    --brand-indigo: var(--chart-paper-ink);
+    --brand-indigo-dark: var(--chart-ground);
+    --brand-cyan: var(--signal-amber);
+    --brand-blue: var(--signal-info);
+    --brand-navy: var(--chart-ground);
+
+    --font-display: 'Overpass', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'Overpass Mono', ui-monospace, 'SFMono-Regular', monospace;
+    --font-family: var(--font-body);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-body { font-family: var(--font-family); }
+body { font-family: var(--font-body); }
+
+/* Tabular, non-jumping numerals for every readout — coordinates, hop counts,
+   countdowns, table figures. This is a chart-instrument world; numbers must
+   never reflow as they tick. */
+.mono, .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+}
+
+/* Theme browser surfaces from the chart palette rather than leaving OS
+   defaults — the cheapest signal a page was actually built for its world. */
+::selection { background: var(--signal-amber); color: var(--chart-ground); }
 
 .brand-logo-mark { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .brand-logo-mark img { width: 100%; height: 100%; object-fit: contain; }
 
-.brand-gradient-text {
-    background: linear-gradient(90deg, var(--brand-cyan), var(--brand-blue));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
+.brand-gradient-text { color: var(--signal-amber); }
 
-.brand-tagline { color: var(--brand-indigo); font-weight: 700; letter-spacing: 0.3px; }
+.brand-tagline { color: var(--chart-ink-dim); font-weight: 600; letter-spacing: 0.3px; }
