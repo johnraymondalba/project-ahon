@@ -56,6 +56,27 @@ Opening the HTML files directly via `file://` mostly works too, but a local
 server avoids occasional browser restrictions on `fetch()`/scripts from
 `file://` origins — recommended, especially for the LGU dashboard.
 
+## Deploying to Vercel
+
+This is a static site, so a Vercel deployment needs no framework preset —
+just import the repo. `vercel.json` sets the build/output config, and
+`scripts/build-config.js` generates `js/config.js` at build time from
+environment variables (it's gitignored, so it doesn't exist in the repo
+itself):
+
+1. Import the repo at [vercel.com/new](https://vercel.com/new).
+2. Framework Preset: **Other** (no build tooling is needed beyond the config
+   script, which Vercel runs automatically via `vercel.json`).
+3. Optional — in Project Settings → Environment Variables, add
+   `GOOGLE_MAPS_API_KEY` and/or `GEMINI_API_KEY` to enable the live map and
+   Gemini AI Triage in the deployed app. Leave them unset to deploy with the
+   same zero-key fallback behavior as local dev.
+4. Deploy. Every build regenerates `js/config.js` from whatever env vars are
+   set at deploy time.
+
+You can also deploy from the CLI with `vercel` (preview) / `vercel --prod`
+from the project root, after `vercel login`.
+
 ## Adding real API keys
 
 Two Google APIs are wired up for real, working calls:
