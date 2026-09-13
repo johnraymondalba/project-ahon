@@ -37,7 +37,12 @@ js/
   lgu-dashboard.js        LGU dashboard UI/state (table, cards, detail panel, health strip)
   gemini-triage.js        Gemini API call + rule-based fallback for AI Triage
 assets/
-  iflood-logo.svg  brand mark (circular navy arc over a cyan double-wave)
+  logo.svg                brand mark (circular navy arc over a cyan double-wave) — used across the app
+  logo-w-text.svg          mark + "AHON" wordmark, color, transparent background
+  logo-whote.svg           mark only, as a black circular badge with a white mark (for dark surfaces)
+  logo-w-text-white.svg    black badge + white "AHON" wordmark (for dark surfaces)
+  logo1.svg               horizontal mark + wordmark lockup, white background
+  logo2-no_bg.svg          horizontal mark + wordmark lockup, transparent background
 ```
 
 ## Running it locally
