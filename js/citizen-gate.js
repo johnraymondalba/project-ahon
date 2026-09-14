@@ -1,35 +1,34 @@
 /*
-  SOS / Volunteer entry gate — the first thing shown on top of the map and
-  dashboard every time the citizen app loads. "SOS" requires a confirm step
-  before it broadcasts (guards against accidental taps); "Volunteering /
-  I'm Safe" just dismisses the gate without changing any dashboard state.
+  SOS confirm bottom sheet — guards against an accidental SOS broadcast.
+  Both the Home hero button and the persistent SOS FAB (visible on every
+  other tab) open the same sheet; confirming actually toggles the broadcast.
   Depends on window.toggleSOS / window.isSOSActive from citizen-app.js.
 */
 (function () {
-    window.showSosGate = function () {
-        const gate = document.getElementById('sosGate');
-        gate.classList.remove('confirming');
-        gate.classList.remove('hidden');
+    window.openSosSheet = function () {
+        const sheet = document.getElementById('sosSheet');
+        const title = document.getElementById('sheetTitle');
+        const body = document.getElementById('sheetBody');
+        const confirmBtn = document.getElementById('sheetConfirmBtn');
+
+        if (window.isSOSActive()) {
+            title.textContent = 'Cancel SOS broadcast?';
+            body.textContent = 'You will stop broadcasting an emergency signal to nearby mesh nodes and LGU responders.';
+            confirmBtn.textContent = 'Yes, cancel SOS';
+        } else {
+            title.textContent = 'Send SOS broadcast?';
+            body.textContent = 'This will alert nearby mesh nodes and LGU responders that you need help.';
+            confirmBtn.textContent = 'Yes, send SOS';
+        }
+        sheet.classList.add('open');
     };
 
-    window.hideSosGate = function () {
-        document.getElementById('sosGate').classList.add('hidden');
+    window.closeSosSheet = function () {
+        document.getElementById('sosSheet').classList.remove('open');
     };
 
-    window.gateTapSOS = function () {
-        document.getElementById('sosGate').classList.add('confirming');
-    };
-
-    window.gateCancelSOS = function () {
-        document.getElementById('sosGate').classList.remove('confirming');
-    };
-
-    window.gateConfirmSOS = function () {
-        if (!window.isSOSActive()) window.toggleSOS();
-        window.hideSosGate();
-    };
-
-    window.gateContinueAsVolunteer = function () {
-        window.hideSosGate();
+    window.confirmSosSheet = function () {
+        window.toggleSOS();
+        window.closeSosSheet();
     };
 })();

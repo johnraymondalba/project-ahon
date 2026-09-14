@@ -7,22 +7,39 @@ mesh network is simulated so the app is fully demo-able in a browser.
 
 ## What's in here
 
-- **`index.html`** — landing page: a live plotting-chart hero (a report
-  hopping node-to-node to an LGU gateway) with the role selector (Citizen vs
-  LGU) styled as chart-legend entries.
-- **`citizen.html`** — mobile-first, dark "Typhoon Track Chart" instrument
-  UI: an SOS/Volunteer entry gate, then a tab-paged instrument book (Map /
-  Status / Supplies / Volunteer) over a live mesh chart on real OpenStreetMap
-  street tiles (no API key, tinted dark to fit the night-instrument world),
-  one-tap status (Safe/Trapped/Injured), supply-need chips, Volunteer Mode, a
-  persistent SOS broadcast bar, a mesh connectivity indicator, and "ghost
-  node" last-signal markers for nodes that have gone offline.
-- **`lgu.html`** — desktop-first, light paper-chart "Command Center"
-  dashboard: a full-bleed live priority chart on real street tiles (Google
-  Maps when `GOOGLE_MAPS_API_KEY` is set, otherwise the same OpenStreetMap
-  tiles as the citizen app, tinted cream — no key needed either way), a
-  slide-in drawer with a sortable/filterable priority list, an AI Triage
-  panel (Gemini), and a mesh/network health strip. Reports are deep-linkable
+The UI follows a "Clean Care" design language — white soft-shadowed cards,
+a light grey ground, a single AHON-red accent, Inter type — a standard,
+familiar mobile/admin app look rather than a bespoke visual identity. See
+`.impeccable/surfaces/*.md` for the full direction contracts.
+
+- **`index.html`** — landing page: logo, one-line pitch, and two role cards
+  (Citizen vs LGU / Command Center).
+- **`citizen.html`** — mobile-first citizen app in a phone-mockup chassis,
+  navigated by a bottom tab bar:
+  - **Home** — greeting header, the big SOS button, your current status
+    summary, and one-tap quick-report shortcuts (Safe/Trapped/Injured).
+  - **Map** — the live mesh map on real OpenStreetMap street tiles (no API
+    key needed), with "ghost node" last-signal markers for nodes gone offline.
+  - **Report** — status chips (Safe/Trapped/Injured) and supply-need chips
+    (water/food/meds).
+  - **Volunteer** — the volunteer-mode toggle plus a live "nearby needs"
+    list built from the mesh.
+  - **Profile** — a hub linking to four sub-pages (standard back-arrow push
+    navigation): **My info & vulnerability** (name/age/blood type/height/
+    weight, PWD/Elder/Infant flags — the flags broadcast to the LGU mesh for
+    triage, everything else is local to the device), **Emergency contacts**
+    (hotlines + personal contacts, one-tap `tel:` calling), **Settings**
+    (notification preferences), and **Activity** (a local log of this
+    device's own SOS broadcasts, status changes, and supply requests).
+  - A persistent SOS floating button and broadcast banner stay visible on
+    every tab except Home, where the hero button already covers it. Tapping
+    SOS always opens a confirm-before-broadcast bottom sheet.
+- **`lgu.html`** — desktop-first Command Center: a left sidebar (brand, nav,
+  mesh health), a stat-card row (Critical/High/Cleared counts), a live map
+  card (Google Maps when `GOOGLE_MAPS_API_KEY` is set, otherwise the same
+  OpenStreetMap tiles as the citizen app — no key needed either way), and a
+  docked panel with a sortable/filterable priority list, an AI Triage panel
+  (Gemini), and a report detail view. Reports are deep-linkable
   (`lgu.html#N04`).
 - **`iFlood.html`** — the original single-file mockup; now just redirects
   to `index.html`. Kept only so old bookmarks/links still resolve.
@@ -33,23 +50,24 @@ mesh network is simulated so the app is fully demo-able in a browser.
 css/
   brand.css      shared color tokens, logo, typography — used by every page
   landing.css    landing page styles
-  citizen.css    citizen app styles (dark phone UI)
-  lgu.css        LGU dashboard styles (light UI)
+  citizen.css    citizen app styles (light phone UI)
+  lgu.css        LGU dashboard styles (light admin-dashboard UI)
 js/
   config.js            local API keys — gitignored, created from config.example.js
   config.example.js     committed template for config.js
   mock-data.js          shared mock mesh dataset (~13 nodes around Nabua)
-  mesh-simulator.js     interval that randomly nudges node statuses, simulating live mesh traffic
-  citizen-map.js         Leaflet map logic for the citizen app (OpenStreetMap tiles, no API key, tinted dark)
-  citizen-app.js         citizen app UI/state (status, needs, SOS, volunteer mode, mesh indicator)
-  citizen-gate.js        SOS/Volunteer entry gate (confirm-before-broadcast flow)
-  citizen-tabs.js        instrument-book spine tab switching (Map/Status/Supplies/Volunteer)
-  landing-chart.js       landing page's animated hop-relay plotting sequence
-  lgu-map.js             LGU chart layer — Google Maps when a key is configured, otherwise the same OpenStreetMap-tiled fallback as the citizen app
+  mesh-simulator.js     interval that randomly nudges node statuses, simulating live mesh traffic (fallback when no live-sync server is reachable)
+  realtime-client.js    WebSocket client that syncs citizen.html/lgu.html through server/index.js, when it's running
+  citizen-map.js         Leaflet map logic for the citizen app (OpenStreetMap tiles, no API key)
+  citizen-app.js         citizen app UI/state (status, needs, flags, SOS, volunteer mode, mesh indicator, Home/Volunteer summaries, local Profile/Contacts/Settings/Activity pages)
+  citizen-gate.js         SOS confirm bottom sheet (confirm-before-broadcast flow)
+  citizen-tabs.js         bottom tab-bar switching + Profile sub-page push navigation
+  lgu-map.js             LGU map layer — Google Maps when a key is configured, otherwise the same OpenStreetMap-tiled fallback as the citizen app
   lgu-dashboard.js        LGU dashboard UI/state (table, cards, detail panel, health strip)
-  lgu-drawer.js           slide-in drawer toggle for the priority list / AI triage / details panel
   lgu-deeplink.js         opens a report directly from a URL hash (lgu.html#N04)
   gemini-triage.js        Gemini API call + rule-based fallback for AI Triage
+server/
+  index.js                 optional local live-sync server (Express + ws) — see "Running it locally" below
 assets/
   logo.svg                brand mark (circular navy arc over a cyan double-wave) — used across the app
   logo-w-text.svg          mark + "AHON" wordmark, color, transparent background
@@ -61,8 +79,39 @@ assets/
 
 ## Running it locally
 
-This is a static site — no build step. The simplest option is any static
-file server, run from the project root:
+### With live sync between the citizen app and the LGU dashboard (recommended)
+
+By default `citizen.html` and `lgu.html` are two disconnected page loads —
+tapping SOS on the phone mockup only changes that one screen. To actually
+see an SOS broadcast (or a volunteer opt-in) show up on the LGU dashboard,
+run the small local Node server in `server/`, which holds the one real copy
+of the mesh state and pushes it to every open tab over WebSockets:
+
+```bash
+npm install
+npm start
+```
+
+Then open two tabs:
+
+- `http://localhost:3000/citizen.html` — tap **SOS**, change your status or
+  supply needs on the **Report** tab, or flip **Volunteer** mode, and it
+  broadcasts to the server.
+- `http://localhost:3000/lgu.html` — watch the new report appear live in
+  the priority table/map and get AI-triaged, no refresh needed.
+
+This also works from two different devices on the same wifi network: swap
+`localhost` for your machine's LAN IP (e.g. `http://192.168.1.23:3000/citizen.html`)
+on the second device.
+
+If the server isn't running, both pages still work standalone exactly as
+before (each simulating its own local mesh) — they just won't sync with
+each other.
+
+### Static-only (no live sync)
+
+This is otherwise a static site — no build step. Any static file server
+works, e.g.:
 
 ```bash
 npx serve .
@@ -70,7 +119,7 @@ npx serve .
 python -m http.server 8080
 ```
 
-Then open `http://localhost:8080/index.html` (or `:8080/8080` port shown).
+Then open `http://localhost:8080/index.html` (or the port shown).
 Opening the HTML files directly via `file://` mostly works too, but a local
 server avoids occasional browser restrictions on `fetch()`/scripts from
 `file://` origins — recommended, especially for the LGU dashboard.

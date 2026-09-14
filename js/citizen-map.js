@@ -45,6 +45,20 @@
         return html;
     }
 
+    // Deterministic per-node label offset so ghost nodes plotted close
+    // together (a dense demo dataset, or a real disaster with many reports
+    // in one barangay) don't stack their "LAST SEEN" labels illegibly.
+    // Four fixed positions cycle by a hash of the node id — stable across
+    // re-renders, no layout/clustering library needed.
+    function labelHash(id) {
+        let h = 0;
+        for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+        return h;
+    }
+    const LABEL_OFFSETS = [
+        { x: 0, y: 0 }, { x: 34, y: 8 }, { x: -34, y: 8 }, { x: 0, y: 26 },
+    ];
+
     function neighborIcon(node) {
         const { cls, color } = typeToColorClass(node.type);
         const badge = needsBadgeHtml(node.needs);
@@ -52,11 +66,12 @@
         if (node.type === 'offline') {
             // Ghost node: dashed, dimmed marker + "last seen" timestamp label.
             const mins = Math.round(node.lastSignalMin);
+            const offset = LABEL_OFFSETS[labelHash(node.id) % LABEL_OFFSETS.length];
             const html = `
                 <div class="marker-wrap">
                     ${badge}
                     <div class="marker-core is-ghost ${cls}"></div>
-                    <div class="ghost-label-group">
+                    <div class="ghost-label-group" style="transform:translate(${offset.x}px, ${offset.y}px)">
                         <div class="marker-label" style="color:${color}">${node.name}</div>
                         <div class="ghost-timestamp"><i class="fa-solid fa-ghost"></i> LAST SEEN ${mins}m AGO</div>
                     </div>
@@ -110,7 +125,8 @@
     // broadcast flooding through the mesh, cutting ahead of normal traffic ---
     let sosParticles = [];
     function buildSosParticles(selfPos) {
-        sosParticles = window.MESH_NODES.filter(n => n.type !== 'offline').map(n => ({
+        const selfId = window.realtime && window.realtime.selfId;
+        sosParticles = window.MESH_NODES.filter(n => n.type !== 'offline' && n.id !== selfId).map(n => ({
             from: selfPos,
             to: [n.lat, n.lng],
             t: Math.random(),
@@ -136,9 +152,16 @@
         networkLayer.clearLayers();
         const selfPos = [appState.self.lat, appState.self.lng];
 
+        // The live-sync server also pushes this page's own node back down
+        // as part of MESH_NODES (so the LGU dashboard can see it) — skip it
+        // here so "you" isn't drawn twice, once as a neighbor and once as
+        // the dedicated self marker below.
+        const selfId = window.realtime && window.realtime.selfId;
+        const neighbors = window.MESH_NODES.filter(n => n.id !== selfId);
+
         // Mesh links: normal traffic is thin dashed green; while SOS is active,
         // links visually reroute (thicker, red) to show priority flooding.
-        window.MESH_NODES.forEach(n => {
+        neighbors.forEach(n => {
             if (n.type === 'offline') return;
             L.polyline([selfPos, [n.lat, n.lng]], {
                 color: appState.sos ? '#FF4D4D' : 'rgba(46, 204, 113, 0.6)',
@@ -148,7 +171,7 @@
             }).addTo(networkLayer);
         });
 
-        window.MESH_NODES.forEach(n => {
+        neighbors.forEach(n => {
             L.marker([n.lat, n.lng], { icon: neighborIcon(n) }).addTo(networkLayer);
         });
 

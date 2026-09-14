@@ -40,3 +40,9 @@ if (typeof window !== 'undefined') {
     window.MESH_NODES = MESH_NODES;
     window.SELF_NODE_START = SELF_NODE_START;
 }
+
+// Node.js reuse (server/index.js loads this same file as the seed dataset
+// for the live-sync server, so the two never drift apart).
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { NABUA_CENTER, MESH_NODES, SELF_NODE_START };
+}

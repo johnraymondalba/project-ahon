@@ -9,66 +9,35 @@
     <link rel="stylesheet" href="css/landing.css" />
 </head>
 <body>
-    <div class="chart-page">
+    <div class="landing-page">
 
-        <div class="chart-grid" aria-hidden="true"></div>
+        <div class="landing-hero">
+            <img class="landing-logo" src="assets/logo.svg" alt="">
+            <h1>AHON</h1>
+            <p class="landing-tagline">Only takes One Hop to Help</p>
+            <p class="landing-thesis">An offline-first mesh network for flood-prone Nabua and Naga City — citizens broadcast SOS, status, and needs; LGU responders triage and dispatch, even with zero signal.</p>
+        </div>
 
-        <header class="chart-title-block">
-            <div class="chart-title-mark">
-                <img src="assets/logo.svg" alt="">
-            </div>
-            <div class="chart-title-text">
-                <h1>AHON</h1>
-                <p>PROJECT AHON &middot; NABUA / NAGA CITY, CAMSUR</p>
-            </div>
-        </header>
-
-        <p class="chart-scale-note mono">CHART NO. 1 &middot; SCALE 1 : LOCAL MESH &middot; PLOT REF NABUA-14N</p>
-
-        <main class="chart-plot-area">
-            <svg class="chart-plot" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-                <g class="plot-links" id="plotLinks"></g>
-                <g class="plot-trace" id="plotTrace"></g>
-                <g class="plot-nodes" id="plotNodes"></g>
-            </svg>
-
-            <div class="plot-readout mono" id="plotReadout">
-                <div class="readout-row"><span class="readout-label">STATUS</span><span class="readout-value" id="readoutStatus">AWAITING REPORT</span></div>
-                <div class="readout-row"><span class="readout-label">HOPS</span><span class="readout-value" id="readoutHops">0</span></div>
-                <div class="readout-row"><span class="readout-label">POS</span><span class="readout-value" id="readoutPos">13.4045N 123.2968E</span></div>
-            </div>
-        </main>
-
-        <p class="chart-thesis">
-            A report leaves one phone with zero signal and hops, node to node, until it reaches help.
-            <span class="chart-thesis-accent">Only takes one hop to help.</span>
-        </p>
-
-        <nav class="chart-legend" aria-label="Choose your role">
-            <a class="legend-entry" href="citizen.html">
-                <span class="legend-glyph legend-glyph--civilian" aria-hidden="true"></span>
-                <span class="legend-entry-text">
-                    <span class="legend-entry-title">CITIZEN</span>
-                    <span class="legend-entry-desc">Broadcast your status and needs over the mesh, see nearby responders, or volunteer to help others — even with zero signal.</span>
+        <nav class="role-picker" aria-label="Choose your role">
+            <a class="role-card" href="citizen.html">
+                <span class="role-glyph role-glyph--citizen" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                <span class="role-card-text">
+                    <span class="role-card-title">Citizen</span>
+                    <span class="role-card-desc">Broadcast your status and needs, see nearby responders, or volunteer to help others — even with zero signal.</span>
                 </span>
-                <i class="fa-solid fa-arrow-right legend-arrow" aria-hidden="true"></i>
+                <i class="fa-solid fa-chevron-right role-arrow" aria-hidden="true"></i>
             </a>
-            <a class="legend-entry" href="lgu.html">
-                <span class="legend-glyph legend-glyph--gateway" aria-hidden="true"></span>
-                <span class="legend-entry-text">
-                    <span class="legend-entry-title">LGU / COMMAND CENTER</span>
-                    <span class="legend-entry-desc">Monitor every incoming report on a live chart, let AI triage rank who needs help first, and dispatch teams with confidence.</span>
+            <a class="role-card" href="lgu.html">
+                <span class="role-glyph role-glyph--lgu" aria-hidden="true"><i class="fa-solid fa-building-shield"></i></span>
+                <span class="role-card-text">
+                    <span class="role-card-title">LGU / Command Center</span>
+                    <span class="role-card-desc">Monitor every incoming report, let AI triage rank who needs help first, and dispatch teams with confidence.</span>
                 </span>
-                <i class="fa-solid fa-arrow-right legend-arrow" aria-hidden="true"></i>
+                <i class="fa-solid fa-chevron-right role-arrow" aria-hidden="true"></i>
             </a>
         </nav>
 
-        <footer class="chart-footnote mono">
-            PROTOTYPE FOR BETT SHOW ASIA &middot; MESH NETWORK, MAP DATA &amp; AI TRIAGE ARE SIMULATED FOR DEMO PURPOSES &middot; SEE README.md
-        </footer>
+        <p class="landing-footnote">Prototype for BETT Show Asia &middot; mesh network, map data &amp; AI triage are simulated for demo purposes &middot; see README.md</p>
     </div>
-
-    <script src="js/mock-data.js"></script>
-    <script src="js/landing-chart.js"></script>
 </body>
 </html>

@@ -1,226 +1,226 @@
 ---
 name: Project AHON
-description: Offline-first BLE-mesh disaster response network — the interface is a live-plotting typhoon track chart, not a dashboard.
+description: Offline-first BLE-mesh disaster response network — a standard, trustworthy mobile-safety-app and admin-dashboard interface, not a chart instrument.
 colors:
-  chart-ground: "#0A1628"
-  chart-ground-raised: "#101F36"
-  chart-graticule: "#24334A"
-  chart-graticule-soft: "#1A2740"
-  chart-ink: "#F2EFE6"
-  chart-ink-dim: "#9BA9C2"
-  chart-paper: "#F2EFE6"
-  chart-paper-raised: "#FBFAF4"
-  chart-paper-line: "#C9C0AA"
-  chart-paper-ink: "#0A1628"
-  chart-paper-ink-dim: "#5B6478"
-  signal-amber: "#F5B942"
-  signal-amber-dim: "#8A6A26"
-  signal-critical: "#E8452C"
-  signal-critical-fill: "#B8341F"
-  signal-critical-text: "#FF6A52"
-  signal-cleared: "#4A9B6E"
-  signal-info: "#6FA8D8"
-  status-volunteer: "#8B7FD1"
-  status-offline: "#6B7688"
-  tier-high-ink: "#8A6015"
-  tier-high-bg: "#FBE9C6"
-  tier-low-ink: "#2E6B4C"
-  tier-low-bg: "#DCEBE2"
-  tier-critical-bg: "#F5DCD6"
+  bg: "#F4F6FA"
+  surface: "#FFFFFF"
+  surface-alt: "#EEF1F6"
+  border: "#E6E9F1"
+  ink: "#16203D"
+  ink-secondary: "#545F70"
+  ink-muted: "#8891A0"
+  accent: "#E8452C"
+  accent-dark: "#C23A22"
+  accent-tint: "#FDEAE6"
+  success: "#22A06B"
+  success-dark: "#146B49"
+  success-tint: "#E3F5EC"
+  warning: "#F5A623"
+  warning-dark: "#A85F00"
+  warning-tint: "#FDF1DD"
+  info: "#4C8DD9"
+  info-tint: "#E9F1FC"
+  volunteer: "#8B7FD1"
+  volunteer-tint: "#EFEDFA"
+  offline: "#98A2B3"
+  offline-tint: "#F1F2F4"
 typography:
   display:
-    fontFamily: "Overpass, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "clamp(15px, 2vw, 22px)"
-    fontWeight: 700
-    lineHeight: 1.1
-    letterSpacing: "0.05em"
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    fontSize: "16px–30px"
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: "-0.01em"
   body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-    fontSize: "13px"
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    fontSize: "12.5px–14.5px"
     fontWeight: 400
     lineHeight: 1.5
   label:
-    fontFamily: "'Overpass Mono', ui-monospace, 'SFMono-Regular', monospace"
-    fontSize: "11px"
-    fontWeight: 600
-    letterSpacing: "0.02em"
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    fontSize: "11px–12px"
+    fontWeight: 700
+    letterSpacing: "0.02em–0.04em"
     fontFeature: "tabular-nums"
 rounded:
-  sm: "3px"
-  md: "4px"
-  full: "50%"
-spacing:
-  xs: "6px"
-  sm: "8px"
+  sm: "10px"
   md: "16px"
   lg: "24px"
-  grid-unit-dark: "40px"
-  grid-unit-light: "56px"
+  pill: "999px"
+spacing:
+  xs: "8px"
+  sm: "12px"
+  md: "16px"
+  lg: "24px"
 components:
-  button-sos:
-    backgroundColor: "{colors.chart-ground-raised}"
-    textColor: "{colors.signal-critical-text}"
+  button-primary:
+    backgroundColor: "{colors.accent-dark}"
+    textColor: "#FFFFFF"
     rounded: "{rounded.md}"
-    padding: "10px 16px"
-  button-sos-active:
-    backgroundColor: "{colors.signal-critical-fill}"
-    textColor: "{colors.chart-ink}"
+    padding: "13px"
+  button-secondary:
+    backgroundColor: "{colors.surface-alt}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.md}"
-  chip-inactive:
-    backgroundColor: "transparent"
-    textColor: "{colors.chart-ink-dim}"
+    padding: "13px"
+  sos-button:
+    backgroundColor: "{colors.accent-dark}"
+    textColor: "#FFFFFF"
+    rounded: "{rounded.pill}"
+    width: "148px"
+    height: "148px"
+  chip-active-critical:
+    backgroundColor: "{colors.accent-dark}"
+    textColor: "#FFFFFF"
+    rounded: "{rounded.pill}"
+    padding: "12px 18px"
+  tier-badge-critical:
+    backgroundColor: "{colors.accent-tint}"
+    textColor: "{colors.accent-dark}"
+    rounded: "{rounded.pill}"
+    padding: "3px 10px"
+  role-card:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.lg}"
+    padding: "20px"
+  stat-card:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.md}"
     padding: "12px 18px"
-  chip-active-safe:
-    backgroundColor: "{colors.signal-info}"
-    textColor: "{colors.chart-ground}"
-    rounded: "{rounded.md}"
-  tab-spine-active:
-    backgroundColor: "{colors.signal-amber}"
-    textColor: "{colors.chart-ground}"
-    rounded: "3px"
-  tier-badge-critical:
-    backgroundColor: "{colors.tier-critical-bg}"
-    textColor: "{colors.signal-critical-fill}"
-    rounded: "{rounded.md}"
-  drawer-toggle:
-    backgroundColor: "{colors.chart-paper-ink}"
-    textColor: "{colors.chart-paper-raised}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
 ---
 
 # Design System: Project AHON
 
 ## Overview
 
-**Creative North Star: "The Typhoon Track Chart"**
+**Creative North Star: "Clean Care"**
 
-AHON's interface is a live-plotting storm-track chart — the PAGASA plotting sheet and the ham-radio hurricane net — not a civic-safety SaaS dashboard. Every surface is drawn on a visible graticule grid; reports plot as dots, relays draw as dashed traced lines, and role choices read as legend entries rather than feature cards. The world ships in two registers of the same instrument: a near-black night-instrument register for the landing page and the citizen app (used outdoors, low-light, one-handed), and a cream paper-chart register for the LGU command center (sustained desk work in daylight). Both registers share one palette, one type system, and one 4px-radius instrument vocabulary; only ground and ink invert between them.
+AHON's interface is a standard, trustworthy mobile-safety-app and admin-dashboard look — white soft-shadowed cards on a light grey ground, a single red accent, Inter throughout — not a chart-instrument metaphor. This replaces the prior "Typhoon Track Chart" world (near-black/cream chart-paper registers, graticule grids, dashed-instrument markers, Overpass/Overpass Mono type, near-universal 4px radius) in full, across all three surfaces: the landing page, the citizen app, and the LGU command center. The direction was user-pinned from two reference screenshots (a panic-button SOS app and a driving-safety dashboard app) — a "canon/standing-exit" choice explicitly favoring a UI a stressed citizen already knows how to use on sight, overriding that session's dice-rolled world set.
 
-State reads by shape, line weight, and dash pattern before it reads by color — ghost (offline) nodes are dashed rings at reduced opacity, not just a grey dot; severity is a fixed size ramp, not only a hue. Red is spent on exactly one meaning across the whole system: SOS/critical. The confirmed anti-reference is the prior "iFlood" navy/cyan UI look and the generic hero-banner/feature-card/CTA arrangement every civic-safety site ships; neither survives in the build.
+The system carries forward two pieces of prior-brand continuity deliberately, not as drift: the AHON critical-red accent, and the color roles of the 7-state mesh legend (SOS, civilian, rescuer, senior/PWD, volunteer, offline, self). Both are re-rendered in the new visual language — solid filled circles with white borders instead of dashed-ring instrument markers — but the meanings are unchanged from the system this replaces.
 
 **Key Characteristics:**
-- Full-bleed live chart as the ground truth on every surface — panels and lists are drawers/pages over it, never boxes beside it.
-- One shared palette expressed in two registers (dark night-instrument / light paper-chart), not two different systems.
-- Overpass display + system-ui body + Overpass Mono for every coordinate, timestamp, hop-count, and count readout, always tabular.
-- Near-universal 4px corner radius; full circles reserved for plotted nodes, dots, and toggle controls.
-- Red is single-purpose (critical/SOS only); a seventh accent (muted violet) is authorized solely for the citizen Volunteer status, nowhere else.
+- Soft-shadowed white cards on a light cool-grey ground (`#F4F6FA`) — elevation is now load-bearing, a full reversal of the prior "flat instrument, no shadow" rule.
+- One accent, one meaning: AHON red (`#E8452C`, solid fill `#C23A22`) spent only on SOS/critical/primary-emergency, never decoration — carried over from the prior brand for continuity, not reinvented.
+- Inter for everything, including tabular-nums on every live-updating figure — the prior system's monospace (Overpass Mono) identity is fully retired.
+- A generous, soft corner scale (10–24px, full circles/pills for buttons, avatars, badges, markers) replacing the prior near-universal 4px radius.
+- Bottom tab bar (citizen app) / left sidebar (LGU dashboard) as primary navigation, replacing the prior left spine-tab book and sliding drawer.
 
 ## Colors
 
-The palette is a chart-instrument palette: a near-black/cream ground pair, a cool grey-blue graticule line, warm bone/navy ink, and a small set of reserved signal colors that carry meaning by role, not decoration.
+The palette is a light, neutral ground with a single warm-red accent and a small set of reserved status hues carried over from the prior mesh-node legend.
 
 ### Primary
-- **Relay Amber** (`#F5B942`): the chart's live-trace color — hop lines, active spine tab, plotted "lit" nodes, primary readout values. The signature color of the system; used for motion and active state, not backgrounds.
+- **AHON Red** (`#E8452C` icon/border/tint, solid fill `#C23A22`): the system's one accent. Reserved for SOS, critical severity, and primary emergency actions only — never decorative. Carried over from the pre-redesign brand for continuity; the "one meaning" rule that governed it in the prior chart world is preserved unchanged.
 
 ### Secondary
-- **Critical Red** (`#E8452C`, fill `#B8341F`, text-on-dark `#FF6A52`): reserved for exactly one meaning everywhere in the system — SOS and critical/danger. Never used decoratively.
-- **Cleared Green** (`#4A9B6E`): the "resolved/gateway/rescuer" signal — LGU gateway marker ring, cleared-count stat, rescuer node.
-- **Civilian Info Blue** (`#6FA8D8`): default civilian/self node marker and the water-supply icon color.
-- **Volunteer Violet** (`#8B7FD1`): a seventh named accent, authorized only for the citizen app's Volunteer status (switch, gate button, marker). It exists because the mesh legend has seven mutually-exclusive node states that predate this redesign and must stay distinguishable at a glance; no other new hue is authorized beyond this one named exception.
+- **Success Green** (`#22A06B`, solid fill `#146B49`): cleared/rescuer/Safe status, Low-tier badges.
+- **Warning Amber** (`#F5A623`, solid fill `#A85F00`): Trapped status, senior/PWD node, High-tier badges.
+- **Info Blue** (`#4C8DD9`): civilian/self node marker, water-supply icon.
+- **Volunteer Violet** (`#8B7FD1`): the citizen app's Volunteer status only — the seventh mesh-legend color, kept distinguishable from the other six by design, not a new invention.
+- **Offline Grey** (`#98A2B3`): last-known/offline node state.
 
 ### Neutral
-- **Chart Ground** (`#0A1628`) / **Ground Raised** (`#101F36`): dark-register background and raised-panel fill (landing, citizen).
-- **Chart Paper** (`#F2EFE6`) / **Paper Raised** (`#FBFAF4`): light-register background and raised-panel fill (LGU). Note: Chart Paper and dark-register Bone Ink share the same hex (`#F2EFE6`) by design — one bone/cream value plays ink on dark and ground on light.
-- **Graticule** (`#24334A`, soft `#1A2740`) / **Paper Line** (`#C9C0AA`): the grid-ruling and divider color in each register.
-- **Ink Dim** (`#9BA9C2`) / **Paper Ink Dim** (`#5B6478`): secondary/muted text in each register.
-- **Offline Grey** (`#6B7688`): last-known/offline node state — always paired with a dashed stroke, never color alone.
+- **Ground** (`#F4F6FA`): page background across all three surfaces.
+- **Surface** (`#FFFFFF`) / **Surface Alt** (`#EEF1F6`): card fill and secondary/inset fill (chips, grid tiles, table toolbar inputs).
+- **Border** (`#E6E9F1`): hairline dividers and card/input borders.
+- **Ink** (`#16203D`): primary text and headings. **Ink Secondary** (`#545F70`): body/secondary text, tuned to clear 4.5:1 on both Surface and Surface Alt. **Ink Muted** (`#8891A0`): placeholder/disabled text and decorative glyphs only, never primary readable content.
 
 ### Named Rules
-**The One Meaning Rule.** Critical red never appears for anything but SOS/critical severity, on any surface. If a control needs a red-adjacent warm accent for a non-critical purpose, it does not exist yet and should not be invented.
+**The One Meaning Rule.** AHON red is spent only on SOS/critical/primary-emergency meaning, on every surface. It is not available for decorative accents, non-critical highlights, or "because it's the brand color" uses — a rule preserved unchanged from the prior chart-instrument system into Clean Care.
 
-**The Line-Before-Hue Rule.** Node and state distinctions are carried by shape, stroke weight, and dash pattern first; color is the second signal, never the only one. A ghost/offline node is a dashed, lower-opacity ring regardless of which hue distinguishes it.
+**The Legend Continuity Rule.** The 7-state mesh node legend (SOS, civilian, rescuer, senior/PWD, volunteer, offline, self) keeps the exact color role it had before the redesign. Only the rendering changed — solid filled circles with white borders replacing dashed-ring chart markers — never the color-to-meaning mapping.
 
 ## Typography
 
-**Display Font:** Overpass (with system-ui fallback)
-**Body Font:** system-ui stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`)
-**Label/Mono Font:** Overpass Mono
+**Display Font:** Inter (700–800 weight)
+**Body Font:** Inter (400–600 weight)
 
-**Character:** Overpass carries the civic highway-signage lineage the brief calls for — the same type family used on official road and infrastructure signage — set bold and letter-spaced for titles and legend entries. Overpass Mono carries every number that must never visually reflow: coordinates, hop counts, timestamps, stat counts, table figures, always with `font-variant-numeric: tabular-nums`.
+**Character:** Inter carries the whole system, headings through body through numeric readouts — a deliberate departure from the prior pairing of a highway-signage display face (Overpass) with a monospace label face (Overpass Mono). One typeface, weight-differentiated, is the "standard app" signal the direction contract calls for.
 
 ### Hierarchy
-- **Display** (700, 18–22px, tight line-height 1.1, 0.05em tracking): page/app title blocks, gate headline, legend entry titles.
-- **Title** (700, 14–15px): panel headers, SOS instrument label, AI-triage card names.
-- **Body** (400, 12–15px, line-height 1.5): thesis copy, hints, descriptions; landing thesis caps at ~62ch.
-- **Label/Mono** (500–600, 9–12px, 0.02–0.04em tracking, often uppercase): every coordinate/timestamp/hop-count readout, section labels, stat labels, table headers, chip and tab text.
+- **Display** (800, 20–30px, tight line-height ~1.2, -0.01em tracking): page/app titles, greeting headline, SOS hero headline, sidebar brand name, stat-card counts.
+- **Title** (700–800, 14–17.5px): section titles, card headers, sheet/subpage headers.
+- **Body** (400–600, 12.5–14.5px, line-height 1.5): descriptions, hints, list-row text; landing thesis caps at ~42ch.
+- **Label** (600–700, 11–12px, 0.01–0.04em tracking, often uppercase): stat labels, section labels, table headers, chip/tab text, tier badges.
 
 ### Named Rules
-**The Tabular Readout Rule.** Any numeral that updates live (hop count, coordinate, stat count, mesh health figure) is set in Overpass Mono with tabular numerals so digits never shift the surrounding layout as they tick.
+**The Tabular Readout Rule.** Any numeral that updates live (stat counts, timestamps, hop-adjacent figures) is set with `font-variant-numeric: tabular-nums` via the shared `.tabular` utility so digits don't shift the layout as they tick — preserved as a functional rule from the prior system, no longer tied to a monospace face.
 
 ## Layout
 
-Both registers are drawn on a visible graticule grid — repeating 1px lines at a fixed pitch (64px on the landing chart, 40px inside the citizen phone chassis, 56px on the LGU chart-paper), rendered behind all content via `repeating-linear-gradient`, low-opacity, never fully hidden. It is the chart's own ruling, not a decorative background.
-
-- **Landing** is a single full-bleed column: title block, chart-plot area, thesis copy, and a legend-style two-entry role picker stacked vertically, collapsing padding and hiding entry descriptions under 640px.
-- **Citizen app** is presented in a fixed phone-chassis mockup (375:812 aspect, rounded 40px case / 28px screen) with a persistent SOS instrument rail above a book-frame: a 64px-wide fixed spine of tab buttons on the left, one active "page" filling the remainder at full bleed. The map page is transparent/click-through so the live chart underneath stays interactive.
-- **LGU dashboard** is a full-height flex column: a fixed instrument-strip header (stats + mesh health + role switch), then a full-bleed map filling all remaining space, with a 460px-wide drawer panel that slides in from the right over the map (never beside it) via `translateX`. Minimum viewport width 1024px — a desktop-only surface.
+- **Landing** is a single centered column (max-width 440px, 760px at ≥760px breakpoint): logo mark, wordmark, one-line tagline, thesis copy, then a two-entry role picker that stacks vertically on mobile and sits side-by-side at ≥760px.
+- **Citizen app** is presented in a fixed phone-chassis mockup (375:812 aspect, 44px case radius / 32px screen radius) with a persistent status strip + SOS banner + floating SOS FAB above a page stack, and a 5-item bottom tab bar (Home / Map / Report / Volunteer / Profile) as primary navigation. Profile pushes into sub-pages via standard `translateX` back-arrow navigation, not a spine of tabs. The Map page is transparent/click-through so the live Leaflet map underneath stays interactive.
+- **LGU dashboard** is a full-height flex row: a fixed 216px left sidebar (logo, nav, mesh-health strip), and a main column of a stat-card header row followed by a content row holding a map card (flex 1.4) beside a docked 380–460px report panel (priority table / AI Triage tabs / detail view) — panel and map sit side by side permanently, not a drawer sliding over the map. Minimum viewport width 1180px, desktop-only.
 
 ## Elevation & Depth
 
-The system is nearly flat: panels sit as solid or near-solid fills separated by 1px graticule/border lines, not shadow-lifted cards. The two exceptions are functional, not decorative: the LGU drawer panel casts a soft directional shadow (`-8px 0 24px rgba(10,22,40,0.08)`) to read as sliding over the chart, and the citizen phone chassis casts an ambient drop shadow (`0 20px 50px rgba(0,0,0,0.6)`) to read as a physical device mockup. Selection/priority state is conveyed by row background + dimming neighbors, not elevation.
+Elevation is load-bearing: every card, panel, pill, and floating control carries a real, soft (blurred, non-offset) shadow. This is a deliberate, full reversal of the prior system's "flat instrument, no shadow" rule, not drift.
+
+### Shadow Vocabulary
+- **`--shadow-sm`** (`0 2px 8px rgba(20,33,61,0.06)`): resting state for cards, chips, pills, list containers.
+- **`--shadow-md`** (`0 10px 28px rgba(20,33,61,0.10)`): floating/elevated elements — map legends, open dropdown-like overlays, hover state on landing role cards.
+- **`--shadow-lg`** (`0 20px 48px rgba(20,33,61,0.16)`): reserved for the most prominent floating elements (defined in tokens; not yet exercised beyond the phone-chassis ambient shadow, which uses its own one-off value).
+- SOS-specific accent shadows (e.g. `0 16px 32px rgba(194,58,34,0.35)` on the hero SOS button, `0 10px 24px rgba(194,58,34,0.4)` on the FAB) tint the shadow in the accent color to make the SOS affordance read as physically raised above the rest of the UI.
 
 ### Named Rules
-**The Flat Instrument Rule.** Chart surfaces, panels, chips, and buttons are flat at rest, separated by hairline borders. Shadow is reserved for the two cases where something is physically sliding or sitting over the chart (the LGU drawer, the phone chassis) — never for ordinary buttons or cards.
+**The Load-Bearing Shadow Rule.** Every card and floating control casts a soft, non-offset shadow at rest; flat, borderless surfaces are not part of this system's vocabulary except for hairline-divided list rows within a card.
 
 ## Shapes
 
-Corners are drawn at one near-universal radius: **4px** for every panel, button, chip, badge, input, and tier badge across all three surfaces (a handful of nested inner elements use 3px). Full circles (`border-radius: 50%`) are reserved for plotted nodes/markers, status dots, and the toggle-switch knob — the chart's own vocabulary of a "plotted point." Dividers are 1px hairlines in the register's graticule/border color, never a shadow-drawn separator.
+Corners are drawn on a soft, generous scale: **10px** (small tiles, inputs, nav items), **16px** (standard cards, buttons, sheets), **24px** (primary containers — role cards, map card, docked panel, sos-hero card), and **999px/pill** (chips, badges, tabs, toggle track, status pills). Full circles (`border-radius: 50%`) are reserved for the SOS button, avatars, icon-buttons, map markers, and toggle knobs. This replaces the prior system's near-universal 4px radius; the change is deliberate, not drift.
 
 ## Components
 
 ### Buttons
-- **Shape:** 4px radius, 1–1.5px border in the relevant signal color.
-- **Primary (SOS instrument bar):** raised-ground fill, critical-red text and border at rest; on activation, fills solid critical-red-fill with a pulsing ring animation (`box-shadow` ping, 1.6s loop) — the only pulsing button in the system, reserved for the SOS broadcast state.
-- **Gate SOS button:** a large 190px circular button (the one deliberate exception to the 4px-radius rule, justified by the elderly/PWD one-handed tap-target constraint), also ring-pulsing.
-- **Secondary/Ghost (LGU `.btn.secondary`, drawer close, cancel):** transparent or paper-ground fill, 1px border, no pulse.
+- **Shape:** 16px radius (`--radius-md`) for rectangular buttons; full circle for the SOS button and icon-buttons; pill for chip-style toggles.
+- **Primary (SOS / confirm / sign-out-adjacent destructive):** solid `--accent-dark` fill, white text, accent-tinted soft shadow; the SOS button and FAB additionally pulse (`box-shadow` ping, 1.6s loop) only while actively broadcasting.
+- **Secondary/Ghost:** `--surface-alt` fill, `--ink` text, no shadow beyond the card it sits in.
 
 ### Chips
-- **Style:** transparent fill, 1.5px graticule-color border, mono label, at rest.
-- **State:** each status chip (Safe/Trapped/Injured, water/food/meds) takes a distinct active fill+border in its own signal color at ~14% tint for grid items, full-color fill for status chips — never a shared "selected" blue.
+- **Style:** pill radius, `--surface-alt` fill, 1.5px `--border` border, `--ink-secondary` text at rest.
+- **State:** each status chip (Safe/Trapped/Injured, water/food/meds) takes its own signal-color solid fill (or ~12–14% tint for grid items) when active — never a shared generic "selected" color.
 
-### Cards / Containers (AI-triage cards, panels, drawer)
-- **Corner Style:** 4px.
-- **Background:** raised-ground/raised-paper fill in the register.
-- **Shadow Strategy:** none (see Elevation & Depth); separation is a 1px border.
-- **Internal Padding:** 12–16px.
+### Cards / Containers
+- **Corner Style:** 16px standard, 24px for primary containers (role cards, map card, docked panel).
+- **Background:** `--surface` (white).
+- **Shadow Strategy:** `--shadow-sm` at rest (see Elevation & Depth); landing role cards lift to `--shadow-md` plus a 2px translateY on hover/focus.
+- **Internal Padding:** 12–20px.
 
-### Inputs / Fields (LGU toolbar search/sort)
-- **Style:** 1px border in the register's line color, 4px radius, paper/ground fill, no inset shadow.
-- **Focus:** browser-default outline is preserved; no custom glow is defined.
+### Inputs / Fields
+- **Style:** 1px `--border` border, 10px radius, `--surface-alt` fill, no inset shadow.
+- **Focus:** citizen profile inline-edit fields use borderless underline-style inputs; LGU toolbar inputs rely on the browser-default focus outline.
 
-### Navigation — Spine Tabs (citizen, signature)
-A fixed left-edge column of tab buttons standing in for a book's spine: inactive tabs sit transparent with dim ink; the active tab fills solid amber with dark ground text. This is the citizen app's primary navigation and doubles as the direction contract's "Tab-Paged Instrument Book" signature — never converted to a top tab bar or bottom nav.
+### Navigation
+- **Bottom Tab Bar (citizen, primary nav):** 5 icon+label items, white surface, top hairline border; inactive items `--ink-secondary`, active item `--accent`. Replaces the prior left spine-tab column.
+- **Left Sidebar (LGU, primary nav):** 216px fixed column, white surface, nav items at 10px radius; active item gets `--accent-tint` fill + `--accent-dark` text.
 
-### Legend Entries (landing, signature)
-Full-width rows (title + description + arrow) separated by hairline borders, each anchored by a small circular "plot glyph" dot rather than an icon, with a Font Awesome Solid arrow as the trailing affordance — the role picker reads as two chart-legend rows, not SaaS cards. Hover/focus shifts background, indents 10px, and turns the trailing arrow amber.
+### SOS Confirm Sheet (citizen, signature)
+A bottom sheet (`border-radius: 28px 28px 0 0`) that slides up over a dimmed backdrop for the SOS confirm-before-broadcast step — replacing the prior system's full-screen gate. The confirm step itself (accidental-broadcast protection) is preserved product truth, only its presentation changed.
 
-### Drawer Panel (LGU, signature)
-A 460px panel that slides over the full-bleed map from the right (`translateX(100%)` → `0`, 0.3s cubic-bezier ease) rather than living beside the map as a fixed sidebar. Holds the priority-list table and AI-triage tabs. Selecting a priority-row lifts it (bold, full color) while dimming (not fading) the rest of the list to a muted ink color, keeping unselected rows legible.
-
-### Case Reference Deep Links (LGU, signature)
-Every plotted report carries a stable, deep-linkable case reference in the URL hash (e.g. `lgu.html#N04`). Opening that URL selects the node, opens the drawer, and switches straight to its Details tab — a report can be bookmarked or handed to another staff member and reopened on the exact same case.
-
-### Icons
-Font Awesome Solid is the system's icon library, used consistently at one weight throughout (spine-tab icons, SOS tower-broadcast glyph, legend arrow, drawer-toggle and close icons, supply/status icons). No unicode symbol or emoji stands in for an icon anywhere in the build.
+### Docked Report Panel (LGU, signature)
+A 380–460px panel permanently docked beside the map card (24px radius, `--shadow-sm`), holding the priority table and AI Triage tabs — replacing the prior system's `translateX` drawer that slid over a full-bleed map. Selecting a priority row lifts it (bold, full color) while dimming (not fading, `--ink-secondary`) the rest of the list, preserving a behavior carried over from the prior drawer. Every report keeps its deep-linkable case-reference URL hash (`lgu.html#N04`), unchanged from the prior system.
 
 ### Map Markers (citizen + LGU, signature)
-Plotted nodes render as bordered circles keyed to status color, never as pin/glyph icons: solid ring = active, dashed ring at reduced opacity = "ghost" (last-known position of an offline node, paired with a mono timestamp label), thicker ring = self. Both surfaces sit real OpenStreetMap street tiles underneath these markers (no API key needed) so responders can read actual streets, rivers, and barangay names, not just an abstract grid — tinted into each register via a CSS filter on `.leaflet-tile-pane` (inverted/hue-rotated dark for the citizen app's night-instrument register, muted sepia/grayscale for the LGU dashboard's cream register) rather than shown in raw daylight color. The LGU map has two implementations sharing one marker vocabulary, palette, and tile treatment — Google Maps when an API key is configured, and this OSM-tiled Leaflet fallback when it isn't — so the chart-native look and real geography both hold with zero keys set.
+Plotted nodes render as solid filled circles with white borders keyed to status color (`.marker-core`), with a dashed, reduced-opacity ring for "ghost" (last-known, offline) nodes — replacing the prior dashed-ring chart-instrument marker style while keeping the same shape-before-hue signal (solid vs. dashed) and the same 7-color legend. Real OpenStreetMap tiles sit underneath, tinted toward the light Clean Care register via a desaturating/brightening CSS filter on `.leaflet-tile-pane` in both apps.
+
+### Icons
+Font Awesome Solid remains the system's icon library (unchanged from the prior system) — status-strip, tab bar, sidebar nav, SOS/report/volunteer icons, chevrons. No unicode symbol or emoji stands in for an icon.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep the graticule grid visible behind every panel — it is the chart's own ruling, not a removable decoration.
-- **Do** spend critical red on SOS/critical meaning only, in both registers.
-- **Do** set every live-updating number (coordinates, hop count, timestamps, stat counts) in Overpass Mono with tabular numerals.
-- **Do** distinguish node/state pairs by shape and dash pattern in addition to color (ghost = dashed + dim, not just grey).
-- **Do** keep the LGU map's Leaflet fallback and Google Maps mode visually identical in marker vocabulary and palette; a missing API key must never read as a broken or unfinished surface.
-- **Do** give every LGU report a deep-linkable URL hash reference (`#N04`) that reopens straight to that case's Details tab; this is a shipped, verified pattern, not an aspiration.
-- **Do** draw icons from Font Awesome Solid at one consistent weight; never substitute a unicode symbol or emoji for an icon.
+- **Do** spend AHON red on SOS/critical/primary-emergency meaning only, on every surface.
+- **Do** keep the 7-state mesh legend's color-to-meaning mapping unchanged even as its rendering evolves.
+- **Do** set every live-updating number in Inter with tabular numerals via the `.tabular` utility.
+- **Do** give every card and floating control a soft, non-offset shadow at rest — this system has no flat-card mode.
+- **Do** give every LGU report a deep-linkable URL hash reference (`#N04`) that reopens straight to that case.
+- **Do** draw icons from Font Awesome Solid at one consistent weight; never substitute a unicode symbol or emoji.
 
 ### Don't:
-- **Don't** introduce an eighth accent hue. Volunteer violet (`#8B7FD1`) is the one named exception, scoped to the citizen Volunteer status; no future surface should add another new color without the same justification.
-- **Don't** put the priority list or AI Triage panel beside the LGU map as a permanent sidebar — they are drawers that slide over the chart, which stays the ground truth.
-- **Don't** give ordinary buttons or cards a drop shadow; shadow is reserved for the drawer-over-map and phone-chassis cases only.
-- **Don't** treat the citizen spine tabs or landing legend entries as generic nav/card components in future work — they are this system's named signature patterns, not interchangeable with a standard tab bar or feature card.
+- **Don't** reintroduce the prior system's graticule grid, dashed-instrument marker style, or Overpass/Overpass Mono type — that instrument identity is fully retired, not a fallback to preserve.
+- **Don't** give a rectangular button or card a hard, offset (non-blurred) shadow; this is not a neobrutalist world — shadows stay soft and ambient.
+- **Don't** put the LGU priority list or AI Triage panel back into a drawer that slides over the map; they are permanently docked beside it in this world.
+- **Don't** add an eighth accent hue without the same justification the seven-state legend required for Volunteer Violet.

@@ -211,14 +211,30 @@
     }
 
     // --- TABS ---
+    // Sidebar nav (Dashboard / Reports / AI Triage) and the panel's own tab
+    // strip drive the same tab state, kept in sync both ways. The map card
+    // is always visible beside the panel (not a separate view to navigate
+    // to), so "Dashboard" is the resting/overview state rather than a tab of
+    // its own; opening a report's Details (via a row/marker click, not a nav
+    // click) also reads as "Dashboard" since it isn't a top-level destination.
+    const NAV_FOR_TAB = { tabList: 'navReports', tabAi: 'navAi', tabDetail: 'navDashboard' };
+
+    function setActiveNav(navId) {
+        document.querySelectorAll('.lgu-nav-item').forEach(n => n.classList.toggle('active', n.id === navId));
+    }
+
+    function activateTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+        setActiveNav(NAV_FOR_TAB[tabId] || 'navDashboard');
+    }
+    window.lguGoToPanelTab = function (tabId) {
+        if (tabId) activateTab(tabId); else setActiveNav('navDashboard');
+    };
+
     function initTabs() {
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-            });
+            btn.addEventListener('click', () => activateTab(btn.dataset.tab));
         });
     }
 
@@ -264,10 +280,20 @@
 
         window.addEventListener('mesh:update', () => {
             refreshAll();
-            // Re-triage nodes we haven't scored yet (e.g. newly-gone-offline ghosts).
+            // Re-triage nodes we haven't scored yet (e.g. newly-gone-offline ghosts,
+            // or a citizen who just came online with a live SOS report).
             getReports().forEach(n => { if (!triageCache.has(n.id)) triageCache.set(n.id, window.ruleBasedTriage(n)); });
         });
-        window.startMeshSimulator(5000);
+
+        // With the live-sync server (js/realtime-client.js) reachable, mesh
+        // updates come from there (shared with the citizen app) instead —
+        // only fall back to the old client-only random simulator if there's
+        // no server to talk to.
+        if (window.realtime) {
+            window.addEventListener('realtime:unavailable', () => window.startMeshSimulator(5000));
+        } else {
+            window.startMeshSimulator(5000);
+        }
 
         renderSummary();
         renderMeshHealth();

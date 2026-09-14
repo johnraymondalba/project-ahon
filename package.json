@@ -1,0 +1,13 @@
+{
+  "name": "ahon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local live-sync server for the AHON citizen/LGU demo — shares mesh state between citizen.html and lgu.html over WebSockets.",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  }
+}

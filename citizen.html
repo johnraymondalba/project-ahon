@@ -19,94 +19,124 @@
 
             <div id="map"></div>
 
-            <div class="ui-layer">
-                <!-- TOP BAR -->
-                <div class="top-bar pointer-events-auto">
-                    <div class="brand-container">
+            <div class="app-shell" id="appShell" data-active-tab="home">
+
+                <div class="status-strip">
+                    <div class="status-strip-brand">
                         <div class="brand-logo">
                             <img src="assets/logo.svg" alt="AHON" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
-                        <div class="brand-text">
-                            <h1>AHON</h1>
-                            <p>NABUA MESH NET</p>
-                            <div class="mesh-status-pill" id="meshStatusPill">
-                                <div class="mesh-status-dot" id="meshStatusDot"></div>
-                                <div>
-                                    <div class="mesh-status-text" id="meshStatusText">MESH ONLINE</div>
-                                    <div class="mesh-status-sub" id="meshStatusSub">2 hops to LGU</div>
-                                </div>
+                        <span>AHON</span>
+                    </div>
+                    <div class="mesh-status-pill" id="meshStatusPill">
+                        <div class="mesh-status-dot" id="meshStatusDot"></div>
+                        <div>
+                            <div class="mesh-status-text" id="meshStatusText">MESH ONLINE</div>
+                            <div class="mesh-status-sub" id="meshStatusSub">2 hops to LGU</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sos-banner" id="sosBanner">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                    Broadcasting SOS to nearby mesh nodes and LGU responders
+                </div>
+
+                <div class="pages" id="pages">
+
+                    <!-- HOME -->
+                    <div class="page page--home active" id="page-home">
+                        <div class="home-greeting">
+                            <div class="greeting-avatar"><i class="fa-solid fa-user"></i></div>
+                            <div class="greeting-text">
+                                <h1>Hello, Citizen</h1>
+                                <a href="#" onclick="openSubpage('info'); return false;">Complete your profile</a>
+                            </div>
+                            <button class="greeting-location" onclick="switchTab('map')" title="Open map" aria-label="Open map">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </button>
+                        </div>
+
+                        <div class="sos-hero">
+                            <h2>Need help?</h2>
+                            <button class="sos-btn" id="sosBtn" onclick="openSosSheet()">
+                                <i class="fa-solid fa-tower-broadcast"></i>
+                                <div class="sos-text"><h2 id="sosLabel">SOS</h2></div>
+                            </button>
+                            <p class="sos-hint">Tap to broadcast an emergency signal to nearby mesh nodes and LGU responders, even with zero signal.</p>
+                        </div>
+
+                        <div class="status-summary-card">
+                            <div class="status-summary-icon" id="statusSummaryIcon"><i class="fa-solid fa-shield-heart"></i></div>
+                            <div class="status-summary-body">
+                                <div class="status-summary-label">Your reported status</div>
+                                <div class="status-summary-value" id="statusSummaryValue">Safe</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">Quick report</div>
+                        <div class="quick-actions-row">
+                            <button class="quick-action-card" id="qa-trapped" onclick="setStatus('TRAPPED')">
+                                <i class="fa-solid fa-house-chimney-crack"></i>
+                                <span>I'm Trapped</span>
+                            </button>
+                            <button class="quick-action-card" id="qa-injured" onclick="setStatus('INJURED')">
+                                <i class="fa-solid fa-hand-holding-medical"></i>
+                                <span>I'm Injured</span>
+                            </button>
+                            <button class="quick-action-card" onclick="switchTab('report')">
+                                <i class="fa-solid fa-box-open"></i>
+                                <span>Request supplies</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- MAP -->
+                    <div class="page page--map" id="page-map">
+                        <div class="map-overlay-top">
+                            <button class="map-icon-btn" onclick="toggleLegend()" aria-label="Toggle legend"><i class="fa-solid fa-list-ul"></i></button>
+                            <div class="legend-box minimized" id="legendBox">
+                                <div class="legend-item"><div class="l-dot" style="background:var(--color-sos)"></div><span class="l-text">SOS Active</span></div>
+                                <div class="legend-item"><div class="l-dot" style="background:var(--color-rescuer)"></div><span class="l-text">Rescuer</span></div>
+                                <div class="legend-item"><div class="l-dot" style="background:var(--color-user)"></div><span class="l-text">Civilian / Safe</span></div>
+                                <div class="legend-item"><div class="l-dot" style="background:var(--color-senior)"></div><span class="l-text">Senior / PWD</span></div>
+                                <div class="legend-item"><div class="l-dot" style="background:var(--color-volunteer)"></div><span class="l-text">Volunteer</span></div>
+                                <div class="legend-item"><div class="l-dot" style="background:var(--color-offline)"></div><span class="l-text">Last Signal Found</span></div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="legend-wrapper">
-                        <div class="legend-toggle" onclick="showSosGate()" title="Back to SOS screen">
-                            <i class="fa-solid fa-house"></i>
-                        </div>
-                        <div class="legend-toggle" onclick="toggleLegend()">
-                            <i class="fa-solid fa-list-ul"></i>
-                        </div>
-                        <div class="legend-box minimized" id="legendBox">
-                            <div class="legend-item"><div class="l-dot" style="background:var(--color-sos)"></div><span class="l-text">SOS Active</span></div>
-                            <div class="legend-item"><div class="l-dot" style="background:var(--color-rescuer)"></div><span class="l-text">Rescuer</span></div>
-                            <div class="legend-item"><div class="l-dot" style="background:var(--color-user)"></div><span class="l-text">Civilian / Safe</span></div>
-                            <div class="legend-item"><div class="l-dot" style="background:var(--color-senior)"></div><span class="l-text">Senior / PWD</span></div>
-                            <div class="legend-item"><div class="l-dot" style="background:var(--color-volunteer)"></div><span class="l-text">Volunteer</span></div>
-                            <div class="legend-item"><div class="l-dot" style="background:var(--color-offline)"></div><span class="l-text">Last Signal Found</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SOS BROADCAST BANNER -->
-                <div class="sos-banner" id="sosBanner">
-                    <i class="fa-solid fa-tower-broadcast"></i>
-                    High-priority broadcast — cutting through mesh traffic
-                </div>
-
-                <!-- PERSISTENT SOS CONTROL: reachable on every page, never buried in a tab -->
-                <div class="instrument-rail pointer-events-auto">
-                    <div class="sos-btn" id="sosBtn" onclick="toggleSOS()">
-                        <i class="fa-solid fa-tower-broadcast"></i>
-                        <div class="sos-text">
-                            <h2 id="sosLabel">BROADCAST SOS</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- INSTRUMENT BOOK: spine tabs down the left edge, active page fills the rest -->
-                <div class="book-frame pointer-events-auto">
-                    <nav class="book-spine" role="tablist" aria-label="Instrument book pages">
-                        <button class="spine-tab active" data-page="page-map" role="tab" aria-selected="true"><i class="fa-solid fa-diagram-project"></i><span>MAP</span></button>
-                        <button class="spine-tab" data-page="page-status" role="tab" aria-selected="false"><i class="fa-solid fa-triangle-exclamation"></i><span>STATUS</span></button>
-                        <button class="spine-tab" data-page="page-supplies" role="tab" aria-selected="false"><i class="fa-solid fa-box-open"></i><span>SUPPLIES</span></button>
-                        <button class="spine-tab" data-page="page-volunteer" role="tab" aria-selected="false"><i class="fa-solid fa-hand-holding-heart"></i><span>VOLUNTEER</span></button>
-                    </nav>
-
-                    <div class="book-pages">
-                        <div class="book-page book-page--map active" id="page-map" role="tabpanel"></div>
-
-                        <div class="book-page" id="page-status" role="tabpanel">
-                            <div class="section-label">MY SITUATION</div>
-                            <div class="status-chips-row">
+                    <!-- REPORT (status + supplies) -->
+                    <div class="page" id="page-report">
+                        <div class="section-title">My situation</div>
+                        <div class="card">
+                            <div class="chip-row">
                                 <div class="chip active-safe" id="chip-safe" onclick="setStatus('SAFE')">SAFE</div>
                                 <div class="chip" id="chip-trapped" onclick="setStatus('TRAPPED')">TRAPPED</div>
                                 <div class="chip" id="chip-injured" onclick="setStatus('INJURED')">INJURED</div>
                             </div>
                         </div>
 
-                        <div class="book-page" id="page-supplies" role="tabpanel">
-                            <div class="section-label">SUPPLIES NEEDED</div>
-                            <div class="status-grid">
+                        <div class="section-title" id="suppliesSection">Supplies needed</div>
+                        <div class="card">
+                            <div class="need-grid">
                                 <div class="grid-item" id="btn-water" onclick="toggleNeed('water')"><i class="fa-solid fa-droplet"></i><span>Water</span></div>
                                 <div class="grid-item" id="btn-food" onclick="toggleNeed('food')"><i class="fa-solid fa-utensils"></i><span>Food</span></div>
                                 <div class="grid-item" id="btn-meds" onclick="toggleNeed('meds')"><i class="fa-solid fa-briefcase-medical"></i><span>Meds</span></div>
                             </div>
                         </div>
+                        <p class="page-hint">Your situation and supply needs broadcast to nearby mesh nodes and the LGU command center right away — update them any time they change.</p>
+                    </div>
 
-                        <div class="book-page" id="page-volunteer" role="tabpanel">
-                            <div class="section-label">VOLUNTEER MODE</div>
-                            <div class="volunteer-switch-container">
-                                <span class="v-label">MARK ME AS A VOLUNTEER</span>
+                    <!-- VOLUNTEER -->
+                    <div class="page" id="page-volunteer">
+                        <div class="section-title">Volunteer mode</div>
+                        <div class="card">
+                            <div class="toggle-row">
+                                <div>
+                                    <div class="toggle-row-label">Mark me as a volunteer</div>
+                                    <div class="toggle-row-sub">Nearby helper on the mesh</div>
+                                </div>
                                 <label class="switch">
                                     <input type="checkbox" id="volunteerCheck" onchange="toggleVolunteer()">
                                     <span class="slider"></span>
@@ -114,42 +144,204 @@
                             </div>
                             <p class="page-hint">Volunteering marks you as a nearby helper on the mesh. Your own status reporting pauses while this is on — switch it off anytime to report for yourself again.</p>
                         </div>
+
+                        <div class="section-title">Nearby needs</div>
+                        <div class="card">
+                            <div class="nearby-list" id="nearbyList"></div>
+                        </div>
+                    </div>
+
+                    <!-- PROFILE HUB -->
+                    <div class="page" id="page-profile">
+                        <div class="profile-card">
+                            <div class="greeting-avatar"><i class="fa-solid fa-user"></i></div>
+                            <div>
+                                <div class="profile-card-name" id="profileCardName">Citizen</div>
+                                <a class="profile-card-edit" href="#" onclick="openSubpage('info'); return false;">Complete your profile</a>
+                            </div>
+                        </div>
+
+                        <div class="menu-list">
+                            <button class="menu-row" onclick="openSubpage('info')">
+                                <div class="menu-row-icon"><i class="fa-solid fa-id-card"></i></div>
+                                <div class="menu-row-label">My info &amp; vulnerability</div>
+                                <i class="fa-solid fa-chevron-right menu-row-chevron"></i>
+                            </button>
+                            <button class="menu-row" onclick="openSubpage('contacts')">
+                                <div class="menu-row-icon"><i class="fa-solid fa-phone"></i></div>
+                                <div class="menu-row-label">Emergency contacts</div>
+                                <i class="fa-solid fa-chevron-right menu-row-chevron"></i>
+                            </button>
+                            <button class="menu-row" onclick="openSubpage('activity')">
+                                <div class="menu-row-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                <div class="menu-row-label">Activity</div>
+                                <i class="fa-solid fa-chevron-right menu-row-chevron"></i>
+                            </button>
+                            <button class="menu-row" onclick="openSubpage('settings')">
+                                <div class="menu-row-icon"><i class="fa-solid fa-gear"></i></div>
+                                <div class="menu-row-label">Settings</div>
+                                <i class="fa-solid fa-chevron-right menu-row-chevron"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="sos-fab" id="sosFab" onclick="openSosSheet()" aria-label="Broadcast SOS">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                </button>
+
+                <nav class="tab-bar" id="tabBar">
+                    <button class="tab-item active" data-tab="home"><i class="fa-solid fa-house"></i><span>Home</span></button>
+                    <button class="tab-item" data-tab="map"><i class="fa-solid fa-diagram-project"></i><span>Map</span></button>
+                    <button class="tab-item" data-tab="report"><i class="fa-solid fa-triangle-exclamation"></i><span>Report</span></button>
+                    <button class="tab-item" data-tab="volunteer"><i class="fa-solid fa-hand-holding-heart"></i><span>Volunteer</span></button>
+                    <button class="tab-item" data-tab="profile"><i class="fa-solid fa-user"></i><span>Profile</span></button>
+                </nav>
+            </div>
+
+            <!-- SUB-PAGES: pushed over the hub via standard back-arrow navigation -->
+            <div class="subpage" id="subpage-info">
+                <div class="subpage-header">
+                    <button class="subpage-back" onclick="closeSubpage()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2>My info</h2>
+                </div>
+                <div class="subpage-body">
+                    <div class="card">
+                        <div class="info-tile" style="margin-bottom:10px;">
+                            <div class="info-tile-label"><i class="fa-solid fa-signature"></i> Name</div>
+                            <input type="text" id="profileName" placeholder="Your name" oninput="saveProfileField('name', this.value)">
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-tile">
+                                <div class="info-tile-label"><i class="fa-regular fa-calendar"></i> Age</div>
+                                <input type="text" inputmode="numeric" id="profileAge" placeholder="—" oninput="saveProfileField('age', this.value)">
+                            </div>
+                            <div class="info-tile">
+                                <div class="info-tile-label"><i class="fa-solid fa-droplet"></i> Blood type</div>
+                                <input type="text" id="profileBlood" placeholder="—" oninput="saveProfileField('blood', this.value)">
+                            </div>
+                            <div class="info-tile">
+                                <div class="info-tile-label"><i class="fa-solid fa-ruler-vertical"></i> Height</div>
+                                <input type="text" id="profileHeight" placeholder="—" oninput="saveProfileField('height', this.value)">
+                            </div>
+                            <div class="info-tile">
+                                <div class="info-tile-label"><i class="fa-solid fa-weight-scale"></i> Weight</div>
+                                <input type="text" id="profileWeight" placeholder="—" oninput="saveProfileField('weight', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Vulnerability flags</div>
+                    <div class="card">
+                        <p class="page-hint" style="margin:0 0 12px;">Shared with LGU responders so reports from vulnerable household members are prioritized.</p>
+                        <div class="flag-row">
+                            <button class="flag-chip" id="flag-pwd" onclick="toggleFlag('pwd')"><i class="fa-solid fa-check"></i>PWD</button>
+                            <button class="flag-chip" id="flag-elder" onclick="toggleFlag('elder')"><i class="fa-solid fa-check"></i>Senior / Elder</button>
+                            <button class="flag-chip" id="flag-infant" onclick="toggleFlag('infant')"><i class="fa-solid fa-check"></i>Infant in household</button>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Medical notes</div>
+                    <div class="card">
+                        <div class="list-row">
+                            <div style="flex:1;">
+                                <div class="list-row-title">Allergies</div>
+                                <input type="text" id="profileAllergies" placeholder="None reported" oninput="saveProfileField('allergies', this.value)" style="border:none;background:none;font-size:12.5px;color:var(--ink-secondary);width:100%;margin-top:4px;padding:0;">
+                            </div>
+                        </div>
+                        <div class="list-row">
+                            <div style="flex:1;">
+                                <div class="list-row-title">Conditions / medication</div>
+                                <input type="text" id="profileConditions" placeholder="None reported" oninput="saveProfileField('conditions', this.value)" style="border:none;background:none;font-size:12.5px;color:var(--ink-secondary);width:100%;margin-top:4px;padding:0;">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SOS / VOLUNTEER ENTRY GATE — shown first, every time the app loads -->
-            <div class="sos-gate" id="sosGate">
-                <div class="gate-brand">
-                    <div class="brand-logo">
-                        <img src="assets/logo.svg" alt="AHON" style="width: 100%; height: 100%; object-fit: contain;">
+            <div class="subpage" id="subpage-contacts">
+                <div class="subpage-header">
+                    <button class="subpage-back" onclick="closeSubpage()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2>Emergency contacts</h2>
+                </div>
+                <div class="subpage-body">
+                    <div class="section-title">Hotlines</div>
+                    <div class="card">
+                        <div class="contact-row">
+                            <div class="contact-avatar is-hotline"><i class="fa-solid fa-tower-broadcast"></i></div>
+                            <div class="contact-body"><div class="contact-name">Barangay Hotline</div><div class="contact-sub">Nabua, Camarines Sur</div></div>
+                            <a class="contact-call" href="tel:+63541234567" aria-label="Call Barangay Hotline"><i class="fa-solid fa-phone"></i></a>
+                        </div>
+                        <div class="contact-row">
+                            <div class="contact-avatar is-hotline"><i class="fa-solid fa-building-shield"></i></div>
+                            <div class="contact-body"><div class="contact-name">LGU / NDRRMO Hotline</div><div class="contact-sub">Command center</div></div>
+                            <a class="contact-call" href="tel:+63541234911" aria-label="Call LGU Hotline"><i class="fa-solid fa-phone"></i></a>
+                        </div>
+                        <div class="contact-row">
+                            <div class="contact-avatar is-hotline"><i class="fa-solid fa-truck-medical"></i></div>
+                            <div class="contact-body"><div class="contact-name">National Emergency</div><div class="contact-sub">Police / Fire / Ambulance</div></div>
+                            <a class="contact-call" href="tel:911" aria-label="Call 911"><i class="fa-solid fa-phone"></i></a>
+                        </div>
                     </div>
-                    <h1>AHON</h1>
-                    <p>Are you in danger?</p>
+
+                    <div class="section-title">Personal contacts</div>
+                    <div class="card">
+                        <div id="personalContactsList"></div>
+                        <button class="add-contact-btn" onclick="addPersonalContact()"><i class="fa-solid fa-plus"></i>&nbsp; Add contact</button>
+                    </div>
                 </div>
+            </div>
 
-                <div class="gate-main" id="gateMain">
-                    <button class="gate-sos-btn" id="gateSosBtn" onclick="gateTapSOS()">
-                        <i class="fa-solid fa-tower-broadcast"></i>
-                        <span>SOS</span>
-                    </button>
-                    <p class="gate-sos-hint">Tap to broadcast an emergency signal to nearby mesh nodes and LGU responders</p>
-
-                    <div class="gate-divider"><span>or</span></div>
-
-                    <button class="gate-volunteer-btn" onclick="gateContinueAsVolunteer()">
-                        <i class="fa-solid fa-hand-holding-heart"></i>
-                        I'm Volunteering / I'm Safe
-                    </button>
+            <div class="subpage" id="subpage-settings">
+                <div class="subpage-header">
+                    <button class="subpage-back" onclick="closeSubpage()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2>Settings</h2>
                 </div>
+                <div class="subpage-body">
+                    <div class="card">
+                        <div class="settings-section-label">Notifications</div>
+                        <div class="settings-row">
+                            <span class="settings-row-label">Safety alerts</span>
+                            <label class="switch"><input type="checkbox" id="settingSafetyAlerts" checked onchange="saveSetting('safetyAlerts', this.checked)"><span class="slider"></span></label>
+                        </div>
+                        <div class="settings-row">
+                            <span class="settings-row-label">Nearby SOS alerts</span>
+                            <label class="switch"><input type="checkbox" id="settingNearbyAlerts" checked onchange="saveSetting('nearbyAlerts', this.checked)"><span class="slider"></span></label>
+                        </div>
 
-                <div class="gate-confirm" id="gateConfirm">
-                    <i class="fa-solid fa-triangle-exclamation gate-confirm-icon"></i>
-                    <h2>Send SOS broadcast?</h2>
-                    <p>This will alert nearby mesh nodes and LGU responders that you need help.</p>
-                    <div class="gate-confirm-actions">
-                        <button class="gate-cancel-btn" onclick="gateCancelSOS()">Cancel</button>
-                        <button class="gate-confirm-btn" onclick="gateConfirmSOS()">Yes, Send SOS</button>
+                        <div class="settings-section-label">About</div>
+                        <div class="settings-row">
+                            <span class="settings-row-label">Version</span>
+                            <span class="settings-row-label" style="color:var(--ink-secondary);font-weight:500;">1.0.0</span>
+                        </div>
+                    </div>
+
+                    <a class="sign-out-btn" href="index.html">Back to role select</a>
+                </div>
+            </div>
+
+            <div class="subpage" id="subpage-activity">
+                <div class="subpage-header">
+                    <button class="subpage-back" onclick="closeSubpage()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2>Activity</h2>
+                </div>
+                <div class="subpage-body">
+                    <div class="card">
+                        <div id="activityList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOS CONFIRM SHEET -->
+            <div class="sheet-backdrop" id="sosSheet">
+                <div class="sheet">
+                    <div class="sheet-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h2 id="sheetTitle">Send SOS broadcast?</h2>
+                    <p id="sheetBody">This will alert nearby mesh nodes and LGU responders that you need help.</p>
+                    <div class="sheet-actions">
+                        <button class="sheet-cancel-btn" onclick="closeSosSheet()">Cancel</button>
+                        <button class="sheet-confirm-btn" id="sheetConfirmBtn" onclick="confirmSosSheet()">Yes, send SOS</button>
                     </div>
                 </div>
             </div>
@@ -157,10 +349,12 @@
         </div>
     </div>
 
+    <script>window.AHON_ROLE = 'citizen';</script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/config.js"></script>
     <script src="js/mock-data.js"></script>
     <script src="js/mesh-simulator.js"></script>
+    <script src="js/realtime-client.js"></script>
     <script src="js/citizen-map.js"></script>
     <script src="js/citizen-app.js"></script>
     <script src="js/citizen-gate.js"></script>

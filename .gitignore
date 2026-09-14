@@ -4,6 +4,9 @@ js/config.js
 # Vercel CLI local cache (created by `vercel dev` / `vercel build`)
 .vercel
 
+# Live-sync server dependencies (npm install), see server/index.js
+node_modules/
+
 # OS cruft
 .DS_Store
 Thumbs.db

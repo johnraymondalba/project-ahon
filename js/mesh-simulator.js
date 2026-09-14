@@ -42,6 +42,16 @@
             }
         }
 
+        // Offline nodes drift back into range too — otherwise, over a long
+        // enough session, every node eventually goes dark and stays there.
+        const goneDark = window.MESH_NODES.filter(n => n.type === 'offline');
+        if (goneDark.length && Math.random() < 0.15) {
+            const revived = goneDark[Math.floor(Math.random() * goneDark.length)];
+            revived.type = 'civilian';
+            revived.status = STATUS_CYCLE[Math.floor(Math.random() * STATUS_CYCLE.length)];
+            revived.lastSignalMin = 0;
+        }
+
         window.dispatchEvent(new CustomEvent('mesh:update', { detail: { nodes: window.MESH_NODES } }));
     }
 

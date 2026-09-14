@@ -4,22 +4,52 @@
     "ignoreFiles": [],
     "ignoreValues": [
       {
-        "rule": "wide-tracking",
-        "value": "*",
-        "files": [
-          "index.html"
-        ],
-        "createdAt": "2026-09-13T04:46:46.119Z",
-        "reason": "short uppercase wordmark/nav-label tracking (AHON heading, CITIZEN / LGU legend titles) is a legitimate short-label exception the rule itself carves out, not paragraph body text"
+        "rule": "design-system-font",
+        "value": "inter",
+        "createdAt": "2026-09-14T14:49:55.970Z",
+        "reason": "Redesign in progress: citizen/index/lgu direction contracts pin Inter as the new type family, replacing Overpass; DESIGN.md is rewritten by the documenter at the end of this build."
       },
       {
-        "rule": "repeating-stripes-gradient",
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-09-14T14:59:37.514Z",
+        "reason": "User-pinned brief: reference screenshots specify a clean, universal, standards-following mobile safety app. new-work.md's own guidance says Operate-mode surfaces are well served by system/workhorse UI faces; Inter is the direction-contract's named type family (citizen-html.md), not an unexamined default."
+      },
+      {
+        "rule": "nested-cards",
         "value": "*",
         "files": [
           "citizen.html"
         ],
-        "createdAt": "2026-09-13T04:55:57.079Z",
-        "reason": "graticule chart-paper ruling is the assigned direction's own material (Typhoon Track Chart, seed 3653e7ec), not decorative filler"
+        "createdAt": "2026-09-14T14:59:37.729Z",
+        "reason": "Matches the pinned reference screenshots exactly: flat surface-alt tiles/rows/chips with no shadow of their own, sitting inside one soft-shadowed outer .card (info-grid tiles, need-grid items, nearby-list rows, flag-row chips). Not stacked shadows or lazy containers -- confirmed via citizen.css that only the outer .card and .quick-action-card carry box-shadow."
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "citizen.html"
+        ],
+        "createdAt": "2026-09-14T14:59:43.488Z",
+        "reason": "False-positive from ancestor sampling: flagged shadow is the SOS button/FAB tinted elevation shadow (real 10-16px offset + 24-32px blur, not a zero-offset halo -- craft-floor.md explicitly allows offset+blur colored shadows). Its actual visual context is the white .sos-hero card, not the phone-case's dark bezel the detector likely sampled."
+      },
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "lgu.html"
+        ],
+        "createdAt": "2026-09-14T15:04:30.743Z",
+        "reason": "Matches the pinned reference dashboard pattern: flat surface-alt/tint chips (.ai-card, .tier-badge, .stat-card) with no shadow of their own sit inside one soft-shadowed outer panel (.lgu-panel, .lgu-map-card). Not stacked shadows or lazy containers."
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "lgu.html"
+        ],
+        "createdAt": "2026-09-14T15:04:30.950Z",
+        "reason": "False-positive: the flagged shadow is --shadow-sm/--shadow-md, a standard ink-tinted (var(--ink) #14213d) neutral elevation shadow at 6-16% opacity used for every card/panel in this light-mode dashboard -- not a saturated brand-color glow. This is the conventional 'tint your neutral shadow toward the page's ink color instead of pure black' technique, not the AI-glow anti-pattern the rule targets."
       },
       {
         "rule": "cramped-padding",
@@ -27,80 +57,8 @@
         "files": [
           "citizen.html"
         ],
-        "createdAt": "2026-09-13T04:57:31.775Z",
-        "reason": "false positive: matches the collapsed .legend-box.minimized state (height:0, opacity:0, border:none) present by default in markup; the actual visible/expanded legend-box has 16px padding on all sides"
-      },
-      {
-        "rule": "cream-palette",
-        "value": "*",
-        "files": [
-          "lgu.html"
-        ],
-        "createdAt": "2026-09-13T05:01:45.985Z",
-        "reason": "the cream chart-paper ground (#F2EFE6) is the assigned direction's light paper-chart register (Typhoon Track Chart, seed 3653e7ec), chosen deliberately for sustained daytime desk work, not a default off-white reflex"
-      },
-      {
-        "rule": "repeating-stripes-gradient",
-        "value": "*",
-        "files": [
-          "lgu.html"
-        ],
-        "createdAt": "2026-09-13T05:01:46.185Z",
-        "reason": "graticule chart-paper ruling is the assigned direction's own material, not decorative filler"
-      },
-      {
-        "rule": "repeating-stripes-gradient",
-        "value": "*",
-        "files": [
-          "index.html"
-        ],
-        "createdAt": "2026-09-13T05:02:13.078Z",
-        "reason": "graticule chart-paper ruling is the assigned direction's own material (Typhoon Track Chart, seed 3653e7ec), not decorative filler"
-      },
-      {
-        "rule": "design-system-color",
-        "value": "rgb(0, 0, 0)",
-        "files": [
-          "citizen.html"
-        ],
-        "createdAt": "2026-09-13T05:53:26.017Z",
-        "reason": "phone-case chassis bezel (decorative device mockup frame), not app UI content — outside the app's own color system by design"
-      },
-      {
-        "rule": "design-system-radius",
-        "value": "40px",
-        "files": [
-          "citizen.html"
-        ],
-        "createdAt": "2026-09-13T05:53:26.219Z",
-        "reason": "phone-case chassis corner radius (device mockup bezel), not an app UI component"
-      },
-      {
-        "rule": "design-system-radius",
-        "value": "28px",
-        "files": [
-          "citizen.html"
-        ],
-        "createdAt": "2026-09-13T05:53:26.418Z",
-        "reason": "phone-screen chassis corner radius (device mockup bezel), not an app UI component"
-      },
-      {
-        "rule": "design-system-color",
-        "value": "rgb(59, 111, 160)",
-        "files": [
-          "lgu.html"
-        ],
-        "createdAt": "2026-09-13T05:53:26.625Z",
-        "reason": "map-legend dot for the Safe/Civilian status — matches STATUS_COLOR in js/lgu-map.js, the same cross-surface node-status color system used by the citizen app's map markers"
-      },
-      {
-        "rule": "design-system-color",
-        "value": "rgb(138, 143, 152)",
-        "files": [
-          "lgu.html"
-        ],
-        "createdAt": "2026-09-13T05:53:26.850Z",
-        "reason": "map-legend dot for the Offline/last-signal status — matches STATUS_COLOR in js/lgu-map.js, the same cross-surface node-status color system used by the citizen app's map markers"
+        "createdAt": "2026-09-14T15:18:00.754Z",
+        "reason": "Two false positives: (1) .phone-screen is the device-mockup chassis container (0 padding by design) -- its children (.status-strip, .pages, .tab-bar) each carry their own real padding, so this isn't app content flush against a boundary. (2) .legend-box's collapsed default state (.minimized: height:0, padding:0, border:none) is a hidden/zero-size transition state -- the visible expanded legend-box has 14px padding on all sides."
       }
     ]
   }

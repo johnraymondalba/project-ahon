@@ -7,14 +7,14 @@ related_targets: []
 
 ## Direction contract
 
-THESIS: The landing page is a live-plotting typhoon chart, not a marketing hero — it refuses the hero-banner-plus-feature-cards-plus-CTA arrangement every civic-safety site ships.
+THESIS: The landing page becomes a clean, trustworthy app-store-style intro — logo, one-line pitch, two clear role cards — refusing the prior live-plotting-chart hero in favor of the same standard mobile-safety-app language as the rest of the product.
 
-OWN-WORLD: Near-black chart ground (#0A1628), fine grey-blue graticule (#2A3B52), bone plot-ink (#F2EFE6), amber relay-trace (#F5B942), red reserved only for SOS/critical (#E8452C), green for cleared (#4A9B6E). Overpass for display (civic highway-signage heritage — the same lineage as official road and infrastructure signage), a system-ui stack for body copy, Overpass Mono for every coordinate, timestamp, and hop-count readout. State reads by line weight and dash pattern, never color alone; severity plots as dot size on a fixed magnitude ramp; the graticule grid runs visibly through every panel edge.
+OWN-WORLD: Same tokens as citizen.html/lgu.html's new world — ground #F4F6F9, white cards with soft shadow, navy ink #14213D, muted grey #6B7280, AHON critical-red #E8452C as the single accent, Inter type (700–800 headings, 400–500 body), 16–24px corner radius, full-circle for the logo mark and icon badges. No graticule grid, no mono readouts — that instrument identity is retired.
 
-STORY: A visitor watches a real report plot itself on a chart of Nabua/Naga, then hop — dashed segment by dashed segment — across intermediate barangay dots to a marked LGU GATEWAY glyph while a hop-counter ticks in mono type, understanding "Only takes One Hop to Help" as a demonstrated mechanism rather than a slogan. They then pick Citizen or LGU as two chart-legend entries, not SaaS cards.
+STORY: A visitor lands, reads the name and one-sentence purpose ("Only takes One Hop to Help" kept as tagline) in seconds, and picks Citizen or LGU / Command Center as two clearly different, clearly labeled entry cards — no chart animation required to understand what to do next.
 
-FIRST VIEWPORT: Full-bleed chart canvas fills the viewport; a barangay dot pulses and plots a status, a dashed amber line draws hop-by-hop across the graticule to a marked LGU GATEWAY glyph; hop-count and lat/long tick up in mono type beside the trace. The AHON wordmark sits as a chart title block, top-left. Two legend-style role entries ("Citizen" / "LGU / Command Center") anchor the bottom third as the primary action.
+FIRST VIEWPORT: Centered column on the light ground: logo mark, "AHON" wordmark, one-line tagline/thesis. Below, two large role cards stacked (mobile) or side-by-side (wider viewports), each a white rounded card with an icon, title, one-line description, and a clear arrow/button — Citizen and LGU / Command Center. Footer note stays small and muted.
 
-FORM: Typhoon Track Chart — PAGASA storm-track plotting charts & ham-radio hurricane nets. Assigned index 5 of 7 grounded directions, seed key 3653e7ec.
+FORM: Same user-pinned canon direction as citizen.html (two supplied reference app screenshots), applied to this surface's own content and structure — not a copy of the citizen app's screens. Replaces this surface's prior Typhoon Track Chart direction (seed key 3653e7ec) in full.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.

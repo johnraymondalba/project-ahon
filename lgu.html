@@ -12,118 +12,133 @@
 </head>
 <body>
 
-    <div class="chart-shell">
+    <div class="lgu-shell">
 
-        <header class="lgu-header">
-            <div class="brand-container">
-                <div class="brand-logo-mark brand-logo" style="width:34px;height:34px;">
-                    <img src="assets/logo.svg" alt="AHON">
-                </div>
+        <aside class="lgu-sidebar">
+            <div class="lgu-sidebar-brand">
+                <div class="brand-logo-mark brand-logo"><img src="assets/logo.svg" alt="AHON"></div>
                 <div>
-                    <h1>AHON <span class="header-subtitle">COMMAND CENTER</span></h1>
-                    <p>NABUA, CAMARINES SUR &middot; CHART NO. 2 &middot; LIVE PRIORITY PLOT</p>
+                    <h1>AHON</h1>
+                    <p>Command Center</p>
                 </div>
             </div>
 
-            <div class="header-stats">
-                <div class="stat-readout critical"><span class="stat-count" id="countCritical">0</span><span class="stat-label">Critical</span></div>
-                <div class="stat-readout high"><span class="stat-count" id="countHigh">0</span><span class="stat-label">High</span></div>
-                <div class="stat-readout cleared"><span class="stat-count" id="countCleared">0</span><span class="stat-label">Cleared</span></div>
-            </div>
+            <nav class="lgu-nav">
+                <button class="lgu-nav-item active" id="navDashboard" onclick="lguGoToPanelTab(null)"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+                <button class="lgu-nav-item" id="navReports" onclick="lguGoToPanelTab('tabList')"><i class="fa-solid fa-list-ul"></i> Reports</button>
+                <button class="lgu-nav-item" id="navAi" onclick="lguGoToPanelTab('tabAi')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Triage</button>
+            </nav>
 
-            <div class="header-right">
-                <div class="mesh-health-strip">
-                    <div class="mesh-health-item"><span class="mesh-health-dot" id="meshHealthDot"></span> <span id="meshHealthLabel">Network healthy</span></div>
-                    <div class="mesh-health-item"><i class="fa-solid fa-mobile-screen"></i> <span id="meshPhoneCount">0</span> phone nodes</div>
-                    <div class="mesh-health-item"><i class="fa-solid fa-tower-cell"></i> <span id="meshLoraCount">0</span> LoRa relays</div>
+            <div class="lgu-nav-label">Switch view</div>
+            <nav class="lgu-nav">
+                <a class="lgu-nav-item" href="citizen.html"><i class="fa-solid fa-mobile-screen-button"></i> Citizen app</a>
+                <a class="lgu-nav-item" href="index.html"><i class="fa-solid fa-arrow-left"></i> Role select</a>
+            </nav>
+
+            <div class="lgu-sidebar-spacer"></div>
+
+            <div class="lgu-mesh-health">
+                <span class="mesh-health-dot" id="meshHealthDot"></span>
+                <div>
+                    <div class="lgu-mesh-health-text" id="meshHealthLabel">Network healthy</div>
+                    <div class="lgu-mesh-health-sub"><span id="meshPhoneCount">0</span> phones &middot; <span id="meshLoraCount">0</span> LoRa relays</div>
                 </div>
-                <a class="role-switch-link" href="index.html"><i class="fa-solid fa-arrow-left"></i> Role select</a>
-                <a class="role-switch-link" href="citizen.html"><i class="fa-solid fa-mobile-screen-button"></i> Citizen app</a>
             </div>
-        </header>
+        </aside>
 
-        <main class="chart-map-wrap">
-            <div id="lguMap"></div>
-            <div class="map-fallback" id="lguMapFallback" style="display:none;">
-                <i class="fa-solid fa-map-location-dot"></i>
-                <div class="map-fallback-msg">Live map requires a Google Maps API key.<br>Add <code>GOOGLE_MAPS_API_KEY</code> to <code>js/config.js</code> — see README.md.</div>
-            </div>
-            <div class="map-legend">
-                <div class="legend-item"><span class="l-dot" style="background:#E8452C"></span> SOS / Injured</div>
-                <div class="legend-item"><span class="l-dot" style="background:#8A6015"></span> Trapped</div>
-                <div class="legend-item"><span class="l-dot" style="background:#2E6B4C"></span> Rescuer</div>
-                <div class="legend-item"><span class="l-dot" style="background:#3B6FA0"></span> Safe / Civilian</div>
-                <div class="legend-item"><span class="l-dot" style="background:#8B7FD1"></span> Volunteer</div>
-                <div class="legend-item"><span class="l-dot" style="background:#8A8F98"></span> Last Signal (offline)</div>
-            </div>
-
-            <button class="drawer-toggle" id="drawerToggle" onclick="toggleDrawer()">
-                <i class="fa-solid fa-table-list"></i> Reports
-            </button>
-
-            <aside class="drawer-panel" id="drawerPanel">
-            <button class="drawer-close" onclick="toggleDrawer()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
-
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="tabList">Priority List</button>
-                <button class="tab-btn" data-tab="tabAi">AI Triage</button>
-                <button class="tab-btn" data-tab="tabDetail">Details</button>
-            </div>
-
-            <div class="tab-panel active" id="tabList">
-                <div class="table-toolbar">
-                    <input type="text" id="searchInput" placeholder="Search name or ID…">
-                    <select id="statusFilter">
-                        <option value="ALL">All statuses</option>
-                        <option value="SOS">SOS</option>
-                        <option value="INJURED">Injured</option>
-                        <option value="TRAPPED">Trapped</option>
-                        <option value="SAFE">Safe</option>
-                        <option value="OFFLINE">Offline</option>
-                    </select>
+        <main class="lgu-main">
+            <div class="lgu-topbar">
+                <div>
+                    <h2>Live priority plot</h2>
+                    <p class="lgu-topbar-sub">Nabua, Camarines Sur &middot; incoming mesh reports</p>
                 </div>
-                <div class="table-scroll">
-                    <table class="priority-table">
-                        <thead>
-                            <tr>
-                                <th data-sort="name">Reporter</th>
-                                <th data-sort="status">Status</th>
-                                <th>Location</th>
-                                <th>Supplies</th>
-                                <th data-sort="tier">Priority</th>
-                                <th data-sort="updated">Last Updated</th>
-                            </tr>
-                        </thead>
-                        <tbody id="priorityTableBody"></tbody>
-                    </table>
+                <div class="stat-cards">
+                    <div class="stat-card critical"><div class="stat-count" id="countCritical">0</div><div class="stat-label">Critical</div></div>
+                    <div class="stat-card high"><div class="stat-count" id="countHigh">0</div><div class="stat-label">High</div></div>
+                    <div class="stat-card cleared"><div class="stat-count" id="countCleared">0</div><div class="stat-label">Cleared</div></div>
                 </div>
             </div>
 
-            <div class="tab-panel" id="tabAi">
-                <div class="panel-header" style="border-bottom:none;">
-                    <span class="hint">AI-suggested priority score and reasoning per report</span>
-                    <button class="btn" id="runTriageBtn">Re-run AI Triage</button>
+            <div class="lgu-content">
+                <div class="lgu-map-card">
+                    <div id="lguMap"></div>
+                    <div class="map-fallback" id="lguMapFallback" style="display:none;">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <div class="map-fallback-msg">Live map requires a Google Maps API key.<br>Add <code>GOOGLE_MAPS_API_KEY</code> to <code>js/config.js</code> — see README.md.</div>
+                    </div>
+                    <div class="map-legend">
+                        <div class="legend-item"><span class="l-dot" style="background:#C23A22"></span> SOS / Injured</div>
+                        <div class="legend-item"><span class="l-dot" style="background:#A85F00"></span> Trapped</div>
+                        <div class="legend-item"><span class="l-dot" style="background:#146B49"></span> Rescuer</div>
+                        <div class="legend-item"><span class="l-dot" style="background:#4C8DD9"></span> Safe / Civilian</div>
+                        <div class="legend-item"><span class="l-dot" style="background:#8B7FD1"></span> Volunteer</div>
+                        <div class="legend-item"><span class="l-dot" style="background:#98A2B3"></span> Last signal (offline)</div>
+                    </div>
                 </div>
-                <div class="ai-triage-list" id="aiTriageList"></div>
-            </div>
 
-            <div class="tab-panel" id="tabDetail">
-                <div class="panel-header" style="border-bottom:none;"><span class="hint">Tap a marker or a priority-list row to see victim details and route</span></div>
-                <div id="detailPanelBody"></div>
+                <aside class="lgu-panel">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="tabList">Priority list</button>
+                        <button class="tab-btn" data-tab="tabAi">AI triage</button>
+                        <button class="tab-btn" data-tab="tabDetail">Details</button>
+                    </div>
+
+                    <div class="tab-panel active" id="tabList">
+                        <div class="table-toolbar">
+                            <input type="text" id="searchInput" placeholder="Search name or ID…">
+                            <select id="statusFilter">
+                                <option value="ALL">All statuses</option>
+                                <option value="SOS">SOS</option>
+                                <option value="INJURED">Injured</option>
+                                <option value="TRAPPED">Trapped</option>
+                                <option value="SAFE">Safe</option>
+                                <option value="OFFLINE">Offline</option>
+                            </select>
+                        </div>
+                        <div class="table-scroll">
+                            <table class="priority-table">
+                                <thead>
+                                    <tr>
+                                        <th data-sort="name">Reporter</th>
+                                        <th data-sort="status">Status</th>
+                                        <th>Location</th>
+                                        <th>Supplies</th>
+                                        <th data-sort="tier">Priority</th>
+                                        <th data-sort="updated">Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="priorityTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-panel" id="tabAi">
+                        <div class="panel-header" style="border-bottom:none;">
+                            <span class="hint">AI-suggested priority score and reasoning per report</span>
+                            <button class="btn" id="runTriageBtn">Re-run AI triage</button>
+                        </div>
+                        <div class="ai-triage-list" id="aiTriageList"></div>
+                    </div>
+
+                    <div class="tab-panel" id="tabDetail">
+                        <div class="panel-header" style="border-bottom:none;"><span class="hint">Select a marker or a priority-list row to see victim details and route</span></div>
+                        <div id="detailPanelBody"></div>
+                    </div>
+                </aside>
             </div>
-            </aside>
         </main>
 
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>window.AHON_ROLE = 'lgu';</script>
     <script src="js/config.js"></script>
     <script src="js/mock-data.js"></script>
     <script src="js/mesh-simulator.js"></script>
+    <script src="js/realtime-client.js"></script>
     <script src="js/gemini-triage.js"></script>
     <script src="js/lgu-map.js"></script>
     <script src="js/lgu-dashboard.js"></script>
-    <script src="js/lgu-drawer.js"></script>
     <script src="js/lgu-deeplink.js"></script>
 </body>
 </html>

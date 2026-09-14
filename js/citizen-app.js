@@ -1,22 +1,82 @@
 /*
-  Citizen app UI logic: status chips, supply needs, SOS broadcast, volunteer
-  mode, the mesh connection indicator, and the collapsible legend/sheet.
-  Map rendering lives in citizen-map.js; shared data lives in mock-data.js.
+  Citizen app UI logic: status chips, supply needs, vulnerability flags, SOS
+  broadcast, volunteer mode, the mesh connection indicator, Home/Volunteer
+  summaries, and the local-only Profile / Emergency Contacts / Settings /
+  Activity pages (localStorage — personal to this device, not broadcast
+  except where noted). Map rendering lives in citizen-map.js; shared mesh
+  data lives in mock-data.js.
 */
 (function () {
+    const LS = {
+        profile: 'ahon.profile',
+        contacts: 'ahon.contacts',
+        activity: 'ahon.activity',
+        settings: 'ahon.settings',
+    };
+
+    function readJSON(key, fallback) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+        } catch (e) { return fallback; }
+    }
+    function writeJSON(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage unavailable — degrade silently */ }
+    }
+
     const appState = {
         self: { lat: window.SELF_NODE_START.lat, lng: window.SELF_NODE_START.lng },
         sos: false,
         volunteer: false,
         statusLabel: 'SAFE',
         needs: { water: false, food: false, meds: false },
+        flags: { pwd: false, elder: false, infant: false },
     };
 
-    function render() { window.citizenMap.render(appState); }
+    function render() {
+        window.citizenMap.render(appState);
+        renderHomeSummary();
+    }
+
+    // --- ACTIVITY LOG ---
+    function logActivity(text, icon, colorVar) {
+        const list = readJSON(LS.activity, []);
+        list.unshift({ time: Date.now(), text, icon: icon || 'fa-solid fa-circle-info', color: colorVar || '--ink-secondary' });
+        writeJSON(LS.activity, list.slice(0, 50));
+    }
+    window.logActivity = logActivity;
+
+    function relativeTime(ts) {
+        const mins = Math.max(0, Math.round((Date.now() - ts) / 60000));
+        if (mins < 1) return 'just now';
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.round(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        return `${Math.round(hrs / 24)}d ago`;
+    }
+
+    function renderActivity() {
+        const list = readJSON(LS.activity, []);
+        const el = document.getElementById('activityList');
+        if (!el) return;
+        if (!list.length) {
+            el.innerHTML = '<div class="activity-empty">Nothing reported yet. Actions like SOS, status changes, and supply requests show up here.</div>';
+            return;
+        }
+        el.innerHTML = list.map(item => `
+            <div class="activity-row">
+                <div class="activity-icon" style="background:color-mix(in srgb, var(${item.color}) 16%, white); color:var(${item.color})"><i class="${item.icon}"></i></div>
+                <div class="activity-body">
+                    <div class="activity-text">${item.text}</div>
+                    <div class="activity-time">${relativeTime(item.time)}</div>
+                </div>
+            </div>`).join('');
+    }
 
     // --- MY SITUATION ---
     window.setStatus = function (status) {
         if (appState.volunteer && !appState.sos) return;
+        const changed = appState.statusLabel !== status;
         appState.statusLabel = status;
 
         document.querySelectorAll('.chip').forEach(c => c.className = 'chip');
@@ -24,15 +84,35 @@
         const classMap = { SAFE: 'active-safe', TRAPPED: 'active-trapped', INJURED: 'active-injured', RESCUE: 'active-rescue' };
         const chipId = idMap[status];
         if (chipId) document.getElementById(chipId).classList.add(classMap[status]);
+        if (window.realtime) window.realtime.sendStatus(status);
+        if (changed) logActivity(`Marked yourself ${status}`, statusIcon(status), statusColorVar(status));
         render();
     };
+
+    function statusIcon(status) {
+        return { SAFE: 'fa-solid fa-circle-check', TRAPPED: 'fa-solid fa-house-chimney-crack', INJURED: 'fa-solid fa-hand-holding-medical' }[status] || 'fa-solid fa-circle-info';
+    }
+    function statusColorVar(status) {
+        return { SAFE: '--success', TRAPPED: '--warning', INJURED: '--accent' }[status] || '--ink-secondary';
+    }
 
     // --- SUPPLIES NEEDED ---
     window.toggleNeed = function (type) {
         appState.needs[type] = !appState.needs[type];
         const btn = document.getElementById(`btn-${type}`);
         btn.classList.toggle(`active-${type}`, appState.needs[type]);
+        if (window.realtime) window.realtime.sendNeed(type, appState.needs[type]);
+        const label = { water: 'Water', food: 'Food', meds: 'Meds' }[type];
+        logActivity(`${appState.needs[type] ? 'Requested' : 'Cleared request for'} ${label}`, 'fa-solid fa-box-open', '--info');
         render();
+    };
+
+    // --- VULNERABILITY FLAGS ---
+    window.toggleFlag = function (key) {
+        appState.flags[key] = !appState.flags[key];
+        const chip = document.getElementById(`flag-${key}`);
+        if (chip) chip.classList.toggle('active', appState.flags[key]);
+        if (window.realtime) window.realtime.sendFlag(key, appState.flags[key]);
     };
 
     // --- BROADCAST SOS ---
@@ -40,12 +120,13 @@
 
     window.toggleSOS = function () {
         appState.sos = !appState.sos;
-        const btn = document.getElementById('sosBtn');
+        [document.getElementById('sosBtn'), document.getElementById('sosFab')].forEach(btn => btn && btn.classList.toggle('active', appState.sos));
         const label = document.getElementById('sosLabel');
+        if (label) label.innerText = appState.sos ? 'SOS ACTIVE' : 'SOS';
         const banner = document.getElementById('sosBanner');
-        btn.classList.toggle('active', appState.sos);
-        label.innerText = appState.sos ? 'SOS ACTIVE!' : 'BROADCAST SOS';
-        banner.classList.toggle('visible', appState.sos);
+        if (banner) banner.classList.toggle('visible', appState.sos);
+        if (window.realtime) window.realtime.sendSOS(appState.sos);
+        logActivity(appState.sos ? 'Broadcast SOS' : 'Cancelled SOS broadcast', 'fa-solid fa-tower-broadcast', '--accent');
         render();
     };
 
@@ -53,9 +134,9 @@
     window.toggleVolunteer = function () {
         const checkbox = document.getElementById('volunteerCheck');
         appState.volunteer = checkbox.checked;
-        const chipsRow = document.querySelector('.status-chips-row');
-        chipsRow.style.opacity = appState.volunteer ? '0.4' : '1';
-        chipsRow.style.pointerEvents = appState.volunteer ? 'none' : 'auto';
+        if (window.realtime) window.realtime.sendVolunteer(appState.volunteer);
+        logActivity(appState.volunteer ? 'Turned on Volunteer mode' : 'Turned off Volunteer mode', 'fa-solid fa-hand-holding-heart', '--volunteer');
+        renderNearbyList();
         render();
     };
 
@@ -63,8 +144,137 @@
         document.getElementById('legendBox').classList.toggle('minimized');
     };
 
-    window.toggleSheet = function () {
-        document.getElementById('bottomSheet').classList.toggle('sheet-minimized');
+    // --- HOME: status summary + quick-action highlight ---
+    function renderHomeSummary() {
+        const icon = document.getElementById('statusSummaryIcon');
+        const value = document.getElementById('statusSummaryValue');
+        if (!icon || !value) return;
+
+        let label = appState.statusLabel.charAt(0) + appState.statusLabel.slice(1).toLowerCase();
+        let colorVar = statusColorVar(appState.statusLabel);
+        let iconClass = statusIcon(appState.statusLabel);
+        if (appState.sos) { label = 'SOS active'; colorVar = '--accent'; iconClass = 'fa-solid fa-tower-broadcast'; }
+        else if (appState.volunteer) { label = 'Volunteering'; colorVar = '--volunteer'; iconClass = 'fa-solid fa-hand-holding-heart'; }
+
+        value.textContent = label;
+        icon.innerHTML = `<i class="${iconClass}"></i>`;
+        icon.style.background = `color-mix(in srgb, var(${colorVar}) 16%, white)`;
+        icon.style.color = `var(${colorVar})`;
+
+        ['trapped', 'injured'].forEach(key => {
+            const card = document.getElementById(`qa-${key}`);
+            if (card) card.classList.toggle('is-active', appState.statusLabel === key.toUpperCase());
+        });
+    }
+
+    // --- VOLUNTEER: nearby needs preview, built from the live mesh the
+    // citizen already receives — no extra network calls. ---
+    function renderNearbyList() {
+        const el = document.getElementById('nearbyList');
+        if (!el) return;
+        const selfId = window.realtime && window.realtime.selfId;
+        const reports = (window.MESH_NODES || []).filter(n =>
+            n.id !== selfId &&
+            n.type !== 'rescuer' && n.type !== 'volunteer' && n.type !== 'offline' &&
+            (n.status === 'SOS' || n.status === 'TRAPPED' || n.status === 'INJURED' || (n.needs && (n.needs.water || n.needs.food || n.needs.meds)))
+        ).slice(0, 8);
+
+        if (!reports.length) {
+            el.innerHTML = '<div class="nearby-empty">No unmet nearby needs right now — check back as reports come in.</div>';
+            return;
+        }
+        const iconMap = { SOS: 'fa-solid fa-tower-broadcast', INJURED: 'fa-solid fa-hand-holding-medical', TRAPPED: 'fa-solid fa-house-chimney-crack' };
+        const colorMap = { SOS: 'var(--accent-dark)', INJURED: 'var(--accent-dark)', TRAPPED: 'var(--warning-dark)' };
+        el.innerHTML = reports.map(n => {
+            const needs = Object.keys(n.needs || {}).filter(k => n.needs[k]);
+            const meta = needs.length ? `Needs ${needs.join(', ')}` : n.status.charAt(0) + n.status.slice(1).toLowerCase();
+            return `
+                <div class="nearby-row">
+                    <div class="nearby-row-icon" style="background:${colorMap[n.status] || 'var(--ink-secondary)'}"><i class="${iconMap[n.status] || 'fa-solid fa-circle-info'}"></i></div>
+                    <div class="nearby-row-body">
+                        <div class="nearby-row-name">${n.name}</div>
+                        <div class="nearby-row-meta">${meta} &middot; ${Math.round(n.lastSignalMin)}m ago</div>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    // --- PROFILE (local only, this device) ---
+    function loadProfile() {
+        const p = readJSON(LS.profile, {});
+        ['name', 'age', 'blood', 'height', 'weight', 'allergies', 'conditions'].forEach(key => {
+            const input = document.getElementById(`profile${key.charAt(0).toUpperCase() + key.slice(1)}`);
+            if (input) input.value = p[key] || '';
+        });
+        document.getElementById('profileCardName').textContent = p.name || 'Citizen';
+        document.querySelectorAll('.greeting-text h1')[0].textContent = p.name ? `Hello, ${p.name.split(' ')[0]}` : 'Hello, Citizen';
+        ['pwd', 'elder', 'infant'].forEach(key => {
+            const chip = document.getElementById(`flag-${key}`);
+            if (chip) chip.classList.toggle('active', !!appState.flags[key]);
+        });
+    }
+    window.saveProfileField = function (key, value) {
+        const p = readJSON(LS.profile, {});
+        p[key] = value;
+        writeJSON(LS.profile, p);
+        if (key === 'name') {
+            document.getElementById('profileCardName').textContent = value || 'Citizen';
+            document.querySelectorAll('.greeting-text h1')[0].textContent = value ? `Hello, ${value.split(' ')[0]}` : 'Hello, Citizen';
+        }
+    };
+
+    // --- EMERGENCY CONTACTS (local only, this device) ---
+    function renderContacts() {
+        const list = readJSON(LS.contacts, []);
+        const el = document.getElementById('personalContactsList');
+        if (!el) return;
+        if (!list.length) { el.innerHTML = ''; return; }
+        el.innerHTML = list.map((c, i) => `
+            <div class="contact-row">
+                <div class="contact-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="contact-body"><div class="contact-name">${c.name}</div><div class="contact-sub">Personal contact</div></div>
+                <a class="contact-call" href="tel:${encodeURIComponent(c.phone)}" aria-label="Call ${c.name}"><i class="fa-solid fa-phone"></i></a>
+                <button class="contact-call" style="background:var(--accent-tint);color:var(--accent-dark);border:none;margin-left:4px;cursor:pointer;" onclick="removePersonalContact(${i})" aria-label="Remove ${c.name}"><i class="fa-solid fa-xmark"></i></button>
+            </div>`).join('');
+    }
+    window.addPersonalContact = function () {
+        const name = window.prompt('Contact name (e.g. Mom, Neighbor Dan):');
+        if (!name) return;
+        const phone = window.prompt('Phone number:');
+        if (!phone) return;
+        const list = readJSON(LS.contacts, []);
+        list.push({ name, phone });
+        writeJSON(LS.contacts, list);
+        renderContacts();
+    };
+    window.removePersonalContact = function (index) {
+        const list = readJSON(LS.contacts, []);
+        list.splice(index, 1);
+        writeJSON(LS.contacts, list);
+        renderContacts();
+    };
+
+    // --- SETTINGS (local only, this device) ---
+    function loadSettings() {
+        const s = readJSON(LS.settings, { safetyAlerts: true, nearbyAlerts: true });
+        const a = document.getElementById('settingSafetyAlerts');
+        const b = document.getElementById('settingNearbyAlerts');
+        if (a) a.checked = s.safetyAlerts !== false;
+        if (b) b.checked = s.nearbyAlerts !== false;
+    }
+    window.saveSetting = function (key, value) {
+        const s = readJSON(LS.settings, {});
+        s[key] = value;
+        writeJSON(LS.settings, s);
+    };
+
+    // Called by citizen-tabs.js right before a sub-page becomes visible, so
+    // its content is always fresh without polling.
+    window.populateSubpage = function (name) {
+        if (name === 'info') loadProfile();
+        else if (name === 'contacts') renderContacts();
+        else if (name === 'settings') loadSettings();
+        else if (name === 'activity') renderActivity();
     };
 
     // --- MESH STATUS INDICATOR ---
@@ -86,7 +296,7 @@
             sub.textContent = `${meshState.hops} hop${meshState.hops === 1 ? '' : 's'} to LGU`;
         } else {
             text.textContent = 'MESH OFFLINE';
-            sub.textContent = 'Store & forward — will relay when in range';
+            sub.textContent = 'Store & forward';
         }
     }
 
@@ -105,8 +315,17 @@
     document.addEventListener('DOMContentLoaded', () => {
         render();
         renderMeshStatus();
-        window.startMeshSimulator(5000);
+        renderNearbyList();
         setInterval(jitterMeshStatus, 6000);
-        window.addEventListener('mesh:update', render);
+        window.addEventListener('mesh:update', () => { render(); renderNearbyList(); });
+
+        // With the live-sync server (js/realtime-client.js) reachable, the
+        // mesh comes from there instead — only fall back to the old
+        // client-only random simulator if there's no server to talk to.
+        if (window.realtime) {
+            window.addEventListener('realtime:unavailable', () => window.startMeshSimulator(5000));
+        } else {
+            window.startMeshSimulator(5000);
+        }
     });
 })();

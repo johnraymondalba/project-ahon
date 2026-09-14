@@ -15,13 +15,13 @@
 */
 (function () {
     const STATUS_COLOR = {
-        SOS: '#E8452C',
-        INJURED: '#E8452C',
-        TRAPPED: '#8A6015',
-        RESCUER: '#2E6B4C',
+        SOS: '#C23A22',
+        INJURED: '#C23A22',
+        TRAPPED: '#A85F00',
+        RESCUER: '#146B49',
         VOLUNTEER: '#8B7FD1',
-        SAFE: '#3B6FA0',
-        OFFLINE: '#8A8F98',
+        SAFE: '#4C8DD9',
+        OFFLINE: '#98A2B3',
     };
 
     let impl = null; // set to googleImpl or chartImpl once load() decides
@@ -98,7 +98,7 @@
                     routeLine = new google.maps.Polyline({
                         path: [{ lat: rescuer.lat, lng: rescuer.lng }, { lat: node.lat, lng: node.lng }],
                         geodesic: true,
-                        strokeColor: '#0A1628',
+                        strokeColor: '#14213D',
                         strokeOpacity: 0.9,
                         strokeWeight: 3,
                         icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '12px' }],
@@ -169,7 +169,7 @@
                     if (!rescuer || !node) return;
                     routeLine = L.polyline(
                         [[rescuer.lat, rescuer.lng], [node.lat, node.lng]],
-                        { color: '#0A1628', weight: 2.5, dashArray: '2, 7', opacity: 0.85 }
+                        { color: '#14213D', weight: 2.5, dashArray: '2, 7', opacity: 0.85 }
                     ).addTo(markersLayer);
                     map.panTo([node.lat, node.lng]);
                 });

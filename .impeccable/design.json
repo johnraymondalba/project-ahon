@@ -1,285 +1,122 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-13T00:00:00Z",
+  "generatedAt": "2026-09-14T00:00:00Z",
   "title": "Design System: Project AHON",
   "extensions": {
     "colorMeta": {
-      "chart-ground": {
-        "role": "neutral",
-        "displayName": "Chart Ground",
-        "canonical": "#0A1628",
-        "tonalRamp": [
-          "#05090F",
-          "#0A1628",
-          "#101F36",
-          "#182B47",
-          "#24334A",
-          "#3A4A63",
-          "#6B7688",
-          "#9BA9C2"
-        ]
-      },
-      "chart-paper": {
-        "role": "neutral",
-        "displayName": "Chart Paper",
-        "canonical": "#F2EFE6",
-        "tonalRamp": [
-          "#5B6478",
-          "#8C8D8A",
-          "#B7B2A2",
-          "#C9C0AA",
-          "#DFDAC9",
-          "#F2EFE6",
-          "#F8F6EF",
-          "#FBFAF4"
-        ]
-      },
-      "signal-amber": {
-        "role": "primary",
-        "displayName": "Relay Amber",
-        "canonical": "#F5B942",
-        "tonalRamp": [
-          "#3D2D0E",
-          "#5C441A",
-          "#8A6A26",
-          "#B48A33",
-          "#D8A83C",
-          "#F5B942",
-          "#F8CA6E",
-          "#FBDFA0"
-        ]
-      },
-      "signal-critical": {
-        "role": "secondary",
-        "displayName": "Critical Red",
-        "canonical": "#E8452C",
-        "tonalRamp": [
-          "#3D0F08",
-          "#5E170D",
-          "#8A2216",
-          "#B8341F",
-          "#E8452C",
-          "#FF6A52",
-          "#FF9784",
-          "#FFC4B8"
-        ]
-      },
-      "signal-cleared": {
-        "role": "secondary",
-        "displayName": "Cleared Green",
-        "canonical": "#4A9B6E",
-        "tonalRamp": [
-          "#122E20",
-          "#1D4A33",
-          "#2E6B4C",
-          "#3A8259",
-          "#4A9B6E",
-          "#6FB68C",
-          "#9FD0B3",
-          "#DCEBE2"
-        ]
-      },
-      "signal-info": {
-        "role": "secondary",
-        "displayName": "Civilian Info Blue",
-        "canonical": "#6FA8D8",
-        "tonalRamp": [
-          "#132436",
-          "#1E3A55",
-          "#2F567C",
-          "#4779A6",
-          "#6FA8D8",
-          "#96C2E4",
-          "#BFDCEF",
-          "#E4F0F9"
-        ]
-      },
-      "status-volunteer": {
-        "role": "accent-exception",
-        "displayName": "Volunteer Violet",
-        "canonical": "#8B7FD1",
-        "tonalRamp": [
-          "#231F45",
-          "#332C66",
-          "#4B4090",
-          "#6C5EB3",
-          "#8B7FD1",
-          "#AAA1DE",
-          "#C9C3EA",
-          "#E7E4F5"
-        ]
-      },
-      "status-offline": {
-        "role": "neutral",
-        "displayName": "Offline Grey",
-        "canonical": "#6B7688",
-        "tonalRamp": [
-          "#1C1F26",
-          "#2C313B",
-          "#454B58",
-          "#5C6373",
-          "#6B7688",
-          "#8B93A2",
-          "#B0B6C0",
-          "#D6D9DF"
-        ]
-      }
+      "accent": { "role": "primary", "displayName": "AHON Red", "canonical": "#E8452C", "tonalRamp": ["#3D0F08", "#6E1B10", "#A02717", "#C23A22", "#E8452C", "#F17C68", "#F8AEA1", "#FDEAE6"] },
+      "accent-dark": { "role": "primary", "displayName": "AHON Red — Solid Fill", "canonical": "#C23A22", "tonalRamp": ["#33100A", "#5E1D12", "#8A2A19", "#C23A22", "#DA5B44", "#E88670", "#F3B4A5", "#FBE0D9"] },
+      "success": { "role": "secondary", "displayName": "Success Green", "canonical": "#22A06B", "tonalRamp": ["#0B3A27", "#146B49", "#1B8858", "#22A06B", "#4EBB8B", "#83D2AF", "#B8E7D3", "#E3F5EC"] },
+      "warning": { "role": "secondary", "displayName": "Warning Amber", "canonical": "#F5A623", "tonalRamp": ["#4D2E00", "#7A4A00", "#A85F00", "#D48200", "#F5A623", "#F8BD5C", "#FBD696", "#FDF1DD"] },
+      "info": { "role": "secondary", "displayName": "Info Blue", "canonical": "#4C8DD9", "tonalRamp": ["#0F2A4A", "#1D4A7D", "#2E6BAC", "#4C8DD9", "#78ACE3", "#A6CAED", "#CFE2F6", "#E9F1FC"] },
+      "volunteer": { "role": "secondary", "displayName": "Volunteer Violet", "canonical": "#8B7FD1", "tonalRamp": ["#241F49", "#3C3477", "#5A4EA3", "#8B7FD1", "#A79DDD", "#C3BBE8", "#DCD7F2", "#EFEDFA"] },
+      "offline": { "role": "neutral", "displayName": "Offline Grey", "canonical": "#98A2B3", "tonalRamp": ["#20242B", "#3A404A", "#5A616D", "#98A2B3", "#B3BAC6", "#CDD2DA", "#E3E6EA", "#F1F2F4"] },
+      "bg": { "role": "neutral", "displayName": "Ground", "canonical": "#F4F6FA", "tonalRamp": ["#131722", "#252B3A", "#3E4457", "#6B7180", "#9BA1AE", "#CDD1D9", "#E7E9EE", "#F4F6FA"] },
+      "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#FFFFFF", "tonalRamp": ["#1A1D24", "#33363E", "#55585F", "#83858B", "#B4B5B9", "#DADBDD", "#EFEFF0", "#FFFFFF"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#16203D", "tonalRamp": ["#080B15", "#0F1526", "#16203D", "#2A3757", "#4E5B7C", "#8790A6", "#C2C8D5", "#EAECF1"] }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display (Overpass)",
-        "purpose": "Title blocks, gate headline, legend entry titles — civic highway-signage lineage."
-      },
-      "body": {
-        "displayName": "Body (system-ui)",
-        "purpose": "Thesis copy, hints, descriptions."
-      },
-      "label": {
-        "displayName": "Label/Mono (Overpass Mono)",
-        "purpose": "Every coordinate, timestamp, hop-count, stat, and table figure; always tabular."
-      }
+      "display": { "displayName": "Display", "purpose": "Page/app titles, greeting headline, SOS hero headline, stat-card counts. Inter 800." },
+      "body": { "displayName": "Body", "purpose": "Descriptions, hints, list-row text. Inter 400-600." },
+      "label": { "displayName": "Label", "purpose": "Stat labels, table headers, chip/tab text, tier badges. Inter 600-700, often uppercase, tabular-nums for figures." }
     },
     "shadows": [
-      {
-        "name": "drawer-slide",
-        "value": "-8px 0 24px rgba(10,22,40,0.08)",
-        "purpose": "LGU drawer panel sliding over the full-bleed map."
-      },
-      {
-        "name": "phone-chassis",
-        "value": "0 20px 50px rgba(0,0,0,0.6), inset 0 0 0 2px #222",
-        "purpose": "Citizen app's phone-mockup chassis; the one ambient/device shadow in the system."
-      },
-      {
-        "name": "marker-lift",
-        "value": "0 1px 3px rgba(10,22,40,0.25)",
-        "purpose": "Subtle lift under LGU fallback-map marker dots so they read above chart-paper."
-      }
+      { "name": "shadow-sm", "value": "0 2px 8px rgba(20, 33, 61, 0.06)", "purpose": "Resting state for cards, chips, pills, list containers." },
+      { "name": "shadow-md", "value": "0 10px 28px rgba(20, 33, 61, 0.10)", "purpose": "Floating/elevated elements: map legends, overlays, hover state on role cards." },
+      { "name": "shadow-lg", "value": "0 20px 48px rgba(20, 33, 61, 0.16)", "purpose": "Reserved for the most prominent floating elements." },
+      { "name": "sos-glow", "value": "0 16px 32px rgba(194, 58, 34, 0.35)", "purpose": "Accent-tinted shadow under the SOS hero button, reading as physically raised." },
+      { "name": "phone-chassis-ambient", "value": "0 24px 60px rgba(20, 33, 61, 0.28)", "purpose": "Ambient drop shadow on the citizen phone-mockup chassis." }
     ],
     "motion": [
-      {
-        "name": "trace-draw",
-        "value": "opacity 0.2s ease",
-        "purpose": "Dashed hop-trace line fading in segment by segment on the landing plot."
-      },
-      {
-        "name": "sos-ping",
-        "value": "box-shadow ping, 1.6s ease-out infinite",
-        "purpose": "Pulsing ring on the active SOS button/gate button; reserved for the SOS broadcast state only."
-      },
-      {
-        "name": "drawer-ease",
-        "value": "transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)",
-        "purpose": "LGU drawer slide-in/out over the map."
-      }
+      { "name": "sos-ping", "value": "box-shadow ping 1.6s ease-out infinite", "purpose": "Pulsing ring on the SOS button/FAB while actively broadcasting — the one pulsing control in the system." },
+      { "name": "sheet-up", "value": "transform/opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)", "purpose": "SOS confirm bottom sheet entrance." },
+      { "name": "subpage-push", "value": "transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)", "purpose": "Profile sub-page push/back navigation." }
     ],
     "breakpoints": [
-      {
-        "name": "mobile",
-        "value": "640px"
-      },
-      {
-        "name": "lgu-min-width",
-        "value": "1024px"
-      }
+      { "name": "landing-tablet", "value": "760px" },
+      { "name": "landing-mobile", "value": "480px" },
+      { "name": "lgu-min-width", "value": "1180px" }
     ]
   },
   "components": [
     {
-      "name": "SOS Instrument Bar Button",
+      "name": "SOS Button",
       "kind": "button",
-      "refersTo": "button-sos",
-      "description": "Persistent full-width SOS broadcast control on every citizen app page; fills solid and ring-pulses once active.",
-      "html": "<button class=\"ds-sos-btn\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2a7 7 0 0 1 7 7c0 3-2 4-2 7H7c0-3-2-4-2-7a7 7 0 0 1 7-7z\"/></svg><span>SOS BROADCAST</span></button>",
-      "css": ".ds-sos-btn { width: 100%; min-height: 52px; padding: 10px 16px; background: #101F36; border: 1.5px solid #E8452C; border-radius: 4px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; color: #FF6A52; font-family: 'Overpass Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.04em; transition: background 0.2s; } .ds-sos-btn:hover, .ds-sos-btn:focus-visible { background: #182B47; } .ds-sos-btn.active { background: #B8341F; color: #F2EFE6; animation: ds-sos-ping 1.6s ease-out infinite; } @keyframes ds-sos-ping { 0% { box-shadow: 0 0 0 0 rgba(232,69,44,0.45); } 70% { box-shadow: 0 0 0 14px rgba(232,69,44,0); } 100% { box-shadow: 0 0 0 0 rgba(232,69,44,0); } }"
+      "refersTo": "sos-button",
+      "description": "Large circular primary SOS action on the citizen Home screen; pulses while actively broadcasting.",
+      "html": "<button class=\"ds-sos-btn\"><svg width=\"34\" height=\"34\" viewBox=\"0 0 512 512\" fill=\"currentColor\"><path d=\"M256 32a224 224 0 1 0 0 448 224 224 0 1 0 0-448zM256 120a24 24 0 0 1 24 24v96a24 24 0 0 1-48 0v-96a24 24 0 0 1 24-24zm0 200a28 28 0 1 1 0 56 28 28 0 1 1 0-56z\"/></svg><span class=\"ds-sos-text\">SOS</span></button>",
+      "css": ".ds-sos-btn { width: 148px; height: 148px; border-radius: 50%; background: #C23A22; border: none; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-shadow: 0 16px 32px rgba(194,58,34,0.35); transition: transform 0.15s; } .ds-sos-btn:active { transform: scale(0.96); } .ds-sos-text { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 800; letter-spacing: 0.02em; } .ds-sos-btn.ds-active { animation: ds-sos-ping 1.6s ease-out infinite; } @keyframes ds-sos-ping { 0% { box-shadow: 0 0 0 0 rgba(232,69,44,0.45); } 70% { box-shadow: 0 0 0 16px rgba(232,69,44,0); } 100% { box-shadow: 0 0 0 0 rgba(232,69,44,0); } }"
     },
     {
-      "name": "Spine Tab (active)",
-      "kind": "nav",
-      "refersTo": "tab-spine-active",
-      "description": "Left-edge book-spine navigation tab for the citizen instrument book; active tab fills solid amber.",
-      "html": "<button class=\"ds-spine-tab ds-active\"><span>MAP</span></button><button class=\"ds-spine-tab\"><span>STATUS</span></button>",
-      "css": ".ds-spine-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: transparent; border: none; border-radius: 3px; color: #9BA9C2; cursor: pointer; padding: 10px 2px; font-family: 'Overpass Mono', monospace; font-size: 11px; transition: background 0.15s, color 0.15s; } .ds-spine-tab:hover, .ds-spine-tab:focus-visible { color: #F2EFE6; } .ds-spine-tab.ds-active { background: #F5B942; color: #0A1628; font-weight: 600; }"
+      "name": "Role Card",
+      "kind": "card",
+      "refersTo": "role-card",
+      "description": "Landing page's Citizen / LGU entry cards; soft-shadowed, lifts on hover.",
+      "html": "<a class=\"ds-role-card\" href=\"#\"><span class=\"ds-role-glyph\">C</span><span class=\"ds-role-text\"><span class=\"ds-role-title\">Citizen</span><span class=\"ds-role-desc\">Report your status and get help.</span></span><span class=\"ds-role-arrow\">&rarr;</span></a>",
+      "css": ".ds-role-card { display: flex; align-items: center; gap: 16px; background: #FFFFFF; border-radius: 24px; padding: 20px; box-shadow: 0 2px 8px rgba(20,33,61,0.06); text-decoration: none; color: inherit; transition: box-shadow 0.15s ease, transform 0.15s ease; } .ds-role-card:hover, .ds-role-card:focus-visible { box-shadow: 0 10px 28px rgba(20,33,61,0.10); transform: translateY(-2px); } .ds-role-glyph { width: 52px; height: 52px; border-radius: 50%; background: #FDEAE6; color: #C23A22; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; flex-shrink: 0; } .ds-role-title { font-family: 'Inter', sans-serif; font-size: 15.5px; font-weight: 800; color: #16203D; display: block; } .ds-role-desc { font-size: 13px; line-height: 1.5; color: #545F70; display: block; margin-top: 4px; } .ds-role-arrow { color: #8891A0; font-size: 15px; transition: transform 0.15s ease, color 0.15s ease; } .ds-role-card:hover .ds-role-arrow { transform: translateX(4px); color: #E8452C; }"
     },
     {
-      "name": "Legend Entry",
-      "kind": "nav",
-      "refersTo": "legend-entry",
-      "description": "Landing page role-select row — a chart-legend entry, not a SaaS card. Circular plot-glyph in place of an icon.",
-      "html": "<a class=\"ds-legend-entry\" href=\"#\"><span class=\"ds-legend-glyph\"></span><span class=\"ds-legend-text\"><span class=\"ds-legend-title\">CITIZEN</span><span class=\"ds-legend-desc\">Broadcast your status and needs over the mesh.</span></span><span class=\"ds-legend-arrow\">&#8594;</span></a>",
-      "css": ".ds-legend-entry { display: flex; align-items: center; gap: 20px; padding: 14px 4px; border-bottom: 1px solid #24334A; text-decoration: none; color: inherit; transition: background 0.15s, padding-left 0.15s; } .ds-legend-entry:hover, .ds-legend-entry:focus-visible { background: #101F36; padding-left: 14px; } .ds-legend-glyph { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #6FA8D8; background: #6FA8D8; flex-shrink: 0; } .ds-legend-title { font-family: Overpass, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; color: #F2EFE6; display: block; } .ds-legend-desc { font-size: 13px; color: #9BA9C2; display: block; margin-top: 4px; } .ds-legend-arrow { color: #9BA9C2; transition: transform 0.15s, color 0.15s; } .ds-legend-entry:hover .ds-legend-arrow { transform: translateX(4px); color: #F5B942; }"
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "chip-active-critical",
+      "description": "Safe/Trapped/Injured status selector chip; solid signal-color fill when active.",
+      "html": "<button class=\"ds-chip ds-chip-active-injured\">Injured</button>",
+      "css": ".ds-chip { padding: 12px 18px; border-radius: 999px; border: 1.5px solid #E6E9F1; background: #EEF1F6; color: #545F70; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.01em; cursor: pointer; transition: 0.15s; } .ds-chip-active-injured { background: #C23A22; color: #fff; border-color: #C23A22; }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "stat-card",
+      "description": "LGU dashboard top-strip summary count card (Critical/High/Cleared).",
+      "html": "<div class=\"ds-stat-card\"><div class=\"ds-stat-count\">12</div><div class=\"ds-stat-label\">Critical</div></div>",
+      "css": ".ds-stat-card { background: #FFFFFF; border-radius: 16px; box-shadow: 0 2px 8px rgba(20,33,61,0.06); padding: 12px 18px; min-width: 92px; text-align: center; } .ds-stat-count { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; line-height: 1; color: #C23A22; } .ds-stat-label { font-size: 11.5px; color: #545F70; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; margin-top: 5px; }"
     },
     {
       "name": "Tier Badge",
       "kind": "chip",
       "refersTo": "tier-badge-critical",
-      "description": "LGU priority-list severity badge; Critical/High/Low each carry a paired ink+background tone in the light register.",
-      "html": "<span class=\"ds-tier-badge ds-critical\">CRITICAL</span> <span class=\"ds-tier-badge ds-high\">HIGH</span> <span class=\"ds-tier-badge ds-low\">LOW</span>",
-      "css": ".ds-tier-badge { display: inline-block; padding: 3px 9px; border-radius: 4px; font-family: 'Overpass Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; } .ds-tier-badge.ds-critical { background: #F5DCD6; color: #B8341F; } .ds-tier-badge.ds-high { background: #FBE9C6; color: #8A6015; } .ds-tier-badge.ds-low { background: #DCEBE2; color: #2E6B4C; }"
+      "description": "Critical/High/Low priority badge in the LGU report table.",
+      "html": "<span class=\"ds-tier-badge\">Critical</span>",
+      "css": ".ds-tier-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: 0.01em; background: #FDEAE6; color: #C23A22; }"
     },
     {
-      "name": "Drawer Panel",
-      "kind": "custom",
-      "refersTo": "drawer-toggle",
-      "description": "LGU priority-list/AI-triage panel that slides in from the right over the full-bleed map, never a fixed sidebar. Each report row carries a deep-linkable case reference in the URL hash (e.g. lgu.html#N04) that reopens straight to its Details tab.",
-      "html": "<button class=\"ds-drawer-toggle\">Reports</button><aside class=\"ds-drawer-panel ds-open\"><button class=\"ds-drawer-close\">&times;</button><div class=\"ds-drawer-body\">Priority list / AI Triage tabs render here.</div></aside>",
-      "css": ".ds-drawer-toggle { position: absolute; top: 16px; right: 16px; background: #0A1628; color: #FBFAF4; border: none; border-radius: 4px; padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; } .ds-drawer-panel { position: absolute; top: 0; right: 0; bottom: 0; width: 460px; max-width: 92vw; background: #FBFAF4; border-left: 1px solid #C9C0AA; box-shadow: -8px 0 24px rgba(10,22,40,0.08); transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2,0.8,0.2,1); } .ds-drawer-panel.ds-open { transform: translateX(0); } .ds-drawer-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border: 1px solid #C9C0AA; border-radius: 4px; background: #F2EFE6; color: #5B6478; cursor: pointer; }"
-    },
-    {
-      "name": "Map Marker (chart-native)",
-      "kind": "custom",
-      "refersTo": "marker-core",
-      "description": "Plotted node marker used identically on citizen and LGU maps: solid ring for active, dashed lower-opacity ring for ghost/offline.",
-      "html": "<div class=\"ds-marker ds-active\"></div><div class=\"ds-marker ds-ghost\"></div>",
-      "css": ".ds-marker { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #F2EFE6; } .ds-marker.ds-active { background: #F5B942; } .ds-marker.ds-ghost { background: #6B7688; opacity: 0.6; border-style: dashed; }"
+      "name": "Bottom Tab Bar Item",
+      "kind": "nav",
+      "refersTo": "tab-item",
+      "description": "Citizen app's primary navigation item (5-item bottom bar); active item turns accent red.",
+      "html": "<button class=\"ds-tab-item ds-tab-active\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 512 512\" fill=\"currentColor\"><path d=\"M280.4 148.3L96 300.1V464a16 16 0 0 0 16 16l112.1-.3a16 16 0 0 0 15.9-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.6a16 16 0 0 0 16 16.1L464 480a16 16 0 0 0 16-16V300L295.7 148.3a12 12 0 0 0-15.3 0z\"/></svg><span>Home</span></button>",
+      "css": ".ds-tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: none; color: #545F70; cursor: pointer; padding: 4px 2px; } .ds-tab-item span { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.01em; } .ds-tab-active { color: #E8452C; }"
     }
   ],
   "narrative": {
-    "northStar": "The Typhoon Track Chart",
-    "overview": "AHON's interface is a live-plotting storm-track chart — the PAGASA plotting sheet and the ham-radio hurricane net — not a civic-safety SaaS dashboard. Every surface is drawn on a visible graticule grid; reports plot as dots, relays draw as dashed traced lines, and role choices read as legend entries rather than feature cards. The world ships in two registers of the same instrument: a near-black night-instrument register for the landing page and the citizen app (used outdoors, low-light, one-handed), and a cream paper-chart register for the LGU command center (sustained desk work in daylight). Both registers share one palette, one type system, and one 4px-radius instrument vocabulary; only ground and ink invert between them. State reads by shape, line weight, and dash pattern before it reads by color — ghost (offline) nodes are dashed rings at reduced opacity, not just a grey dot; severity is a fixed size ramp, not only a hue. Red is spent on exactly one meaning across the whole system: SOS/critical. The confirmed anti-reference is the prior 'iFlood' navy/cyan UI look and the generic hero-banner/feature-card/CTA arrangement every civic-safety site ships; neither survives in the build.",
+    "northStar": "Clean Care",
+    "overview": "AHON's interface is a standard, trustworthy mobile-safety-app and admin-dashboard look — white soft-shadowed cards on a light grey ground, a single red accent, Inter throughout — not a chart-instrument metaphor. This replaces the prior \"Typhoon Track Chart\" world (near-black/cream chart-paper registers, graticule grids, dashed-instrument markers, Overpass/Overpass Mono type, near-universal 4px radius) in full, across all three surfaces: the landing page, the citizen app, and the LGU command center. The direction was user-pinned from two reference screenshots (a panic-button SOS app and a driving-safety dashboard app) — a \"canon/standing-exit\" choice explicitly favoring a UI a stressed citizen already knows how to use on sight, overriding that session's dice-rolled world set.\n\nThe system carries forward two pieces of prior-brand continuity deliberately, not as drift: the AHON critical-red accent, and the color roles of the 7-state mesh legend (SOS, civilian, rescuer, senior/PWD, volunteer, offline, self). Both are re-rendered in the new visual language — solid filled circles with white borders instead of dashed-ring instrument markers — but the meanings are unchanged from the system this replaces.",
     "keyCharacteristics": [
-      "Full-bleed live chart as the ground truth on every surface — panels and lists are drawers/pages over it, never boxes beside it.",
-      "One shared palette expressed in two registers (dark night-instrument / light paper-chart), not two different systems.",
-      "Overpass display + system-ui body + Overpass Mono for every coordinate, timestamp, hop-count, and count readout, always tabular.",
-      "Near-universal 4px corner radius; full circles reserved for plotted nodes, dots, and toggle controls.",
-      "Red is single-purpose (critical/SOS only); a seventh accent (muted violet) is authorized solely for the citizen Volunteer status, nowhere else."
+      "Soft-shadowed white cards on a light cool-grey ground (#F4F6FA) — elevation is now load-bearing, a full reversal of the prior \"flat instrument, no shadow\" rule.",
+      "One accent, one meaning: AHON red (#E8452C, solid fill #C23A22) spent only on SOS/critical/primary-emergency, never decoration — carried over from the prior brand for continuity, not reinvented.",
+      "Inter for everything, including tabular-nums on every live-updating figure — the prior system's monospace (Overpass Mono) identity is fully retired.",
+      "A generous, soft corner scale (10-24px, full circles/pills for buttons, avatars, badges, markers) replacing the prior near-universal 4px radius.",
+      "Bottom tab bar (citizen app) / left sidebar (LGU dashboard) as primary navigation, replacing the prior left spine-tab book and sliding drawer."
     ],
     "rules": [
-      {
-        "name": "The One Meaning Rule",
-        "body": "Critical red never appears for anything but SOS/critical severity, on any surface. If a control needs a red-adjacent warm accent for a non-critical purpose, it does not exist yet and should not be invented.",
-        "section": "colors"
-      },
-      {
-        "name": "The Line-Before-Hue Rule",
-        "body": "Node and state distinctions are carried by shape, stroke weight, and dash pattern first; color is the second signal, never the only one. A ghost/offline node is a dashed, lower-opacity ring regardless of which hue distinguishes it.",
-        "section": "colors"
-      },
-      {
-        "name": "The Tabular Readout Rule",
-        "body": "Any numeral that updates live (hop count, coordinate, stat count, mesh health figure) is set in Overpass Mono with tabular numerals so digits never shift the surrounding layout as they tick.",
-        "section": "typography"
-      },
-      {
-        "name": "The Flat Instrument Rule",
-        "body": "Chart surfaces, panels, chips, and buttons are flat at rest, separated by hairline borders. Shadow is reserved for the two cases where something is physically sliding or sitting over the chart (the LGU drawer, the phone chassis) — never for ordinary buttons or cards.",
-        "section": "elevation"
-      }
+      { "name": "The One Meaning Rule", "body": "AHON red is spent only on SOS/critical/primary-emergency meaning, on every surface. It is not available for decorative accents, non-critical highlights, or \"because it's the brand color\" uses — a rule preserved unchanged from the prior chart-instrument system into Clean Care.", "section": "colors" },
+      { "name": "The Legend Continuity Rule", "body": "The 7-state mesh node legend (SOS, civilian, rescuer, senior/PWD, volunteer, offline, self) keeps the exact color role it had before the redesign. Only the rendering changed — solid filled circles with white borders replacing dashed-ring chart markers — never the color-to-meaning mapping.", "section": "colors" },
+      { "name": "The Tabular Readout Rule", "body": "Any numeral that updates live (stat counts, timestamps, hop-adjacent figures) is set with font-variant-numeric: tabular-nums via the shared .tabular utility so digits don't shift the layout as they tick — preserved as a functional rule from the prior system, no longer tied to a monospace face.", "section": "typography" },
+      { "name": "The Load-Bearing Shadow Rule", "body": "Every card and floating control casts a soft, non-offset shadow at rest; flat, borderless surfaces are not part of this system's vocabulary except for hairline-divided list rows within a card.", "section": "elevation" }
     ],
     "dos": [
-      "Do keep the graticule grid visible behind every panel — it is the chart's own ruling, not a removable decoration.",
-      "Do spend critical red on SOS/critical meaning only, in both registers.",
-      "Do set every live-updating number (coordinates, hop count, timestamps, stat counts) in Overpass Mono with tabular numerals.",
-      "Do distinguish node/state pairs by shape and dash pattern in addition to color (ghost = dashed + dim, not just grey).",
-      "Do keep the LGU map's Leaflet fallback and Google Maps mode visually identical in marker vocabulary and palette; a missing API key must never read as a broken or unfinished surface.",
-      "Do give every LGU report a deep-linkable URL hash reference (#N04) that reopens straight to that case's Details tab; this is a shipped, verified pattern, not an aspiration.",
-      "Do draw icons from Font Awesome Solid at one consistent weight; never substitute a unicode symbol or emoji for an icon."
+      "Do spend AHON red on SOS/critical/primary-emergency meaning only, on every surface.",
+      "Do keep the 7-state mesh legend's color-to-meaning mapping unchanged even as its rendering evolves.",
+      "Do set every live-updating number in Inter with tabular numerals via the .tabular utility.",
+      "Do give every card and floating control a soft, non-offset shadow at rest — this system has no flat-card mode.",
+      "Do give every LGU report a deep-linkable URL hash reference (#N04) that reopens straight to that case.",
+      "Do draw icons from Font Awesome Solid at one consistent weight; never substitute a unicode symbol or emoji."
     ],
     "donts": [
-      "Don't introduce an eighth accent hue. Volunteer violet (#8B7FD1) is the one named exception, scoped to the citizen Volunteer status; no future surface should add another new color without the same justification.",
-      "Don't put the priority list or AI Triage panel beside the LGU map as a permanent sidebar — they are drawers that slide over the chart, which stays the ground truth.",
-      "Don't give ordinary buttons or cards a drop shadow; shadow is reserved for the drawer-over-map and phone-chassis cases only.",
-      "Don't treat the citizen spine tabs or landing legend entries as generic nav/card components in future work — they are this system's named signature patterns, not interchangeable with a standard tab bar or feature card."
+      "Don't reintroduce the prior system's graticule grid, dashed-instrument marker style, or Overpass/Overpass Mono type — that instrument identity is fully retired, not a fallback to preserve.",
+      "Don't give a rectangular button or card a hard, offset (non-blurred) shadow; this is not a neobrutalist world — shadows stay soft and ambient.",
+      "Don't put the LGU priority list or AI Triage panel back into a drawer that slides over the map; they are permanently docked beside it in this world.",
+      "Don't add an eighth accent hue without the same justification the seven-state legend required for Volunteer Violet."
     ]
   }
 }

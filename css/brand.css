@@ -1,57 +1,65 @@
 /*
-  AHON — shared brand tokens: the Typhoon Track Chart world.
-  Loaded by every page (landing, citizen, LGU) so the identity stays
-  identical across the dark night-instrument register (citizen, landing)
-  and the light paper-chart register (LGU, sustained desk work).
-
-  Direction: PAGASA storm-track plotting charts & ham-radio hurricane nets.
-  See .impeccable/surfaces/*.md for the full direction contracts.
+  AHON — shared brand tokens: the Clean Care world.
+  A standard, trustworthy mobile safety-app language (card surfaces, soft
+  shadow, single red accent) shared by the landing page, citizen app, and
+  LGU command center. See .impeccable/surfaces/*.md for the full direction
+  contracts — this replaces the prior Typhoon Track Chart instrument world.
 */
-@import url('https://fonts.googleapis.com/css2?family=Overpass:wght@400;500;600;700&family=Overpass+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-    /* Chart world — dark (night instrument) register: landing, citizen app */
-    --chart-ground: #0A1628;
-    --chart-ground-raised: #101F36;
-    --chart-graticule: #24334A;
-    --chart-graticule-soft: #1A2740;
-    --chart-ink: #F2EFE6;
-    --chart-ink-dim: #9BA9C2;
+    /* Ground / surface */
+    --bg: #F4F6FA;
+    --surface: #FFFFFF;
+    --surface-alt: #EEF1F6;
+    --border: #E6E9F1;
 
-    /* Chart world — light (paper chart) register: LGU command center */
-    --chart-paper: #F2EFE6;
-    --chart-paper-raised: #FBFAF4;
-    --chart-paper-line: #C9C0AA;
-    --chart-paper-ink: #0A1628;
-    --chart-paper-ink-dim: #5B6478;
+    /* Ink — --ink-secondary is tuned to clear 4.5:1 on both --surface-alt
+       and --surface; --ink-muted stays reserved for placeholder/disabled
+       text and decorative glyphs, never primary readable content. */
+    --ink: #16203D;
+    --ink-secondary: #545F70;
+    --ink-muted: #8891A0;
+    --ink-on-accent: #FFFFFF;
 
-    /* Signal accents — shared meaning across both registers */
-    --signal-amber: #F5B942;
-    --signal-amber-dim: #8A6A26;
-    --signal-critical: #E8452C;
-    --signal-critical-fill: #B8341F;
-    --signal-critical-text: #FF6A52;
-    --signal-cleared: #4A9B6E;
-    --signal-info: #6FA8D8;
+    /* Accent — carried over from the prior AHON brand for continuity.
+       Spent only on SOS / critical / primary-emergency meaning, never
+       decoration (see the citizen-html direction contract). --accent is
+       for icons, borders, and tints; --accent-dark is the solid-fill button
+       background wherever white text sits on it, so that text clears 4.5:1. */
+    --accent: #E8452C;
+    --accent-dark: #C23A22;
+    --accent-tint: #FDEAE6;
 
-    /* Status colors (shared meaning across citizen + LGU node rendering) */
-    --status-sos: var(--signal-critical);
-    --status-civilian: var(--signal-info);
-    --status-rescuer: var(--signal-cleared);
-    --status-senior: var(--signal-amber);
-    --status-volunteer: #8B7FD1;
-    --status-offline: #6B7688;
+    /* Status meanings — kept from the prior 7-state mesh legend so node
+       identity doesn't shift, just the rendering language around it.
+       *-dark variants back solid fills carrying white text. */
+    --success: #22A06B;
+    --success-dark: #146B49;
+    --success-tint: #E3F5EC;
+    --warning: #F5A623;
+    --warning-dark: #A85F00;
+    --warning-tint: #FDF1DD;
+    --info: #4C8DD9;
+    --info-tint: #E9F1FC;
+    --volunteer: #8B7FD1;
+    --volunteer-tint: #EFEDFA;
+    --offline: #98A2B3;
+    --offline-tint: #F1F2F4;
 
-    /* Legacy aliases kept for older component CSS not yet migrated */
-    --brand-indigo: var(--chart-paper-ink);
-    --brand-indigo-dark: var(--chart-ground);
-    --brand-cyan: var(--signal-amber);
-    --brand-blue: var(--signal-info);
-    --brand-navy: var(--chart-ground);
+    /* Radius */
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-pill: 999px;
 
-    --font-display: 'Overpass', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-mono: 'Overpass Mono', ui-monospace, 'SFMono-Regular', monospace;
+    /* Shadow — now load-bearing (the prior world was flat by contract) */
+    --shadow-sm: 0 2px 8px rgba(20, 33, 61, 0.06);
+    --shadow-md: 0 10px 28px rgba(20, 33, 61, 0.10);
+    --shadow-lg: 0 20px 48px rgba(20, 33, 61, 0.16);
+
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-family: var(--font-body);
 }
 
@@ -59,22 +67,14 @@
 
 body { font-family: var(--font-body); }
 
-/* Tabular, non-jumping numerals for every readout — coordinates, hop counts,
-   countdowns, table figures. This is a chart-instrument world; numbers must
-   never reflow as they tick. */
-.mono, .font-mono {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.02em;
-}
+/* Tabular, non-jumping numerals for every live-updating readout (hop
+   counts, stat numbers, timestamps) — kept as a functional rule, no longer
+   tied to a monospace face. */
+.tabular { font-variant-numeric: tabular-nums; }
 
-/* Theme browser surfaces from the chart palette rather than leaving OS
-   defaults — the cheapest signal a page was actually built for its world. */
-::selection { background: var(--signal-amber); color: var(--chart-ground); }
+::selection { background: var(--accent-tint); color: var(--accent-dark); }
 
 .brand-logo-mark { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .brand-logo-mark img { width: 100%; height: 100%; object-fit: contain; }
 
-.brand-gradient-text { color: var(--signal-amber); }
-
-.brand-tagline { color: var(--chart-ink-dim); font-weight: 600; letter-spacing: 0.3px; }
+.brand-tagline { color: var(--ink-secondary); font-weight: 600; letter-spacing: 0.1px; }
