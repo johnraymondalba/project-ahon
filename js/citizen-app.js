@@ -29,7 +29,7 @@
         sos: false,
         volunteer: false,
         statusLabel: 'SAFE',
-        needs: { water: false, food: false, meds: false },
+        needs: { water: false, food: false, meds: false, pets: false, family: false },
         flags: { pwd: false, elder: false, infant: false },
     };
 
@@ -65,7 +65,7 @@
         }
         el.innerHTML = list.map(item => `
             <div class="activity-row">
-                <div class="activity-icon" style="background:color-mix(in srgb, var(${item.color}) 16%, white); color:var(${item.color})"><i class="${item.icon}"></i></div>
+                <div class="activity-icon" style="background:color-mix(in srgb, var(${item.color}) 20%, var(--surface)); color:var(${item.color})"><i class="${item.icon}"></i></div>
                 <div class="activity-body">
                     <div class="activity-text">${item.text}</div>
                     <div class="activity-time">${relativeTime(item.time)}</div>
@@ -102,7 +102,7 @@
         const btn = document.getElementById(`btn-${type}`);
         btn.classList.toggle(`active-${type}`, appState.needs[type]);
         if (window.realtime) window.realtime.sendNeed(type, appState.needs[type]);
-        const label = { water: 'Water', food: 'Food', meds: 'Meds' }[type];
+        const label = { water: 'Water', food: 'Food', meds: 'Meds', pets: 'Has Pets', family: 'Family' }[type];
         logActivity(`${appState.needs[type] ? 'Requested' : 'Cleared request for'} ${label}`, 'fa-solid fa-box-open', '--info');
         render();
     };
@@ -120,9 +120,11 @@
 
     window.toggleSOS = function () {
         appState.sos = !appState.sos;
-        [document.getElementById('sosBtn'), document.getElementById('sosFab')].forEach(btn => btn && btn.classList.toggle('active', appState.sos));
+        [document.getElementById('sosBtn'), document.getElementById('sosFab'), document.getElementById('sosBtnMap')].forEach(btn => btn && btn.classList.toggle('active', appState.sos));
         const label = document.getElementById('sosLabel');
         if (label) label.innerText = appState.sos ? 'SOS ACTIVE' : 'SOS';
+        const labelMap = document.getElementById('sosLabelMap');
+        if (labelMap) labelMap.innerText = appState.sos ? 'SOS ACTIVE' : 'Broadcast SOS';
         const banner = document.getElementById('sosBanner');
         if (banner) banner.classList.toggle('visible', appState.sos);
         if (window.realtime) window.realtime.sendSOS(appState.sos);
@@ -136,12 +138,19 @@
         appState.volunteer = checkbox.checked;
         if (window.realtime) window.realtime.sendVolunteer(appState.volunteer);
         logActivity(appState.volunteer ? 'Turned on Volunteer mode' : 'Turned off Volunteer mode', 'fa-solid fa-hand-holding-heart', '--volunteer');
-        renderNearbyList();
+        // Own status reporting pauses while volunteering — the map itself
+        // (not a separate list) is where a volunteer sees nearby SOS/needs.
+        const situation = document.getElementById('mapSheetSituation');
+        if (situation) situation.classList.toggle('is-disabled', appState.volunteer);
         render();
     };
 
     window.toggleLegend = function () {
         document.getElementById('legendBox').classList.toggle('minimized');
+    };
+
+    window.toggleMapSheet = function () {
+        document.getElementById('mapSheet').classList.toggle('collapsed');
     };
 
     // --- HOME: status summary + quick-action highlight ---
@@ -158,45 +167,13 @@
 
         value.textContent = label;
         icon.innerHTML = `<i class="${iconClass}"></i>`;
-        icon.style.background = `color-mix(in srgb, var(${colorVar}) 16%, white)`;
+        icon.style.background = `color-mix(in srgb, var(${colorVar}) 20%, var(--surface))`;
         icon.style.color = `var(${colorVar})`;
 
         ['trapped', 'injured'].forEach(key => {
             const card = document.getElementById(`qa-${key}`);
             if (card) card.classList.toggle('is-active', appState.statusLabel === key.toUpperCase());
         });
-    }
-
-    // --- VOLUNTEER: nearby needs preview, built from the live mesh the
-    // citizen already receives — no extra network calls. ---
-    function renderNearbyList() {
-        const el = document.getElementById('nearbyList');
-        if (!el) return;
-        const selfId = window.realtime && window.realtime.selfId;
-        const reports = (window.MESH_NODES || []).filter(n =>
-            n.id !== selfId &&
-            n.type !== 'rescuer' && n.type !== 'volunteer' && n.type !== 'offline' &&
-            (n.status === 'SOS' || n.status === 'TRAPPED' || n.status === 'INJURED' || (n.needs && (n.needs.water || n.needs.food || n.needs.meds)))
-        ).slice(0, 8);
-
-        if (!reports.length) {
-            el.innerHTML = '<div class="nearby-empty">No unmet nearby needs right now — check back as reports come in.</div>';
-            return;
-        }
-        const iconMap = { SOS: 'fa-solid fa-tower-broadcast', INJURED: 'fa-solid fa-hand-holding-medical', TRAPPED: 'fa-solid fa-house-chimney-crack' };
-        const colorMap = { SOS: 'var(--accent-dark)', INJURED: 'var(--accent-dark)', TRAPPED: 'var(--warning-dark)' };
-        el.innerHTML = reports.map(n => {
-            const needs = Object.keys(n.needs || {}).filter(k => n.needs[k]);
-            const meta = needs.length ? `Needs ${needs.join(', ')}` : n.status.charAt(0) + n.status.slice(1).toLowerCase();
-            return `
-                <div class="nearby-row">
-                    <div class="nearby-row-icon" style="background:${colorMap[n.status] || 'var(--ink-secondary)'}"><i class="${iconMap[n.status] || 'fa-solid fa-circle-info'}"></i></div>
-                    <div class="nearby-row-body">
-                        <div class="nearby-row-name">${n.name}</div>
-                        <div class="nearby-row-meta">${meta} &middot; ${Math.round(n.lastSignalMin)}m ago</div>
-                    </div>
-                </div>`;
-        }).join('');
     }
 
     // --- PROFILE (local only, this device) ---
@@ -315,9 +292,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         render();
         renderMeshStatus();
-        renderNearbyList();
         setInterval(jitterMeshStatus, 6000);
-        window.addEventListener('mesh:update', () => { render(); renderNearbyList(); });
+        window.addEventListener('mesh:update', render);
 
         // With the live-sync server (js/realtime-client.js) reachable, the
         // mesh comes from there instead — only fall back to the old

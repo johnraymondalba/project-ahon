@@ -36,11 +36,13 @@
     }
 
     function needsBadgeHtml(needs) {
-        if (!needs || !(needs.water || needs.food || needs.meds)) return '';
+        if (!needs || !(needs.water || needs.food || needs.meds || needs.pets || needs.family)) return '';
         let html = `<div class="marker-badge">`;
         if (needs.water) html += `<i class="fa-solid fa-droplet" style="color:var(--icon-water)"></i>`;
         if (needs.food) html += `<i class="fa-solid fa-utensils" style="color:var(--icon-food)"></i>`;
         if (needs.meds) html += `<i class="fa-solid fa-briefcase-medical" style="color:var(--icon-meds)"></i>`;
+        if (needs.pets) html += `<i class="fa-solid fa-paw" style="color:var(--icon-pets)"></i>`;
+        if (needs.family) html += `<i class="fa-solid fa-people-roof" style="color:var(--icon-family)"></i>`;
         html += `</div>`;
         return html;
     }

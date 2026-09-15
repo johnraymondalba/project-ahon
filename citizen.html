@@ -84,14 +84,14 @@
                                 <i class="fa-solid fa-hand-holding-medical"></i>
                                 <span>I'm Injured</span>
                             </button>
-                            <button class="quick-action-card" onclick="switchTab('report')">
+                            <button class="quick-action-card" onclick="switchTab('map')">
                                 <i class="fa-solid fa-box-open"></i>
                                 <span>Request supplies</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- MAP -->
+                    <!-- MAP: live mesh map + docked situation/supplies/volunteer/SOS sheet -->
                     <div class="page page--map" id="page-map">
                         <div class="map-overlay-top">
                             <button class="map-icon-btn" onclick="toggleLegend()" aria-label="Toggle legend"><i class="fa-solid fa-list-ul"></i></button>
@@ -104,50 +104,41 @@
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-offline)"></div><span class="l-text">Last Signal Found</span></div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- REPORT (status + supplies) -->
-                    <div class="page" id="page-report">
-                        <div class="section-title">My situation</div>
-                        <div class="card">
-                            <div class="chip-row">
-                                <div class="chip active-safe" id="chip-safe" onclick="setStatus('SAFE')">SAFE</div>
-                                <div class="chip" id="chip-trapped" onclick="setStatus('TRAPPED')">TRAPPED</div>
-                                <div class="chip" id="chip-injured" onclick="setStatus('INJURED')">INJURED</div>
-                            </div>
-                        </div>
-
-                        <div class="section-title" id="suppliesSection">Supplies needed</div>
-                        <div class="card">
-                            <div class="need-grid">
-                                <div class="grid-item" id="btn-water" onclick="toggleNeed('water')"><i class="fa-solid fa-droplet"></i><span>Water</span></div>
-                                <div class="grid-item" id="btn-food" onclick="toggleNeed('food')"><i class="fa-solid fa-utensils"></i><span>Food</span></div>
-                                <div class="grid-item" id="btn-meds" onclick="toggleNeed('meds')"><i class="fa-solid fa-briefcase-medical"></i><span>Meds</span></div>
-                            </div>
-                        </div>
-                        <p class="page-hint">Your situation and supply needs broadcast to nearby mesh nodes and the LGU command center right away — update them any time they change.</p>
-                    </div>
-
-                    <!-- VOLUNTEER -->
-                    <div class="page" id="page-volunteer">
-                        <div class="section-title">Volunteer mode</div>
-                        <div class="card">
-                            <div class="toggle-row">
-                                <div>
-                                    <div class="toggle-row-label">Mark me as a volunteer</div>
-                                    <div class="toggle-row-sub">Nearby helper on the mesh</div>
+                        <div class="map-sheet" id="mapSheet">
+                            <div class="map-sheet-handle" onclick="toggleMapSheet()" aria-label="Toggle sheet"><div class="map-sheet-handle-bar"></div></div>
+                            <div class="map-sheet-body">
+                                <div class="map-sheet-volunteer">
+                                    <span>Volunteer mode</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="volunteerCheck" onchange="toggleVolunteer()">
+                                        <span class="slider"></span>
+                                    </label>
                                 </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="volunteerCheck" onchange="toggleVolunteer()">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <p class="page-hint">Volunteering marks you as a nearby helper on the mesh. Your own status reporting pauses while this is on — switch it off anytime to report for yourself again.</p>
-                        </div>
 
-                        <div class="section-title">Nearby needs</div>
-                        <div class="card">
-                            <div class="nearby-list" id="nearbyList"></div>
+                                <button class="map-sheet-sos" id="sosBtnMap" onclick="openSosSheet()">
+                                    <i class="fa-solid fa-tower-broadcast"></i>
+                                    <span id="sosLabelMap">Broadcast SOS</span>
+                                </button>
+
+                                <div class="map-sheet-section" id="mapSheetSituation">
+                                    <div class="map-sheet-label">My situation</div>
+                                    <div class="chip-row">
+                                        <div class="chip active-safe" id="chip-safe" onclick="setStatus('SAFE')">SAFE</div>
+                                        <div class="chip" id="chip-trapped" onclick="setStatus('TRAPPED')">TRAPPED</div>
+                                        <div class="chip" id="chip-injured" onclick="setStatus('INJURED')">INJURED</div>
+                                    </div>
+                                </div>
+
+                                <div class="map-sheet-label">Supplies needed</div>
+                                <div class="need-grid">
+                                    <div class="grid-item" id="btn-water" onclick="toggleNeed('water')"><i class="fa-solid fa-droplet"></i><span>Water</span></div>
+                                    <div class="grid-item" id="btn-food" onclick="toggleNeed('food')"><i class="fa-solid fa-utensils"></i><span>Food</span></div>
+                                    <div class="grid-item" id="btn-meds" onclick="toggleNeed('meds')"><i class="fa-solid fa-briefcase-medical"></i><span>Meds</span></div>
+                                    <div class="grid-item" id="btn-pets" onclick="toggleNeed('pets')"><i class="fa-solid fa-paw"></i><span>Has Pets</span></div>
+                                    <div class="grid-item" id="btn-family" onclick="toggleNeed('family')"><i class="fa-solid fa-people-roof"></i><span>Family</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -194,8 +185,6 @@
                 <nav class="tab-bar" id="tabBar">
                     <button class="tab-item active" data-tab="home"><i class="fa-solid fa-house"></i><span>Home</span></button>
                     <button class="tab-item" data-tab="map"><i class="fa-solid fa-diagram-project"></i><span>Map</span></button>
-                    <button class="tab-item" data-tab="report"><i class="fa-solid fa-triangle-exclamation"></i><span>Report</span></button>
-                    <button class="tab-item" data-tab="volunteer"><i class="fa-solid fa-hand-holding-heart"></i><span>Volunteer</span></button>
                     <button class="tab-item" data-tab="profile"><i class="fa-solid fa-user"></i><span>Profile</span></button>
                 </nav>
             </div>

@@ -1,10 +1,33 @@
 /*
-  Citizen app — Clean Care world: a standard, trustworthy mobile safety app
-  (card surfaces, soft shadow, single red accent, bottom tab bar), replacing
-  the prior dark chart-instrument world. See .impeccable/surfaces/citizen-html.md
-  for the full direction contract.
+  Citizen app — night-mesh world: a dark, map-first field UI (translucent
+  glass panels over a live tinted map, single red SOS accent), scoped to
+  this stylesheet only via a local token override so the shared brand.css
+  tokens (and the light landing/LGU pages that use them) are untouched.
 */
 :root {
+    /* Local dark override of the shared brand.css surface/ink tokens —
+       only citizen.html loads this file, so index.html and lgu.html keep
+       the light Clean Care look defined in brand.css. */
+    --bg: #0B0E15;
+    --surface: rgba(26, 31, 43, 0.97);
+    --surface-alt: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.1);
+
+    --ink: #F4F6FA;
+    --ink-secondary: #9AA5B8;
+    --ink-muted: #6B7488;
+
+    --accent-tint: rgba(232, 69, 44, 0.16);
+    --success-tint: rgba(34, 160, 107, 0.16);
+    --warning-tint: rgba(245, 166, 35, 0.16);
+    --info-tint: rgba(76, 141, 217, 0.16);
+    --volunteer-tint: rgba(139, 127, 209, 0.16);
+    --offline-tint: rgba(152, 162, 179, 0.16);
+
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.5);
+
     --color-sos: var(--accent);
     --color-user: var(--info);
     --color-rescuer: var(--success);
@@ -15,12 +38,14 @@
     --icon-water: var(--info);
     --icon-food: var(--warning);
     --icon-meds: #16A394;
+    --icon-pets: #B08A6B;
+    --icon-family: #9B7FD1;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: var(--font-body); }
 
 body {
-    background-color: #E4E7EC;
+    background-color: #05070B;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -65,11 +90,12 @@ body {
 
 #map { height: 100%; width: 100%; z-index: 1; background: var(--bg); }
 
-/* Real OSM tiles, tinted into the light Clean Care register rather than raw
-   daylight color — legible, unobtrusive base under the mesh markers. */
-#map .leaflet-tile-pane { filter: saturate(0.55) brightness(1.08) contrast(0.95); }
+/* Real OSM tiles, tinted dark into the night-mesh register via inversion
+   rather than a raw daylight basemap — legible, unobtrusive base under the
+   mesh markers. */
+#map .leaflet-tile-pane { filter: invert(1) hue-rotate(190deg) brightness(0.92) contrast(1.05) saturate(0.5); }
 #map .leaflet-control-attribution {
-    background: rgba(255, 255, 255, 0.85); color: var(--ink-muted);
+    background: rgba(5, 8, 14, 0.75); color: var(--ink-muted);
     font-size: 8.5px;
 }
 #map .leaflet-control-attribution a { color: var(--ink-muted); }
@@ -125,7 +151,8 @@ body {
 }
 .sos-fab:active { transform: scale(0.94); }
 .sos-fab.active { animation: sos-ping 1.6s ease-out infinite; }
-.app-shell[data-active-tab="home"] .sos-fab { display: none; }
+.app-shell[data-active-tab="home"] .sos-fab,
+.app-shell[data-active-tab="map"] .sos-fab { display: none; }
 
 @keyframes sos-ping {
     0% { box-shadow: 0 0 0 0 rgba(232, 69, 44, 0.45); }
@@ -226,7 +253,48 @@ body {
 .l-dot { width: 9px; height: 9px; border-radius: 50%; }
 .l-text { color: var(--ink-secondary); font-size: 11.5px; font-weight: 500; }
 
-/* --- CARDS / SECTIONS shared by Report, Volunteer, Profile sub-pages --- */
+/* --- MAP BOTTOM SHEET: situation, supplies, volunteer mode and SOS
+   broadcast, docked over the live map so reporting never leaves the map --- */
+.map-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 600;
+    max-height: 78%;
+    background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    border-radius: 22px 22px 0 0;
+    box-shadow: var(--shadow-lg);
+    display: flex; flex-direction: column;
+    transform: translateY(0);
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.map-sheet.collapsed { transform: translateY(calc(100% - 34px)); }
+
+.map-sheet-handle { flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 28px; cursor: pointer; }
+.map-sheet-handle-bar { width: 36px; height: 4px; border-radius: 3px; background: var(--border); }
+
+.map-sheet-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
+
+.map-sheet-volunteer {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--volunteer-tint); border: 1px solid rgba(139, 127, 209, 0.35);
+    border-radius: var(--radius-md); padding: 11px 14px; margin-bottom: 12px;
+}
+.map-sheet-volunteer span { font-size: 11.5px; font-weight: 800; letter-spacing: 0.04em; color: var(--volunteer); text-transform: uppercase; }
+
+.map-sheet-sos {
+    width: 100%; padding: 14px; border-radius: var(--radius-md);
+    background: var(--accent-tint); border: 1.5px solid var(--accent);
+    color: var(--accent); font-size: 13.5px; font-weight: 800; letter-spacing: 0.04em;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; transition: 0.2s; margin-bottom: 18px;
+}
+.map-sheet-sos i { font-size: 16px; }
+.map-sheet-sos.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 20px rgba(232, 69, 44, 0.45); animation: sos-ping 1.6s ease-out infinite; }
+
+.map-sheet-label { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-secondary); margin: 18px 0 10px; }
+.map-sheet-label:first-child { margin-top: 0; }
+.map-sheet-section.is-disabled .chip-row { opacity: 0.4; pointer-events: none; }
+
+/* --- CARDS / SECTIONS shared by Profile sub-pages --- */
 .card { background: var(--surface); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); margin-bottom: 14px; }
 .page-hint { font-size: 12.5px; line-height: 1.55; color: var(--ink-secondary); margin-top: 10px; }
 
@@ -249,25 +317,15 @@ body {
 .grid-item.active-water { background: var(--info-tint); border-color: var(--icon-water); } .grid-item.active-water i, .grid-item.active-water span { color: var(--icon-water); }
 .grid-item.active-food { background: var(--warning-tint); border-color: var(--icon-food); } .grid-item.active-food i, .grid-item.active-food span { color: var(--icon-food); }
 .grid-item.active-meds { background: rgba(22, 163, 148, 0.12); border-color: var(--icon-meds); } .grid-item.active-meds i, .grid-item.active-meds span { color: var(--icon-meds); }
+.grid-item.active-pets { background: rgba(176, 138, 107, 0.15); border-color: var(--icon-pets); } .grid-item.active-pets i, .grid-item.active-pets span { color: var(--icon-pets); }
+.grid-item.active-family { background: rgba(155, 127, 209, 0.15); border-color: var(--icon-family); } .grid-item.active-family i, .grid-item.active-family span { color: var(--icon-family); }
 
-/* --- VOLUNTEER --- */
-.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.toggle-row-label { font-size: 14px; font-weight: 700; color: var(--ink); }
-.toggle-row-sub { font-size: 12px; color: var(--ink-secondary); margin-top: 2px; }
 .switch { position: relative; display: inline-block; width: 46px; height: 27px; flex-shrink: 0; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #D8DCE5; transition: .2s; border-radius: var(--radius-pill); }
 .slider:before { position: absolute; content: ""; height: 21px; width: 21px; left: 3px; bottom: 3px; background-color: #fff; transition: .2s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
 input:checked + .slider { background-color: var(--volunteer); }
 input:checked + .slider:before { transform: translateX(19px); }
-
-.nearby-list { display: flex; flex-direction: column; gap: 10px; }
-.nearby-row { display: flex; align-items: center; gap: 12px; background: var(--surface-alt); border-radius: var(--radius-md); padding: 12px; }
-.nearby-row-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; color: #fff; }
-.nearby-row-body { flex: 1; min-width: 0; }
-.nearby-row-name { font-size: 12.5px; font-weight: 700; color: var(--ink); }
-.nearby-row-meta { font-size: 11px; color: var(--ink-secondary); margin-top: 1px; }
-.nearby-empty { text-align: center; color: var(--ink-secondary); font-size: 12.5px; padding: 18px 0; }
 
 /* --- PROFILE HUB --- */
 .profile-card { display: flex; align-items: center; gap: 14px; background: var(--surface); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); margin-bottom: 18px; }
