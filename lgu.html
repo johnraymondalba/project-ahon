@@ -75,14 +75,9 @@
                         <i class="fa-solid fa-map-location-dot"></i>
                         <div class="map-fallback-msg">Live map requires a Google Maps API key.<br>Add <code>GOOGLE_MAPS_API_KEY</code> to <code>js/config.js</code> — see README.md.</div>
                     </div>
-                    <div class="map-legend">
-                        <div class="legend-item"><span class="l-dot" style="background:#C23A22"></span> SOS / Injured</div>
-                        <div class="legend-item"><span class="l-dot" style="background:#A85F00"></span> Trapped</div>
-                        <div class="legend-item"><span class="l-dot" style="background:#146B49"></span> Rescuer</div>
-                        <div class="legend-item"><span class="l-dot" style="background:#4C8DD9"></span> Safe / Civilian</div>
-                        <div class="legend-item"><span class="l-dot" style="background:#8B7FD1"></span> Volunteer</div>
-                        <div class="legend-item"><span class="l-dot" style="background:#98A2B3"></span> Last signal (offline)</div>
-                    </div>
+                    <!-- Filled by renderLegend() in js/lgu-map.js, which owns the
+                         marker colours — see the note on LEGEND there. -->
+                    <div class="map-legend" id="mapLegend"></div>
                 </div>
 
                 <aside class="lgu-panel">

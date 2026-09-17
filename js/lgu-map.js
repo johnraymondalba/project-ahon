@@ -24,6 +24,27 @@
         OFFLINE: '#98A2B3',
     };
 
+    // The legend is built from STATUS_COLOR rather than written out in the
+    // markup, so a colour can never be changed here and left stale in the
+    // key — a legend that quietly disagrees with the map is worse than none.
+    // Ordered by how urgently a row needs attention, not by object order.
+    const LEGEND = [
+        { label: 'SOS / Injured', color: STATUS_COLOR.SOS },
+        { label: 'Trapped', color: STATUS_COLOR.TRAPPED },
+        { label: 'Rescuer', color: STATUS_COLOR.RESCUER },
+        { label: 'Volunteer', color: STATUS_COLOR.VOLUNTEER },
+        { label: 'Safe / Civilian', color: STATUS_COLOR.SAFE },
+        { label: 'Last signal', color: STATUS_COLOR.OFFLINE },
+    ];
+
+    function renderLegend() {
+        const el = document.getElementById('mapLegend');
+        if (!el) return;
+        el.innerHTML = LEGEND.map(({ label, color }) =>
+            `<div class="legend-item"><span class="l-dot" style="background:${color}"></span>${label}</div>`
+        ).join('');
+    }
+
     let impl = null; // set to googleImpl or chartImpl once load() decides
 
     function onReady(cb) { impl.onReady(cb); }
@@ -54,6 +75,7 @@
                 disableDefaultUI: false,
                 streetViewControl: false,
                 mapTypeControl: false,
+                fullscreenControl: false, // top-right is the legend's corner
                 styles: [{ featureType: 'poi', stylers: [{ visibility: 'off' }] }],
             });
             ready = true;
@@ -178,6 +200,7 @@
     })();
 
     function load() {
+        renderLegend();
         const key = window.APP_CONFIG && window.APP_CONFIG.GOOGLE_MAPS_API_KEY;
         if (key) {
             impl = googleImpl;
