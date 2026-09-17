@@ -76,6 +76,11 @@
     const networkLayer = L.layerGroup().addTo(map);
     const sosPulseLayer = L.layerGroup().addTo(map);
 
+    // The LGU gateway is a building on a road, not a mesh node: drawn once from
+    // the shared constant onto a layer networkLayer.clearLayers() never touches,
+    // so it cannot drift, age out or be filtered away by a mode.
+    const gatewayLayer = L.layerGroup().addTo(map);
+
     function typeToColorClass(type) {
         switch (type) {
             case 'sos': return { cls: 'bg-sos', color: 'var(--color-sos)' };
@@ -151,6 +156,14 @@
             </div>`;
         return L.divIcon({ className: 'custom-div-icon', html, iconSize: [40, 40], iconAnchor: [20, 20] });
     }
+
+    // Drawn once at load. Not interactive: a rescuer's case sheet is for people,
+    // and the gateway is a building.
+    L.marker([window.LGU_HQ.lat, window.LGU_HQ.lng], {
+        icon: neighborIcon(window.LGU_HQ),
+        interactive: false,
+        zIndexOffset: 500,
+    }).addTo(gatewayLayer);
 
     // Your own marker wears whichever role you are in, in the same colour the
     // mesh already shows you to everyone else — the server sets type/status
@@ -252,10 +265,10 @@
     }
 
     // Who can come for you: the two node types that represent help on its way.
-    // The command centre counts too: when you are broadcasting SOS, the gateway
-    // that carries it out of the barangay is exactly as relevant as the teams.
+    // Who can come for you: the two node types that represent help on its way.
+    // The gateway is not among them — it is drawn permanently either way.
     function isResponder(n) {
-        return n.type === 'rescuer' || n.type === 'volunteer' || n.type === 'lgu';
+        return n.type === 'rescuer' || n.type === 'volunteer';
     }
 
     // Who needs help: anyone in distress, anyone still asking for supplies
@@ -367,14 +380,18 @@
         const all = window.MESH_NODES.filter(n => n.id !== selfId);
         const neighbors = visibleNeighbors(all, appState);
         renderFilterNote(appState, neighbors.length);
-        renderLegend(neighbors);
+        // HQ is always drawn, so it is always in the key — a legend that omits
+        // a marker on screen is the same failure as one that invents a colour.
+        renderLegend(neighbors.concat([window.LGU_HQ]));
 
         // The mesh is peer-to-peer, so the links are too: every pair of live
         // nodes within radio range of each other, not a star of spokes from
         // you. Ghosts carry nothing — no live signal means no working radio —
         // so they are plotted but left out of the graph.
         const live = neighbors.filter(n => n.type !== 'offline');
-        const points = [{ lat: selfPos[0], lng: selfPos[1] }, ...live];
+        // The gateway joins the graph without joining the node list: the web is
+        // meaningless without the point everything is ultimately routing to.
+        const points = [{ lat: selfPos[0], lng: selfPos[1] }, ...live, window.LGU_HQ];
         const edges = buildMeshGraph(points);
 
         // Normal traffic is thin dashed green; while SOS is active the whole

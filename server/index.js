@@ -58,12 +58,11 @@ function broadcast() {
 // Ambient drift for the seeded mock nodes only — real ("live") nodes are
 // only ever moved by their own citizen client's messages, below.
 function ambientTick() {
-    // The command centre is mains-powered and wired — it never ages out.
-    nodes.forEach(n => { if (!n.live && n.type !== 'lgu') n.lastSignalMin += Math.random() * 1.5; });
+    nodes.forEach(n => { if (!n.live) n.lastSignalMin += Math.random() * 1.5; });
 
     // Resolved cases stop drifting — a node a rescuer has just cleared must not
     // flip itself back to TRAPPED on the next ambient tick.
-    const drifting = nodes.filter(n => !n.live && !n.resolved && n.type !== 'offline' && n.type !== 'rescuer' && n.type !== 'volunteer' && n.type !== 'lgu');
+    const drifting = nodes.filter(n => !n.live && !n.resolved && n.type !== 'offline' && n.type !== 'rescuer' && n.type !== 'volunteer');
     const hops = Math.min(2, drifting.length);
     for (let i = 0; i < hops; i++) {
         const node = drifting[Math.floor(Math.random() * drifting.length)];

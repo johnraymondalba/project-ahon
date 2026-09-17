@@ -115,7 +115,7 @@
 
     // --- GOOGLE MAPS IMPLEMENTATION ---
     const googleImpl = (function () {
-        let map = null, markers = [], meshLines = [], routeLine = null;
+        let map = null, markers = [], meshLines = [], hqMarker = null, routeLine = null;
         const readyCallbacks = [];
         let ready = false;
 
@@ -157,6 +157,16 @@
                 mapTypeControl: false,
                 fullscreenControl: false, // top-right is the legend's corner
                 styles: DARK_MAP_STYLE,
+            });
+            // Placed once, outside the marker array that renderMarkers clears.
+            hqMarker = new google.maps.Marker({
+                position: { lat: window.LGU_HQ.lat, lng: window.LGU_HQ.lng },
+                map,
+                icon: markerIcon(window.LGU_HQ),
+                label: markerLabel(window.LGU_HQ),
+                title: `${window.LGU_HQ.name} — gateway`,
+                clickable: false,
+                zIndex: 1000,
             });
             ready = true;
             readyCallbacks.forEach(cb => cb(map));
@@ -205,7 +215,7 @@
                     meshLines.forEach(l => l.setMap(null));
                     meshLines = [];
                     if (!meshVisible) return;
-                    const live = nodes.filter(n => n.type !== 'offline');
+                    const live = nodes.filter(n => n.type !== 'offline').concat([window.LGU_HQ]);
                     meshLines = window.meshGraph.build(live).map(e => new google.maps.Polyline({
                         path: [
                             { lat: live[e.a].lat, lng: live[e.a].lng },
@@ -240,7 +250,7 @@
 
     // --- CHART-NATIVE FALLBACK (no key, no tiles) ---
     const chartImpl = (function () {
-        let map = null, markersLayer = null, meshLayer = null, routeLine = null;
+        let map = null, markersLayer = null, meshLayer = null, hqLayer = null, routeLine = null;
         let streetLayer = null, satelliteLayer = null;
         const readyCallbacks = [];
         let ready = false;
@@ -307,6 +317,16 @@
             // Below the markers on purpose: links are context, not the data.
             meshLayer = L.layerGroup().addTo(map);
             markersLayer = L.layerGroup().addTo(map);
+            // Its own layer, drawn once and never cleared. markersLayer is wiped
+            // on every mesh tick; the command centre is a building, not a report,
+            // so it has no business being redrawn five seconds at a time.
+            hqLayer = L.layerGroup().addTo(map);
+            L.marker([window.LGU_HQ.lat, window.LGU_HQ.lng], {
+                icon: nodeIcon(window.LGU_HQ),
+                title: `${window.LGU_HQ.name} — gateway`,
+                zIndexOffset: 1000,
+                interactive: false,
+            }).addTo(hqLayer);
 
             ready = true;
             readyCallbacks.forEach(cb => cb(map));
@@ -350,8 +370,10 @@
                 this.onReady(() => {
                     meshLayer.clearLayers();
                     if (!meshVisible) return;
-                    // Ghosts carry nothing: no live signal means no radio.
-                    const live = nodes.filter(n => n.type !== 'offline');
+                    // Ghosts carry nothing: no live signal means no radio. HQ is
+                    // added in even though it is not a mesh node, because the
+                    // web is meaningless without the gateway it terminates at.
+                    const live = nodes.filter(n => n.type !== 'offline').concat([window.LGU_HQ]);
                     const edges = window.meshGraph.build(live);
                     edges.forEach(e => {
                         L.polyline([[live[e.a].lat, live[e.a].lng], [live[e.b].lat, live[e.b].lng]], {

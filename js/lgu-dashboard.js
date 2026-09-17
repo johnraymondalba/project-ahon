@@ -26,9 +26,10 @@
     let hopByNodeId = new Map();
     function recomputeHops() {
         hopByNodeId = new Map();
-        const live = window.MESH_NODES.filter(n => n.type !== 'offline');
-        const hqIndex = live.findIndex(n => n.type === 'lgu');
-        if (hqIndex === -1) return;
+        // HQ is a fixed constant rather than a mesh node, so it is joined to
+        // the graph here — it is the root the hop count is measured from.
+        const live = window.MESH_NODES.filter(n => n.type !== 'offline').concat([window.LGU_HQ]);
+        const hqIndex = live.length - 1;
         const { depth } = window.meshGraph.hops(live, window.meshGraph.build(live), hqIndex);
         live.forEach((n, i) => { if (depth[i] > 0) hopByNodeId.set(n.id, depth[i]); });
     }

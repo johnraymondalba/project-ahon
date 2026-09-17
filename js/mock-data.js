@@ -38,16 +38,23 @@ const MESH_NODES = [
     { id: 'N13', name: 'Carlo M.',     type: 'civilian',  status: 'TRAPPED',  lat: 13.3999, lng: 123.3040, needs: { water: true },               flags: {},               lastSignalMin: 12, medical: null, town: 'Nabua' },
 ];
 
-// The LGU Command Center itself — the gateway every report is ultimately
-// travelling toward, and what the citizen app's "N hops to LGU" is counting
-// toward. It is a node, not just a map anchor: without it on the mesh there is
-// nothing for that hop count to point at. Placed at the Nabua municipal hall,
-// and pushed onto MESH_NODES so it plots and relays like any other node.
+// The LGU Command Center — the gateway every report is ultimately travelling
+// toward, and what the citizen app's "N hops to LGU" counts toward.
+//
+// Deliberately NOT in MESH_NODES. Everything in that list is live state the
+// server owns and mutates: it drifts, ages, goes dark and comes back. The
+// command centre is a building on a road, so it is a fixed constant both maps
+// draw from directly — nothing the mesh does can move it, age it out or filter
+// it away. It still joins the link graph at render time, so hop counts and the
+// mesh overlay treat it as the gateway it is.
+//
+// Sited on Nabua-Balatan Road, the main road crossing the reporting area
+// (coordinates taken from the road's OpenStreetMap geometry) rather than in
+// the open fields the first placement landed in, 1.7km from any road at all.
 const LGU_HQ = {
     id: 'LGU', name: 'LGU Command Center', type: 'lgu', status: 'COMMAND',
-    lat: 13.4088, lng: 123.2871, needs: {}, flags: {}, lastSignalMin: 0, town: 'Nabua',
+    lat: 13.39456, lng: 123.30151, needs: {}, flags: {}, lastSignalMin: 0, town: 'Nabua',
 };
-MESH_NODES.push(LGU_HQ);
 
 // Central reference for the "You" node on the citizen app.
 const SELF_NODE_START = { lat: 13.4045, lng: 123.2968 };
