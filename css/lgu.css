@@ -115,12 +115,30 @@ a { color: inherit; }
 .map-legend .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-secondary); font-weight: 600; }
 .map-legend .l-dot { width: 9px; height: 9px; border-radius: 50%; }
 
+/* Left column, dropped clear of Leaflet's zoom cluster (top: 10px, ~62px
+   tall) so the two never overlap in the fallback implementation. */
+.map-basemap {
+    position: absolute; left: 14px; top: 84px; z-index: 1200;
+    display: flex; border-radius: var(--radius-pill); overflow: hidden;
+    background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-md);
+}
+.basemap-btn {
+    border: none; background: none; cursor: pointer;
+    padding: 7px 14px; font-family: inherit; font-size: 12px; font-weight: 700;
+    color: var(--ink-secondary);
+}
+.basemap-btn + .basemap-btn { border-left: 1px solid var(--border); }
+.basemap-btn:hover { background: var(--surface-alt); }
+.basemap-btn.is-active { background: var(--accent-tint); color: var(--accent-dark); }
+
 .lgu-marker-icon { background: none; border: none; }
 .lgu-marker-dot { width: 15px; height: 15px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 1px 4px rgba(20, 33, 61, 0.3); cursor: pointer; }
 .leaflet-container { background: var(--surface-alt); font-family: var(--font-body); }
 
-/* Real OSM tiles, tinted into the light Clean Care register. */
-.leaflet-tile-pane { filter: saturate(0.5) brightness(1.06) contrast(0.96); }
+/* Real OSM tiles, tinted into the light Clean Care register. Aerial imagery
+   gets none of that desaturation — the point of switching to it is to read the
+   ground as it actually looks. */
+#lguMap:not(.is-satellite) .leaflet-tile-pane { filter: saturate(0.5) brightness(1.06) contrast(0.96); }
 .leaflet-control-attribution {
     background: rgba(255, 255, 255, 0.88) !important; color: var(--ink-muted) !important;
     font-size: 10px;

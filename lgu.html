@@ -78,6 +78,13 @@
                     <!-- Filled by renderLegend() in js/lgu-map.js, which owns the
                          marker colours — see the note on LEGEND there. -->
                     <div class="map-legend" id="mapLegend"></div>
+
+                    <!-- Street/satellite switch, top-left under the zoom cluster:
+                         the legend owns top-right, attribution the bottom corners. -->
+                    <div class="map-basemap" role="group" aria-label="Base map style">
+                        <button class="basemap-btn is-active" id="basemapStreet" onclick="lguMap.setBasemap('street')">Map</button>
+                        <button class="basemap-btn" id="basemapSatellite" onclick="lguMap.setBasemap('satellite')">Satellite</button>
+                    </div>
                 </div>
 
                 <aside class="lgu-panel">

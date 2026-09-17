@@ -51,6 +51,17 @@
     function renderMarkers(nodes, onClick) { impl.renderMarkers(nodes, onClick); }
     function drawRouteTo(node) { impl.drawRouteTo(node); }
 
+    // Street/satellite switch, shared by both implementations — Google swaps
+    // its own map type, the Leaflet fallback swaps tile layers.
+    let basemap = 'street';
+    function setBasemap(mode) {
+        if (!impl || mode === basemap) return;
+        basemap = mode;
+        impl.setBasemap(mode);
+        document.getElementById('basemapStreet').classList.toggle('is-active', mode === 'street');
+        document.getElementById('basemapSatellite').classList.toggle('is-active', mode === 'satellite');
+    }
+
     // --- GOOGLE MAPS IMPLEMENTATION ---
     const googleImpl = (function () {
         let map = null, markers = [], routeLine = null;
@@ -97,6 +108,11 @@
         return {
             load,
             onReady(cb) { if (ready) cb(map); else readyCallbacks.push(cb); },
+            // 'hybrid' rather than 'satellite' so roads and place names stay on
+            // top of the imagery, matching what the Leaflet fallback draws.
+            setBasemap(mode) {
+                this.onReady(() => map.setMapTypeId(mode === 'satellite' ? 'hybrid' : 'roadmap'));
+            },
             renderMarkers(nodes, onClick) {
                 this.onReady(() => {
                     markers.forEach(m => m.setMap(null));
@@ -135,6 +151,7 @@
     // --- CHART-NATIVE FALLBACK (no key, no tiles) ---
     const chartImpl = (function () {
         let map = null, markersLayer = null, routeLine = null;
+        let streetLayer = null, satelliteLayer = null;
         const readyCallbacks = [];
         let ready = false;
 
@@ -153,13 +170,25 @@
                 attributionControl: true,
             }).setView([window.NABUA_CENTER.lat, window.NABUA_CENTER.lng], 14);
 
-            // Real OpenStreetMap street tiles (no API key) so staff can see
-            // the actual streets/terrain each report sits on — tinted to the
-            // cream chart-paper register via CSS (see css/lgu.css).
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // Two keyless basemaps behind the Map/Satellite switch: real
+            // OpenStreetMap streets (tinted to the cream chart-paper register
+            // via CSS, see css/lgu.css) and Esri aerial imagery under Esri's
+            // place/boundary labels, so staff can read damage and flooding off
+            // the photography while still having street names to dispatch by.
+            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             }).addTo(map);
+
+            satelliteLayer = L.layerGroup([
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                    attribution: 'Imagery &copy; <a href="https://www.esri.com">Esri</a>, Maxar, Earthstar Geographics',
+                }),
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                }),
+            ]);
 
             markersLayer = L.layerGroup().addTo(map);
 
@@ -171,6 +200,20 @@
         return {
             load,
             onReady(cb) { if (ready) cb(map); else readyCallbacks.push(cb); },
+            setBasemap(mode) {
+                this.onReady(() => {
+                    if (mode === 'satellite') {
+                        map.removeLayer(streetLayer);
+                        satelliteLayer.addTo(map);
+                    } else {
+                        map.removeLayer(satelliteLayer);
+                        streetLayer.addTo(map);
+                    }
+                    // The street tint would wash out photography, so the CSS
+                    // filter keys off this class.
+                    map.getContainer().classList.toggle('is-satellite', mode === 'satellite');
+                });
+            },
             renderMarkers(nodes, onClick) {
                 this.onReady(() => {
                     markersLayer.clearLayers();
@@ -211,5 +254,5 @@
         }
     }
 
-    window.lguMap = { onReady, renderMarkers, drawRouteTo, load };
+    window.lguMap = { onReady, renderMarkers, drawRouteTo, load, setBasemap };
 })();

@@ -20,14 +20,58 @@
     // after the user has panned away across the barangay.
     let lastSelfPos = CENTER;
 
-    // Real OpenStreetMap street tiles (no API key) so responders can see the
-    // actual streets/terrain each plotted node sits on, not just an abstract
-    // grid — tinted dark via CSS (see .leaflet-tile-pane filter in
-    // css/citizen.css) to fit the night-instrument chart world.
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Two basemaps behind the Map/Satellite control in the overlay stack,
+    // neither needing an API key:
+    //
+    // - Street: real OpenStreetMap tiles, so responders see the actual streets
+    //   each plotted node sits on rather than an abstract grid — tinted dark
+    //   via CSS (see .leaflet-tile-pane in css/citizen.css) to fit the
+    //   night-instrument chart world.
+    // - Satellite: Esri aerial imagery, with Esri's place/boundary reference
+    //   tiles laid over it. The labels are what make imagery usable during a
+    //   rescue — bare photography shows the rooftop but not the street name to
+    //   radio in, which is why Google's own satellite view ships labels on.
+    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
+    });
+    const satelliteLayer = L.layerGroup([
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Imagery &copy; <a href="https://www.esri.com">Esri</a>, Maxar, Earthstar Geographics',
+        }),
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+        }),
+    ]);
+    streetLayer.addTo(map);
+
+    let basemap = 'street';
+    function setBasemap(mode) {
+        if (mode === basemap) return;
+        basemap = mode;
+
+        if (mode === 'satellite') {
+            map.removeLayer(streetLayer);
+            satelliteLayer.addTo(map);
+        } else {
+            map.removeLayer(satelliteLayer);
+            streetLayer.addTo(map);
+        }
+
+        // The street basemap is inverted into the dark register by CSS; aerial
+        // photography must not be, so the tile filter keys off this class.
+        map.getContainer().classList.toggle('is-satellite', mode === 'satellite');
+
+        const btn = document.getElementById('basemapBtn');
+        if (!btn) return;
+        const toSatellite = mode !== 'satellite';
+        // The control names where it takes you, not where you are — a lone
+        // icon that reports the current mode reads as the opposite to about
+        // half of people.
+        btn.innerHTML = `<i class="fa-solid ${toSatellite ? 'fa-satellite' : 'fa-map'}"></i>`;
+        btn.setAttribute('aria-label', toSatellite ? 'Switch to satellite view' : 'Switch to street map');
+    }
 
     const networkLayer = L.layerGroup().addTo(map);
     const sosPulseLayer = L.layerGroup().addTo(map);
@@ -211,6 +255,8 @@
         map,
         zoomIn: () => map.zoomIn(),
         zoomOut: () => map.zoomOut(),
+        setBasemap,
+        toggleBasemap: () => setBasemap(basemap === 'satellite' ? 'street' : 'satellite'),
         // Keep whatever zoom the user chose unless they had zoomed further out
         // than the default — recentring shouldn't silently reframe their view.
         recenter: () => map.setView(lastSelfPos, Math.max(map.getZoom(), 15)),
