@@ -83,17 +83,25 @@
                     <div class="marker-core is-ghost ${cls}"></div>
                     <div class="ghost-label-group" style="transform:translate(${offset.x}px, ${offset.y}px)">
                         <div class="marker-label" style="color:${color}">${node.name}</div>
-                        <div class="ghost-timestamp"><i class="fa-solid fa-ghost"></i> LAST SEEN ${mins}m AGO</div>
+                        <div class="ghost-timestamp"><i class="fa-solid fa-ghost"></i> ${mins}m ago</div>
                     </div>
                 </div>`;
             return L.divIcon({ className: 'custom-div-icon', html, iconSize: [40, 40], iconAnchor: [20, 20] });
         }
 
+        // SAFE is the resting state and the most common one on the map, so
+        // labelling it buries the handful of nodes that actually need
+        // attention under a wall of text. Colour and the legend still say
+        // "safe"; the label is spent on the exceptions.
+        const label = node.status === 'SAFE'
+            ? ''
+            : `<div class="marker-label" style="color:${color}">${node.status}</div>`;
+
         const html = `
             <div class="marker-wrap">
                 ${badge}
                 <div class="marker-core ${cls}"></div>
-                <div class="marker-label" style="color:${color}">${node.status}</div>
+                ${label}
             </div>`;
         return L.divIcon({ className: 'custom-div-icon', html, iconSize: [40, 40], iconAnchor: [20, 20] });
     }

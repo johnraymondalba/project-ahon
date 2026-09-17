@@ -174,11 +174,22 @@ body {
     pointer-events: auto;
 }
 .page.active { display: block; }
+
+/* Everything inside the phone scrolls the way a phone does: by dragging,
+   with no scrollbar gutter. A native desktop scrollbar running down the
+   mockup is the one thing that most breaks the illusion of a real device. */
+.page, .subpage-body, .map-sheet-body { scrollbar-width: none; -ms-overflow-style: none; }
+.page::-webkit-scrollbar,
+.subpage-body::-webkit-scrollbar,
+.map-sheet-body::-webkit-scrollbar { width: 0; height: 0; display: none; }
 /* The Map page is a window, not a panel: transparent and click-through so
    the live map underneath (#map) stays draggable and zoomable. It has to
    stay click-through while active too — that is the only time the map is
    on screen — so only its overlay children take pointer events back. */
-.page--map { padding: 0; background: transparent; pointer-events: none; }
+/* The map page never scrolls — it is a fixed window onto the map, and the
+   overlay and sheet are positioned inside it. Without this it inherits
+   .page's overflow-y and paints a desktop scrollbar down the phone screen. */
+.page--map { padding: 0; background: transparent; pointer-events: none; overflow: hidden; }
 .page--map .map-overlay-top,
 .page--map .map-sheet { pointer-events: auto; }
 
@@ -251,7 +262,13 @@ body {
 .nearby-preview-row small { font-size: 12px; color: var(--ink-secondary); }
 
 /* --- MAP PAGE OVERLAYS --- */
-.map-overlay-top { position: absolute; top: 12px; right: 12px; z-index: 500; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+/* Capped so the stack can never grow past the screen and clip its own
+   controls — the legend at the bottom is what gets cut, not the buttons. */
+.map-overlay-top {
+    position: absolute; top: 12px; right: 12px; z-index: 500;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    max-height: calc(100% - 24px); overflow: hidden;
+}
 .map-icon-btn { width: 38px; height: 38px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink); cursor: pointer; box-shadow: var(--shadow-sm); }
 /* Zoom in/out read as one control, so they share a single pill rather than
    stacking as two loose circles under the legend. */

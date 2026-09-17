@@ -106,19 +106,21 @@
                     <div class="page page--map" id="page-map">
                         <div class="map-overlay-top">
                             <button class="map-icon-btn" onclick="toggleLegend()" aria-label="Toggle legend"><i class="fa-solid fa-list-ul"></i></button>
+                            <div class="map-zoom-pair">
+                                <button class="map-icon-btn" onclick="citizenMap.zoomIn()" aria-label="Zoom in"><i class="fa-solid fa-plus"></i></button>
+                                <button class="map-icon-btn" onclick="citizenMap.zoomOut()" aria-label="Zoom out"><i class="fa-solid fa-minus"></i></button>
+                            </div>
+                            <button class="map-icon-btn" onclick="citizenMap.recenter()" aria-label="Center the map on your location"><i class="fa-solid fa-location-crosshairs"></i></button>
+                            <!-- Legend sits last so opening it grows the stack downward into
+                                 empty map, instead of pushing the controls off the screen. -->
                             <div class="legend-box" id="legendBox">
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-sos)"></div><span class="l-text">SOS Active</span></div>
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-rescuer)"></div><span class="l-text">Rescuer</span></div>
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-user)"></div><span class="l-text">Civilian / Safe</span></div>
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-senior)"></div><span class="l-text">Senior / PWD</span></div>
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-volunteer)"></div><span class="l-text">Volunteer</span></div>
-                                <div class="legend-item"><div class="l-dot" style="background:var(--color-offline)"></div><span class="l-text">Last Signal Found</span></div>
+                                <div class="legend-item"><div class="l-dot" style="background:var(--color-offline)"></div><span class="l-text">Last Signal</span></div>
                             </div>
-                            <div class="map-zoom-pair">
-                                <button class="map-icon-btn" onclick="citizenMap.zoomIn()" aria-label="Zoom in"><i class="fa-solid fa-plus"></i></button>
-                                <button class="map-icon-btn" onclick="citizenMap.zoomOut()" aria-label="Zoom out"><i class="fa-solid fa-minus"></i></button>
-                            </div>
-                            <button class="map-icon-btn" onclick="citizenMap.recenter()" aria-label="Center the map on your location"><i class="fa-solid fa-location-crosshairs"></i></button>
                         </div>
 
                         <div class="map-sheet" id="mapSheet">
