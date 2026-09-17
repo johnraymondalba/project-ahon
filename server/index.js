@@ -32,10 +32,20 @@ const wss = new WebSocketServer({ server });
 let nodes = JSON.parse(JSON.stringify(SEED_NODES));
 const citizens = new Map(); // ws -> node id
 
+// The three roles are mutually exclusive on the client, but the order here is
+// the tiebreak if a stale message ever lands out of sequence: needing help
+// outranks being able to give it.
 function computeDisplay(node) {
     if (node.sos) { node.type = 'sos'; node.status = 'SOS'; }
+    else if (node.rescuer) { node.type = 'rescuer'; node.status = 'RESCUER'; }
     else if (node.volunteer) { node.type = 'volunteer'; node.status = 'VOLUNTEER'; }
     else { node.type = 'civilian'; node.status = node.statusLabel || 'SAFE'; }
+}
+
+function releaseClaimsBy(rescuerId) {
+    nodes.forEach(n => {
+        if (n.claimedBy === rescuerId) { n.claimedBy = null; n.claimedByName = null; }
+    });
 }
 
 function broadcast() {
@@ -50,7 +60,9 @@ function broadcast() {
 function ambientTick() {
     nodes.forEach(n => { if (!n.live) n.lastSignalMin += Math.random() * 1.5; });
 
-    const drifting = nodes.filter(n => !n.live && n.type !== 'offline' && n.type !== 'rescuer' && n.type !== 'volunteer');
+    // Resolved cases stop drifting — a node a rescuer has just cleared must not
+    // flip itself back to TRAPPED on the next ambient tick.
+    const drifting = nodes.filter(n => !n.live && !n.resolved && n.type !== 'offline' && n.type !== 'rescuer' && n.type !== 'volunteer');
     const hops = Math.min(2, drifting.length);
     for (let i = 0; i < hops; i++) {
         const node = drifting[Math.floor(Math.random() * drifting.length)];
@@ -130,6 +142,36 @@ wss.on('connection', (ws) => {
                 node.statusLabel = msg.value;
                 computeDisplay(node);
             }
+        } else if (msg.type === 'rescuer') {
+            node.rescuer = !!msg.active;
+            // Dropping out of rescuer mode must not strand the case you had
+            // claimed — nobody else can take it while it still reads as taken.
+            if (!node.rescuer) releaseClaimsBy(node.id);
+            computeDisplay(node);
+        } else if (msg.type === 'claim') {
+            const target = nodes.find(n => n.id === msg.targetId);
+            if (!target) return;
+            // First claim wins. A second rescuer tapping the same case is told
+            // no rather than silently stealing it out from under the first.
+            if (msg.active) {
+                if (target.claimedBy && target.claimedBy !== node.id) return;
+                target.claimedBy = node.id;
+                target.claimedByName = node.name;
+            } else if (target.claimedBy === node.id) {
+                target.claimedBy = null;
+                target.claimedByName = null;
+            }
+        } else if (msg.type === 'resolve') {
+            const target = nodes.find(n => n.id === msg.targetId);
+            if (!target || target.claimedBy !== node.id) return;
+            target.resolved = true;
+            target.resolvedByName = node.name;
+            target.claimedBy = null;
+            target.claimedByName = null;
+            target.needs = {};
+            target.statusLabel = 'SAFE';
+            target.sos = false;
+            computeDisplay(target);
         } else if (msg.type === 'need') {
             node.needs[msg.key] = !!msg.value;
         } else if (msg.type === 'flag') {
@@ -144,6 +186,10 @@ wss.on('connection', (ws) => {
     ws.on('close', () => {
         const id = citizens.get(ws);
         if (id) {
+            // A rescuer who closes the tab has stopped responding, so their
+            // cases go back on the board rather than staying locked to a node
+            // that no longer exists.
+            releaseClaimsBy(id);
             nodes = nodes.filter(n => n.id !== id);
             citizens.delete(ws);
             broadcast();

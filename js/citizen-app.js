@@ -12,6 +12,9 @@
         contacts: 'ahon.contacts',
         activity: 'ahon.activity',
         settings: 'ahon.settings',
+        // Rescuer is a role you are, not a mode you happen to be in, so unlike
+        // volunteer it survives a reload.
+        rescuer: 'ahon.rescuer',
     };
 
     function readJSON(key, fallback) {
@@ -28,6 +31,7 @@
         self: { lat: window.SELF_NODE_START.lat, lng: window.SELF_NODE_START.lng },
         sos: false,
         volunteer: false,
+        rescuer: false,
         statusLabel: 'SAFE',
         needs: { water: false, food: false, meds: false, pets: false, family: false },
         flags: { pwd: false, elder: false, infant: false },
@@ -75,7 +79,7 @@
 
     // --- MY SITUATION ---
     window.setStatus = function (status) {
-        if (appState.volunteer && !appState.sos) return;
+        if ((appState.volunteer || appState.rescuer) && !appState.sos) return;
         const changed = appState.statusLabel !== status;
         appState.statusLabel = status;
 
@@ -132,17 +136,28 @@
 
     window.toggleSOS = function () {
         const on = !appState.sos;
-        // Needing help and being available to give it are mutually exclusive.
-        // A volunteer who broadcasts SOS is no longer available, and leaving
-        // both flags set would tell responders two contradictory things.
+        // Needing help and being able to give it are mutually exclusive. A
+        // responder who broadcasts SOS is no longer responding, and leaving
+        // both flags set would tell the mesh two contradictory things.
         if (on && appState.volunteer) {
             applyVolunteer(false);
             logActivity('Volunteer mode ended — you broadcast SOS', 'fa-solid fa-hand-holding-heart', '--volunteer');
+        }
+        if (on && appState.rescuer) {
+            applyRescuer(false);
+            logActivity('Rescuer mode ended — you broadcast SOS', 'fa-solid fa-helmet-safety', '--success-dark');
         }
         applySOS(on);
         logActivity(on ? 'Broadcast SOS' : 'Cancelled SOS broadcast', 'fa-solid fa-tower-broadcast', '--accent');
         render();
     };
+
+    // Reporting your own situation is for people who need help. Neither a
+    // volunteer nor a rescuer on duty is one, so the chips lock for both.
+    function syncSituationLock() {
+        const situation = document.getElementById('mapSheetSituation');
+        if (situation) situation.classList.toggle('is-disabled', appState.volunteer || appState.rescuer);
+    }
 
     // --- VOLUNTEER MODE ---
     function applyVolunteer(on) {
@@ -150,10 +165,7 @@
         const checkbox = document.getElementById('volunteerCheck');
         if (checkbox) checkbox.checked = on;
         if (window.realtime) window.realtime.sendVolunteer(on);
-        // Own status reporting pauses while volunteering — the map itself
-        // (not a separate list) is where a volunteer sees nearby SOS/needs.
-        const situation = document.getElementById('mapSheetSituation');
-        if (situation) situation.classList.toggle('is-disabled', on);
+        syncSituationLock();
     }
 
     window.toggleVolunteer = function () {
@@ -176,8 +188,44 @@
             applySOS(false);
             logActivity('Cancelled SOS — you switched to Volunteer mode', 'fa-solid fa-tower-broadcast', '--accent');
         }
+        if (appState.rescuer) {
+            applyRescuer(false);
+            logActivity('Rescuer mode ended — you switched to Volunteer mode', 'fa-solid fa-helmet-safety', '--success-dark');
+        }
         applyVolunteer(true);
         logActivity('Turned on Volunteer mode', 'fa-solid fa-hand-holding-heart', '--volunteer');
+        render();
+    };
+
+    // --- RESCUER MODE ---
+    // Declared in Profile rather than on the map, because it says what you are
+    // to the mesh rather than what you are doing this minute.
+    window.isRescuerActive = function () { return appState.rescuer; };
+
+    function applyRescuer(on) {
+        appState.rescuer = on;
+        const checkbox = document.getElementById('rescuerCheck');
+        if (checkbox) checkbox.checked = on;
+        writeJSON(LS.rescuer, on);
+        if (window.realtime) window.realtime.sendRescuer(on);
+        syncSituationLock();
+        // Going off duty must not leave a case locked to you — nobody else can
+        // take it while it still reads as taken.
+        if (!on && window.rescuerCases) window.rescuerCases.releaseAll();
+    }
+
+    window.toggleRescuer = function () {
+        const on = document.getElementById('rescuerCheck').checked;
+        if (on && appState.sos) {
+            applySOS(false);
+            logActivity('Cancelled SOS — you went on duty as a rescuer', 'fa-solid fa-tower-broadcast', '--accent');
+        }
+        if (on && appState.volunteer) {
+            applyVolunteer(false);
+            logActivity('Volunteer mode ended — you went on duty as a rescuer', 'fa-solid fa-hand-holding-heart', '--volunteer');
+        }
+        applyRescuer(on);
+        logActivity(on ? 'Went on duty as a rescuer' : 'Went off duty as a rescuer', 'fa-solid fa-helmet-safety', '--success-dark');
         render();
     };
 
@@ -199,6 +247,7 @@
         let colorVar = statusColorVar(appState.statusLabel);
         let iconClass = statusIcon(appState.statusLabel);
         if (appState.sos) { label = 'SOS active'; colorVar = '--accent'; iconClass = 'fa-solid fa-tower-broadcast'; }
+        else if (appState.rescuer) { label = 'On duty'; colorVar = '--success-dark'; iconClass = 'fa-solid fa-helmet-safety'; }
         else if (appState.volunteer) { label = 'Volunteering'; colorVar = '--volunteer'; iconClass = 'fa-solid fa-hand-holding-heart'; }
 
         value.textContent = label;
@@ -326,6 +375,15 @@
 
     // --- INIT ---
     document.addEventListener('DOMContentLoaded', () => {
+        // Restore the rescuer role before the first paint, so an on-duty
+        // responder reopening the app is still on duty.
+        if (readJSON(LS.rescuer, false) === true) applyRescuer(true);
+        // The socket is not open yet at this point, so the role has to be
+        // re-sent once it is or the mesh never hears about it.
+        window.addEventListener('realtime:connected', () => {
+            if (appState.rescuer && window.realtime) window.realtime.sendRescuer(true);
+        });
+
         render();
         renderMeshStatus();
         setInterval(jitterMeshStatus, 6000);

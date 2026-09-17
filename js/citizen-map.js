@@ -113,9 +113,10 @@
         { x: 0, y: 0 }, { x: 34, y: 8 }, { x: -34, y: 8 }, { x: 0, y: 26 },
     ];
 
-    function neighborIcon(node) {
+    function neighborIcon(node, isMyCase) {
         const { cls, color } = typeToColorClass(node.type);
         const badge = needsBadgeHtml(node.needs);
+        const claimed = isMyCase ? ' is-my-case' : '';
 
         if (node.type === 'offline') {
             // Ghost node: dashed, dimmed marker + "last seen" timestamp label.
@@ -144,7 +145,7 @@
         const html = `
             <div class="marker-wrap">
                 ${badge}
-                <div class="marker-core ${cls}"></div>
+                <div class="marker-core ${cls}${claimed}"></div>
                 ${label}
             </div>`;
         return L.divIcon({ className: 'custom-div-icon', html, iconSize: [40, 40], iconAnchor: [20, 20] });
@@ -334,7 +335,7 @@
     // inverts: the people asking, and the ones nobody has heard from. Either
     // way the filter note can widen it back out.
     function visibleNeighbors(neighbors, appState) {
-        if (!appState.sos && !appState.volunteer) return neighbors;
+        if (!appState.sos && !appState.volunteer && !appState.rescuer) return neighbors;
         if (showWholeMesh) return neighbors.filter(n => isResponder(n) || needsHelp(n));
         if (appState.sos) return neighbors.filter(isResponder);
         return neighbors.filter(needsHelp);
@@ -370,15 +371,17 @@
         const el = document.getElementById('mapFilterNote');
         if (!el) return;
 
-        el.hidden = !(appState.sos || appState.volunteer);
+        el.hidden = !(appState.sos || appState.volunteer || appState.rescuer);
         if (el.hidden) return;
 
         let label;
         if (showWholeMesh) label = shown ? `Responders + people asking · ${shown}` : 'Nothing reported nearby';
         else if (appState.sos) label = shown ? `Responders only · ${shown}` : 'No responders in range yet';
+        else if (appState.rescuer) label = shown ? `Tap a case to respond · ${shown}` : 'No open cases nearby';
         else label = shown ? `People asking for help · ${shown}` : 'Nobody nearby needs help';
 
-        const modeIcon = appState.sos ? 'fa-tower-broadcast' : 'fa-hand-holding-heart';
+        const modeIcon = appState.sos ? 'fa-tower-broadcast'
+            : appState.rescuer ? 'fa-helmet-safety' : 'fa-hand-holding-heart';
         el.innerHTML = `
             <i class="fa-solid ${modeIcon}"></i>
             <span>${label}</span>
@@ -440,9 +443,29 @@
             }).addTo(networkLayer);
         });
 
+        // On duty, every plotted node is a case file — tapping one opens its
+        // detail, claim and resolve. Off duty the markers stay inert, because
+        // a citizen has no business opening a stranger's medical record.
+        const onDuty = !!appState.rescuer;
+        const activeCase = onDuty && window.rescuerCases ? window.rescuerCases.active() : null;
+
         neighbors.forEach(n => {
-            L.marker([n.lat, n.lng], { icon: neighborIcon(n) }).addTo(networkLayer);
+            const marker = L.marker([n.lat, n.lng], {
+                icon: neighborIcon(n, onDuty && activeCase && activeCase.id === n.id),
+                interactive: onDuty,
+                keyboard: onDuty,
+            }).addTo(networkLayer);
+            if (onDuty) marker.on('click', () => window.openCaseSheet(n));
         });
+
+        // The case you took, drawn as the line you are travelling. Solid and
+        // bright against the dashed mesh, so it reads as your job rather than
+        // as one more link.
+        if (activeCase) {
+            L.polyline([selfPos, [activeCase.lat, activeCase.lng]], {
+                color: '#4D94FF', weight: 3, opacity: 0.95, dashArray: '10, 6',
+            }).addTo(networkLayer);
+        }
 
         // Your own radio reach — the same range the links are built from, so
         // the ring explains why the nodes inside it are the ones you carry.
@@ -465,6 +488,7 @@
         setBasemap,
         toggleBasemap: () => setBasemap(basemap === 'satellite' ? 'street' : 'satellite'),
         recenterOffset: sheetAwareOffset,
+        selfPosition: () => ({ lat: lastSelfPos[0], lng: lastSelfPos[1] }),
         toggleMeshScope: () => {
             showWholeMesh = !showWholeMesh;
             if (lastAppState) render(lastAppState);

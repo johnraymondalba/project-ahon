@@ -180,6 +180,21 @@
                             </div>
                         </div>
 
+                        <!-- Role, not mode: it says what you are to the mesh, so it
+                             lives here rather than on the map with Volunteer mode,
+                             and it survives a reload. -->
+                        <div class="role-toggle">
+                            <div class="role-toggle-icon"><i class="fa-solid fa-helmet-safety"></i></div>
+                            <div class="role-toggle-body">
+                                <div class="role-toggle-title">Rescuer mode</div>
+                                <div class="role-toggle-sub">Respond to cases, and see who you are reaching</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="rescuerCheck" onchange="toggleRescuer()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
                         <div class="menu-list">
                             <button class="menu-row" onclick="openSubpage('info')">
                                 <div class="menu-row-icon"><i class="fa-solid fa-id-card"></i></div>
@@ -350,6 +365,29 @@
                 </div>
             </div>
 
+            <!-- RESCUER CASE SHEET — opened by tapping a node while on duty.
+                 Filled by js/citizen-rescuer.js, which owns claim and resolve. -->
+            <div class="sheet-backdrop" id="caseSheet">
+                <div class="sheet sheet--case">
+                    <div class="case-head">
+                        <div>
+                            <div class="case-name" id="caseName"></div>
+                            <div class="case-meta" id="caseMeta"></div>
+                        </div>
+                        <div class="case-status" id="caseStatus"></div>
+                    </div>
+                    <div class="case-body" id="caseBody"></div>
+                    <div class="case-notice" id="caseNotice" hidden></div>
+                    <div class="sheet-actions">
+                        <button class="sheet-cancel-btn" onclick="closeCaseSheet()">Close</button>
+                        <button class="case-btn is-claim" id="caseClaimBtn" onclick="toggleCaseClaim()">Respond to this</button>
+                    </div>
+                    <button class="case-resolve-btn" id="caseResolveBtn" onclick="resolveCase()" hidden>
+                        <i class="fa-solid fa-circle-check"></i> Mark reached and safe
+                    </button>
+                </div>
+            </div>
+
             <!-- CONFIRM SHEET — shared by SOS and Volunteer mode; js/citizen-gate.js
                  fills it and owns what confirming does. -->
             <div class="sheet-backdrop tone-sos" id="confirmSheet">
@@ -375,6 +413,7 @@
     <script src="js/realtime-client.js"></script>
     <script src="js/citizen-map.js"></script>
     <script src="js/citizen-app.js"></script>
+    <script src="js/citizen-rescuer.js"></script>
     <script src="js/citizen-gate.js"></script>
     <script src="js/citizen-tabs.js"></script>
 </body>

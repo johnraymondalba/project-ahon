@@ -98,6 +98,15 @@
         return html || '<span style="color:#c1c7d4">—</span>';
     }
 
+    // Dispatch state a rescuer set from the field. Worth a badge on the list
+    // itself rather than only in the detail panel: the question "is anyone on
+    // this yet" is the one the board is scanned for.
+    function claimBadge(n) {
+        if (n.resolved) return `<span class="claim-badge is-resolved" title="Reached and cleared">Cleared</span>`;
+        if (n.claimedByName) return `<span class="claim-badge" title="Claimed by ${n.claimedByName}">${n.claimedByName}</span>`;
+        return '';
+    }
+
     function renderTable() {
         const tbody = document.getElementById('priorityTableBody');
         const reports = sortedFilteredReports();
@@ -109,7 +118,7 @@
             return `
                 <tr data-id="${n.id}" class="${n.id === selectedNodeId ? 'selected' : ''}">
                     <td><strong>${n.name}</strong><br><span style="color:var(--lgu-text-muted); font-size:10.5px;">${n.id}</span></td>
-                    <td>${n.status}</td>
+                    <td>${n.status}${claimBadge(n)}</td>
                     <td>${n.town}</td>
                     <td class="need-icons">${needIconsHtml(n.needs)}</td>
                     <td>${tierHtml}</td>
@@ -172,6 +181,7 @@
                 <div><div class="detail-field-label">Vulnerability flags</div><div class="detail-field-value" style="font-size:13px;">${flags.length ? flags.join(', ') : 'None'}</div></div>
 
                 <div><div class="detail-field-label">Last signal</div><div class="detail-field-value">${Math.round(node.lastSignalMin)} min ago</div></div>
+                <div><div class="detail-field-label">Responding</div><div class="detail-field-value" style="font-size:13px;">${node.resolved ? `Reached and cleared${node.resolvedByName ? ` by ${node.resolvedByName}` : ''}` : (node.claimedByName || 'Nobody yet')}</div></div>
                 <div><div class="detail-field-label">Nearest rescue team</div><div class="detail-field-value" style="font-size:13px;">${nearest ? `${nearest.rescuer.name} — ${nearest.d.toFixed(2)} km` : 'None available'}</div></div>
                 <div><div class="detail-field-label">Recommended action</div><div class="detail-field-value" style="font-size:13px;">${t ? t.recommendedAction : 'Analyzing…'}</div></div>
             </div>`;
