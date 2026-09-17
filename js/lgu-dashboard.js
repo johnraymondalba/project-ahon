@@ -4,7 +4,7 @@
   mesh/network health strip. Map rendering lives in js/lgu-map.js.
 */
 (function () {
-    const triageCache = new Map(); // node.id -> { priorityTier, reasoning, recommendedAction, source }
+    const triageCache = new Map(); // node.id -> { priorityTier, reasoning, recommendedAction, source, fingerprint }
     let selectedNodeId = null;
     let sortKey = 'tier';
     let sortDir = 1;
@@ -191,6 +191,68 @@
     window.lguSelectNode = selectNode;
 
     // --- AI TRIAGE ORCHESTRATION ---
+
+    // A cached score is only valid while the report it was scored from is
+    // unchanged. Triage reads status, unmet needs, vulnerability flags, and
+    // whether the signal has gone stale — but NOT the exact minute count,
+    // which drifts on every mesh tick and would otherwise invalidate every
+    // score constantly. Comparing this fingerprint is what makes a citizen
+    // who taps SOS stop showing the tier they were scored at on connect.
+    function triageFingerprint(node) {
+        const setKeys = obj => Object.keys(obj || {}).filter(k => obj[k]).sort().join(',');
+        // 30 min is the staleness threshold ruleBasedTriage itself uses.
+        const freshness = node.lastSignalMin > 30 ? 'stale' : 'fresh';
+        return [node.status, setKeys(node.needs), setKeys(node.flags), freshness].join('|');
+    }
+
+    function cacheTriage(node, result, fingerprint) {
+        triageCache.set(node.id, { ...result, fingerprint: fingerprint || triageFingerprint(node) });
+    }
+
+    // Rescore every report whose inputs no longer match its cached score, using
+    // the instant rule-based pass so a badge is never stale or empty. Returns
+    // the reports that changed, for the Gemini pass to upgrade.
+    function rescoreChangedReports() {
+        const changed = [];
+        getReports().forEach(n => {
+            const fingerprint = triageFingerprint(n);
+            if (triageCache.get(n.id)?.fingerprint === fingerprint) return;
+            cacheTriage(n, window.ruleBasedTriage(n), fingerprint);
+            changed.push(n);
+        });
+        return changed;
+    }
+
+    // Gemini upgrades are debounced and batched: ambient mesh traffic can change
+    // several reports a second, and each upgrade is a network call.
+    const pendingUpgrade = new Map(); // node.id -> fingerprint when queued
+    let upgradeTimer = null;
+
+    function queueGeminiUpgrade(nodes) {
+        nodes.forEach(n => pendingUpgrade.set(n.id, triageFingerprint(n)));
+        clearTimeout(upgradeTimer);
+        upgradeTimer = setTimeout(flushGeminiUpgrade, 1500);
+    }
+
+    async function flushGeminiUpgrade() {
+        const batch = [...pendingUpgrade.entries()];
+        pendingUpgrade.clear();
+
+        await Promise.all(batch.map(async ([id, queuedAt]) => {
+            const node = getReports().find(n => n.id === id);
+            if (!node) return; // report left the mesh while we were queued
+            const result = await window.getAiTriage(node);
+            // The report may have changed again mid-flight — in that case the
+            // rule-based score already reflects the newer state, so keep it
+            // rather than overwriting it with an answer to the old question.
+            const current = triageFingerprint(node);
+            if (current !== queuedAt) return;
+            cacheTriage(node, result, current);
+        }));
+
+        renderSummary(); renderTable(); renderAiTab(); renderDetail();
+    }
+
     async function runTriage() {
         const reports = getReports();
         const btn = document.getElementById('runTriageBtn');
@@ -198,12 +260,14 @@
 
         // Instant rule-based pass so the UI is never empty, then upgrade to
         // Gemini results (or keep fallback) as each call resolves.
-        reports.forEach(n => triageCache.set(n.id, window.ruleBasedTriage(n)));
+        reports.forEach(n => cacheTriage(n, window.ruleBasedTriage(n)));
         renderSummary(); renderTable(); renderAiTab(); renderDetail();
 
         await Promise.all(reports.map(async n => {
+            const fingerprint = triageFingerprint(n);
             const result = await window.getAiTriage(n);
-            triageCache.set(n.id, result);
+            if (triageFingerprint(n) !== fingerprint) return; // changed mid-flight
+            cacheTriage(n, result, fingerprint);
             renderSummary(); renderTable(); renderAiTab(); renderDetail();
         }));
 
@@ -279,10 +343,13 @@
         window.lguMap.onReady(() => refreshAll());
 
         window.addEventListener('mesh:update', () => {
+            // Rescore BEFORE rendering, so a report that just changed — a citizen
+            // tapping SOS, a node going dark — is drawn at its new priority in the
+            // same frame, instead of showing its previous tier until someone hits
+            // "Re-run AI Triage".
+            const changed = rescoreChangedReports();
             refreshAll();
-            // Re-triage nodes we haven't scored yet (e.g. newly-gone-offline ghosts,
-            // or a citizen who just came online with a live SOS report).
-            getReports().forEach(n => { if (!triageCache.has(n.id)) triageCache.set(n.id, window.ruleBasedTriage(n)); });
+            if (changed.length) queueGeminiUpgrade(changed);
         });
 
         // With the live-sync server (js/realtime-client.js) reachable, mesh
