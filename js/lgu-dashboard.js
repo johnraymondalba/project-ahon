@@ -206,7 +206,7 @@
                     </div>
                     <div class="ai-card-reasoning">${t.reasoning}</div>
                     <div class="ai-card-action"><i class="fa-solid fa-kit-medical"></i> ${t.recommendedAction}</div>
-                    <div class="ai-card-source">${t.source === 'gemini' ? 'Gemini AI' : 'Rule-based fallback'}</div>
+                    ${t.source === 'gemini' ? '<div class="ai-card-source">Gemini AI</div>' : ''}
                 </div>`;
         }).join('');
 
