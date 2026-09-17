@@ -114,6 +114,11 @@
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-volunteer)"></div><span class="l-text">Volunteer</span></div>
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-offline)"></div><span class="l-text">Last Signal Found</span></div>
                             </div>
+                            <div class="map-zoom-pair">
+                                <button class="map-icon-btn" onclick="citizenMap.zoomIn()" aria-label="Zoom in"><i class="fa-solid fa-plus"></i></button>
+                                <button class="map-icon-btn" onclick="citizenMap.zoomOut()" aria-label="Zoom out"><i class="fa-solid fa-minus"></i></button>
+                            </div>
+                            <button class="map-icon-btn" onclick="citizenMap.recenter()" aria-label="Center the map on your location"><i class="fa-solid fa-location-crosshairs"></i></button>
                         </div>
 
                         <div class="map-sheet" id="mapSheet">

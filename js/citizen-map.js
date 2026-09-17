@@ -10,7 +10,15 @@
 (function () {
     const CENTER = [window.NABUA_CENTER.lat, window.NABUA_CENTER.lng];
 
+    // Leaflet's own zoom buttons are off because the map is a full-bleed
+    // background layer here — the +/- and recenter controls live in the app's
+    // own overlay stack (see .map-overlay-top in citizen.html) so they match
+    // the rest of the phone UI and clear the docked sheet.
     const map = L.map('map', { zoomControl: false, attributionControl: true }).setView(CENTER, 15);
+
+    // Where "you" were last drawn, so the recenter control can return there
+    // after the user has panned away across the barangay.
+    let lastSelfPos = CENTER;
 
     // Real OpenStreetMap street tiles (no API key) so responders can see the
     // actual streets/terrain each plotted node sits on, not just an abstract
@@ -153,6 +161,7 @@
     function render(appState) {
         networkLayer.clearLayers();
         const selfPos = [appState.self.lat, appState.self.lng];
+        lastSelfPos = selfPos;
 
         // The live-sync server also pushes this page's own node back down
         // as part of MESH_NODES (so the LGU dashboard can see it) — skip it
@@ -189,7 +198,15 @@
         if (appState.sos) buildSosParticles(selfPos);
     }
 
-    window.citizenMap = { render, map };
+    window.citizenMap = {
+        render,
+        map,
+        zoomIn: () => map.zoomIn(),
+        zoomOut: () => map.zoomOut(),
+        // Keep whatever zoom the user chose unless they had zoomed further out
+        // than the default — recentring shouldn't silently reframe their view.
+        recenter: () => map.setView(lastSelfPos, Math.max(map.getZoom(), 15)),
+    };
     animateRangePulse();
     animateSosParticles();
 })();
