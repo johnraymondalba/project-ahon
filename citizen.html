@@ -128,7 +128,7 @@
                             <!-- Both written by js/citizen-map.js: the note whenever SOS or
                                  Volunteer mode narrows what the map plots, the legend from
                                  the nodes actually on screen. -->
-                            <div class="map-filter-note" id="mapFilterNote" hidden></div>
+                            <button class="map-filter-note" id="mapFilterNote" onclick="citizenMap.toggleMeshScope()" aria-pressed="false" hidden></button>
                             <button class="map-icon-btn" onclick="toggleLegend()" aria-label="Toggle legend"><i class="fa-solid fa-list-ul"></i></button>
                             <div class="legend-box" id="legendBox"></div>
                         </div>

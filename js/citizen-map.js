@@ -224,14 +224,22 @@
         return !!(n.needs && (n.needs.water || n.needs.food || n.needs.meds));
     }
 
+    // Widens either filtered mode to the whole live picture — responders and
+    // everyone asking — so the mesh is visible as a network rather than as
+    // your own slice of it. A view preference, not mesh state: it changes what
+    // is drawn, never what is broadcast. Sticky across modes on purpose.
+    let showWholeMesh = false;
+
     // A map showing every node at once is the right default, but not while the
     // user is doing something specific. Broadcasting SOS, the only dots that
     // matter are the ones who can reach you. On duty as a volunteer, it
-    // inverts: the people asking, and the ones nobody has heard from.
+    // inverts: the people asking, and the ones nobody has heard from. Either
+    // way the filter note can widen it back out.
     function visibleNeighbors(neighbors, appState) {
+        if (!appState.sos && !appState.volunteer) return neighbors;
+        if (showWholeMesh) return neighbors.filter(n => isResponder(n) || needsHelp(n));
         if (appState.sos) return neighbors.filter(isResponder);
-        if (appState.volunteer) return neighbors.filter(needsHelp);
-        return neighbors;
+        return neighbors.filter(needsHelp);
     }
 
     // The key is built from the nodes actually on screen, in a fixed order, so
@@ -257,26 +265,38 @@
 
     // Hiding half the map without saying so reads as a bug, so the filter
     // always names itself — and says when it has nothing to show, which is
-    // itself the news when you are waiting on a rescuer.
+    // itself the news when you are waiting on a rescuer. The note is also the
+    // control: tapping it widens the view to the rest of the mesh and back,
+    // which costs no vertical space in a map window that has none to give.
     function renderFilterNote(appState, shown) {
         const el = document.getElementById('mapFilterNote');
         if (!el) return;
 
-        let text = '';
-        if (appState.sos) {
-            text = shown
-                ? `<i class="fa-solid fa-tower-broadcast"></i> Showing responders only · ${shown}`
-                : `<i class="fa-solid fa-tower-broadcast"></i> No responders in range yet`;
-        } else if (appState.volunteer) {
-            text = shown
-                ? `<i class="fa-solid fa-hand-holding-heart"></i> Showing people needing help · ${shown}`
-                : `<i class="fa-solid fa-hand-holding-heart"></i> Nobody nearby needs help`;
-        }
-        el.innerHTML = text;
-        el.hidden = !text;
+        el.hidden = !(appState.sos || appState.volunteer);
+        if (el.hidden) return;
+
+        let label;
+        if (showWholeMesh) label = shown ? `Responders + people asking · ${shown}` : 'Nothing reported nearby';
+        else if (appState.sos) label = shown ? `Responders only · ${shown}` : 'No responders in range yet';
+        else label = shown ? `People asking for help · ${shown}` : 'Nobody nearby needs help';
+
+        const modeIcon = appState.sos ? 'fa-tower-broadcast' : 'fa-hand-holding-heart';
+        el.innerHTML = `
+            <i class="fa-solid ${modeIcon}"></i>
+            <span>${label}</span>
+            <i class="fa-solid ${showWholeMesh ? 'fa-compress' : 'fa-expand'} note-affordance"></i>`;
+        el.setAttribute('aria-pressed', String(showWholeMesh));
+        el.setAttribute('aria-label', showWholeMesh
+            ? 'Showing the wider mesh. Narrow the map back to this mode only'
+            : 'Widen the map to show the rest of the mesh');
     }
 
+    // Held so the filter note can redraw the map on its own — it changes only
+    // how the mesh is framed, so it has no business routing through the app.
+    let lastAppState = null;
+
     function render(appState) {
+        lastAppState = appState;
         networkLayer.clearLayers();
         const selfPos = [appState.self.lat, appState.self.lng];
         lastSelfPos = selfPos;
@@ -326,6 +346,10 @@
         zoomOut: () => map.zoomOut(),
         setBasemap,
         toggleBasemap: () => setBasemap(basemap === 'satellite' ? 'street' : 'satellite'),
+        toggleMeshScope: () => {
+            showWholeMesh = !showWholeMesh;
+            if (lastAppState) render(lastAppState);
+        },
         // Keep whatever zoom the user chose unless they had zoomed further out
         // than the default — recentring shouldn't silently reframe their view.
         recenter: () => map.setView(lastSelfPos, Math.max(map.getZoom(), 15)),
