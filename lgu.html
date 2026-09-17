@@ -38,13 +38,24 @@
                 <button class="lgu-nav-item" id="navAi" onclick="lguGoToPanelTab('tabAi')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Triage</button>
             </nav>
 
-            <div class="lgu-nav-label">Switch view</div>
-            <nav class="lgu-nav">
-                <a class="lgu-nav-item" href="citizen.html"><i class="fa-solid fa-mobile-screen-button"></i> Citizen app</a>
-                <a class="lgu-nav-item" href="index.html"><i class="fa-solid fa-arrow-left"></i> Role select</a>
-            </nav>
-
             <div class="lgu-sidebar-spacer"></div>
+
+            <!-- Leaving the view has nothing to do with running an incident, so
+                 it sits below the spacer and stays folded away by default —
+                 Dashboard, Reports and AI Triage are what should be competing
+                 for attention while reports are coming in. -->
+            <div class="lgu-settings">
+                <button class="lgu-nav-item lgu-settings-toggle" id="lguSettingsToggle"
+                        onclick="lguToggleSettings()" aria-expanded="false" aria-controls="lguSettingsPanel">
+                    <i class="fa-solid fa-gear"></i> Settings
+                    <i class="fa-solid fa-chevron-down lgu-settings-chevron"></i>
+                </button>
+                <nav class="lgu-nav lgu-settings-panel" id="lguSettingsPanel" hidden>
+                    <div class="lgu-nav-label">Switch view</div>
+                    <a class="lgu-nav-item" href="citizen.html"><i class="fa-solid fa-mobile-screen-button"></i> Citizen app</a>
+                    <a class="lgu-nav-item" href="index.html"><i class="fa-solid fa-arrow-left"></i> Role select</a>
+                </nav>
+            </div>
 
             <div class="lgu-mesh-health">
                 <span class="mesh-health-dot" id="meshHealthDot"></span>

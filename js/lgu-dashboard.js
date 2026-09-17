@@ -306,6 +306,14 @@
         if (tabId) activateTab(tabId); else setActiveNav('navDashboard');
     };
 
+    window.lguToggleSettings = function () {
+        const toggle = document.getElementById('lguSettingsToggle');
+        const panel = document.getElementById('lguSettingsPanel');
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+        panel.hidden = open;
+    };
+
     function initTabs() {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => activateTab(btn.dataset.tab));

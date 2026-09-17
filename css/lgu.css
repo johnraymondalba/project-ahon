@@ -53,6 +53,15 @@ a { color: inherit; }
 
 .lgu-sidebar-spacer { flex: 1; }
 
+/* Folded away by default; the panel grows upward into the spacer above it
+   rather than pushing the network-health readout off the bottom. */
+.lgu-settings-toggle .lgu-settings-chevron { margin-left: auto; font-size: 11px; transition: transform 0.18s ease; }
+.lgu-settings-toggle[aria-expanded="true"] { color: var(--ink); }
+.lgu-settings-toggle[aria-expanded="true"] .lgu-settings-chevron { transform: rotate(180deg); }
+.lgu-settings-panel { padding-bottom: 4px; }
+.lgu-settings-panel[hidden] { display: none; }
+.lgu-settings-panel .lgu-nav-label { margin: 10px 10px 4px; }
+
 .lgu-mesh-health {
     display: flex; align-items: center; gap: 8px;
     background: var(--surface-alt); border-radius: var(--radius-sm);
