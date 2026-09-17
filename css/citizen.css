@@ -103,7 +103,10 @@ body {
 /* --- APP SHELL: persistent status strip + SOS banner + FAB live above
    whichever page is active, so safety-critical state never disappears
    when switching tabs --- */
-.app-shell { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 10; }
+/* The shell covers the whole screen on top of #map, so it must not be a hit
+   target itself — otherwise its transparent areas swallow every drag and
+   pinch meant for the map underneath. Each interactive piece opts back in. */
+.app-shell { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 10; pointer-events: none; }
 
 .status-strip {
     flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
@@ -128,7 +131,7 @@ body {
 
 /* --- SOS BROADCAST BANNER --- */
 .sos-banner {
-    flex-shrink: 0; margin: 0 18px 8px; z-index: 1999;
+    flex-shrink: 0; margin: 0 18px 8px; z-index: 1999; pointer-events: auto;
     background: var(--accent-dark); color: #fff; font-size: 12.5px; font-weight: 600;
     padding: 9px 14px; border-radius: var(--radius-md);
     display: none; align-items: center; gap: 8px;
@@ -141,7 +144,7 @@ body {
 /* --- FLOATING SOS FAB: always reachable except on Home, where the hero
    button already gives SOS the largest target on screen --- */
 .sos-fab {
-    position: absolute; right: 18px; bottom: 96px; z-index: 1500;
+    position: absolute; right: 18px; bottom: 96px; z-index: 1500; pointer-events: auto;
     width: 56px; height: 56px; border-radius: 50%;
     background: var(--accent-dark); color: #fff; border: none;
     display: flex; align-items: center; justify-content: center;
@@ -161,19 +164,34 @@ body {
 }
 
 /* --- PAGES --- */
-.pages { position: relative; flex: 1; min-height: 0; }
+.pages { position: relative; flex: 1; min-height: 0; pointer-events: none; }
 .page {
     display: none;
     position: absolute; inset: 0;
     background: var(--bg);
     overflow-y: auto;
     padding: 4px 18px 100px;
+    pointer-events: auto;
 }
 .page.active { display: block; }
+
+/* Everything inside the phone scrolls the way a phone does: by dragging,
+   with no scrollbar gutter. A native desktop scrollbar running down the
+   mockup is the one thing that most breaks the illusion of a real device. */
+.page, .subpage-body, .map-sheet-body { scrollbar-width: none; -ms-overflow-style: none; }
+.page::-webkit-scrollbar,
+.subpage-body::-webkit-scrollbar,
+.map-sheet-body::-webkit-scrollbar { width: 0; height: 0; display: none; }
 /* The Map page is a window, not a panel: transparent and click-through so
-   the live map underneath (#map) shows and stays interactive. */
-.page--map { padding: 0; background: transparent; pointer-events: none; }
-.page--map.active { pointer-events: auto; }
+   the live map underneath (#map) stays draggable and zoomable. It has to
+   stay click-through while active too — that is the only time the map is
+   on screen — so only its overlay children take pointer events back. */
+/* The map page never scrolls — it is a fixed window onto the map, and the
+   overlay and sheet are positioned inside it. Without this it inherits
+   .page's overflow-y and paints a desktop scrollbar down the phone screen. */
+.page--map { padding: 0; background: transparent; pointer-events: none; overflow: hidden; }
+.page--map .map-overlay-top,
+.page--map .map-sheet { pointer-events: auto; }
 
 /* --- HOME --- */
 .home-greeting { display: flex; align-items: center; gap: 12px; padding: 6px 0 18px; }
@@ -244,14 +262,40 @@ body {
 .nearby-preview-row small { font-size: 12px; color: var(--ink-secondary); }
 
 /* --- MAP PAGE OVERLAYS --- */
-.map-overlay-top { position: absolute; top: 12px; right: 12px; z-index: 500; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+/* Capped so the stack can never grow past the screen and clip its own
+   controls — the legend at the bottom is what gets cut, not the buttons. */
+.map-overlay-top {
+    position: absolute; top: 12px; right: 12px; z-index: 500;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    max-height: calc(100% - 24px); overflow: hidden;
+}
 .map-icon-btn { width: 38px; height: 38px; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ink); cursor: pointer; box-shadow: var(--shadow-sm); }
-.legend-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); padding: 14px; width: 172px; transform-origin: top right; transition: all 0.2s ease; opacity: 1; transform: scale(1); overflow: hidden; }
+/* Zoom in/out read as one control, so they share a single pill rather than
+   stacking as two loose circles under the legend. */
+.map-zoom-pair {
+    display: flex; flex-direction: column;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.map-zoom-pair .map-icon-btn { width: 38px; height: 34px; border: none; border-radius: 0; background: none; box-shadow: none; }
+.map-zoom-pair .map-icon-btn + .map-icon-btn { border-top: 1px solid var(--border); }
+
+/* A key, not a panel: two short columns instead of one tall list, and
+   translucent so the map still reads through it. At 172px wide and six
+   stacked rows it used to cover half the width and a quarter of the height
+   of the screen it was explaining. */
+.legend-box {
+    display: grid; grid-template-columns: repeat(2, auto); gap: 5px 12px;
+    background: rgba(26, 31, 43, 0.82);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md); padding: 9px 11px;
+    transform-origin: top right; transition: all 0.2s ease; opacity: 1; transform: scale(1); overflow: hidden;
+}
 .legend-box.minimized { opacity: 0; transform: scale(0.92) translateY(-10px); height: 0; padding: 0; border: none; box-shadow: none; }
-.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.legend-item:last-child { margin-bottom: 0; }
-.l-dot { width: 9px; height: 9px; border-radius: 50%; }
-.l-text { color: var(--ink-secondary); font-size: 11.5px; font-weight: 500; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.l-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.l-text { color: var(--ink-secondary); font-size: 10.5px; font-weight: 600; white-space: nowrap; }
 
 /* --- MAP BOTTOM SHEET: situation, supplies, volunteer mode and SOS
    broadcast, docked over the live map so reporting never leaves the map --- */
@@ -450,7 +494,7 @@ input:checked + .slider:before { transform: translateX(19px); }
     flex-shrink: 0; display: flex; align-items: center; justify-content: space-around;
     background: var(--surface); border-top: 1px solid var(--border);
     padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px));
-    position: relative; z-index: 900;
+    position: relative; z-index: 900; pointer-events: auto;
 }
 .tab-item {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
