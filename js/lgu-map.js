@@ -14,15 +14,41 @@
     with zero external dependencies, exactly like the citizen app's map.
 */
 (function () {
+    // The bright half of each brand pair, not the *-dark variants: these are
+    // fills sitting on a dark map, where the dark variants disappear into it.
+    // Matches the citizen map's --color-* tokens dot for dot.
     const STATUS_COLOR = {
-        SOS: '#C23A22',
-        INJURED: '#C23A22',
-        TRAPPED: '#A85F00',
-        RESCUER: '#146B49',
+        SOS: '#E8452C',
+        INJURED: '#E8452C',
+        TRAPPED: '#F5A623',
+        RESCUER: '#22A06B',
         VOLUNTEER: '#8B7FD1',
         SAFE: '#4C8DD9',
         OFFLINE: '#98A2B3',
     };
+
+    // The dispatch route has to beat both the dark basemap and the status dots
+    // it runs between, so it takes the citizen map's route blue rather than the
+    // near-black navy that read as a scratch on a light card.
+    const ROUTE_COLOR = '#4D94FF';
+
+    // Google renders its own tiles, so it cannot be inverted by a CSS filter
+    // the way the Leaflet basemap is — it needs the palette handed to it.
+    // Tuned to land on the same ground as the inverted OSM tiles, so switching
+    // between the two implementations is not a change of world. POIs stay off:
+    // a restaurant pin is noise next to a rescue report.
+    const DARK_MAP_STYLE = [
+        { elementType: 'geometry', stylers: [{ color: '#0F131C' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#7C879B' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#0B0E15' }] },
+        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#242B3A' }] },
+        { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#2E3647' }] },
+        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3A4459' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#111A2B' }] },
+        { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#141A25' }] },
+        { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    ];
 
     // The legend is built from STATUS_COLOR rather than written out in the
     // markup, so a colour can never be changed here and left stale in the
@@ -87,7 +113,7 @@
                 streetViewControl: false,
                 mapTypeControl: false,
                 fullscreenControl: false, // top-right is the legend's corner
-                styles: [{ featureType: 'poi', stylers: [{ visibility: 'off' }] }],
+                styles: DARK_MAP_STYLE,
             });
             ready = true;
             readyCallbacks.forEach(cb => cb(map));
@@ -136,7 +162,7 @@
                     routeLine = new google.maps.Polyline({
                         path: [{ lat: rescuer.lat, lng: rescuer.lng }, { lat: node.lat, lng: node.lng }],
                         geodesic: true,
-                        strokeColor: '#14213D',
+                        strokeColor: ROUTE_COLOR,
                         strokeOpacity: 0.9,
                         strokeWeight: 3,
                         icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '12px' }],
@@ -234,7 +260,7 @@
                     if (!rescuer || !node) return;
                     routeLine = L.polyline(
                         [[rescuer.lat, rescuer.lng], [node.lat, node.lng]],
-                        { color: '#14213D', weight: 2.5, dashArray: '2, 7', opacity: 0.85 }
+                        { color: ROUTE_COLOR, weight: 2.5, dashArray: '2, 7', opacity: 0.9 }
                     ).addTo(markersLayer);
                     map.panTo([node.lat, node.lng]);
                 });

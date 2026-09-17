@@ -1,15 +1,48 @@
 /*
-  LGU Command Center — Clean Care world: a standard admin dashboard
-  (sidebar nav, stat cards, a live map card beside a docked report panel),
-  replacing the prior full-bleed chart with a sliding drawer. See
-  .impeccable/surfaces/lgu-html.md for the full direction contract.
+  LGU Command Center — a standard admin dashboard (sidebar nav, stat cards, a
+  live map card beside a docked report panel) rendered in the citizen app's
+  night-mesh palette, so the two halves of the product read as one system and
+  a control room can run it through the night. See .impeccable/surfaces/
+  lgu-html.md for the full direction contract.
 */
 :root {
-    --tier-critical: var(--accent-dark);
+    /* Local dark override of the shared brand.css surface/ink tokens, the same
+       move citizen.css makes — only lgu.html loads this file, so index.html
+       keeps the light Clean Care look brand.css defines. */
+    --bg: #0B0E15;
+    --surface: #1A1F2B;
+    --surface-alt: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.1);
+
+    --ink: #F4F6FA;
+    --ink-secondary: #9AA5B8;
+    --ink-muted: #6B7488;
+
+    /* The brand red was mixed to carry on white. On this ground it lands at
+       4.17:1 on a card — under AA — and it is the colour Critical is written
+       in, which is the last label that should be the hard one to read. Lifted
+       until it clears: 5.14:1 on --surface, 6.02:1 on --bg. Only ever a
+       foreground here, so the tint it sits on is left alone. */
+    --accent: #F1614A;
+    --accent-tint: rgba(232, 69, 44, 0.16);
+    --success-tint: rgba(34, 160, 107, 0.16);
+    --warning-tint: rgba(245, 166, 35, 0.16);
+    --info-tint: rgba(76, 141, 217, 0.16);
+    --volunteer-tint: rgba(139, 127, 209, 0.16);
+    --offline-tint: rgba(152, 162, 179, 0.16);
+
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.5);
+
+    /* The *-dark status variants exist to carry white text on white cards.
+       On this ground they are the wrong half of the pair — they read as mud
+       against a tinted dark chip — so the tiers take the bright variants. */
+    --tier-critical: var(--accent);
     --tier-critical-bg: var(--accent-tint);
-    --tier-high: #8A5A0F;
+    --tier-high: var(--warning);
     --tier-high-bg: var(--warning-tint);
-    --tier-low: var(--success-dark);
+    --tier-low: var(--success);
     --tier-low-bg: var(--success-tint);
 }
 
@@ -46,7 +79,7 @@ a { color: inherit; }
     text-decoration: none; cursor: pointer; border: none; background: none; width: 100%; text-align: left;
 }
 .lgu-nav-item i { width: 16px; text-align: center; font-size: 14px; }
-.lgu-nav-item.active { background: var(--accent-tint); color: var(--accent-dark); }
+.lgu-nav-item.active { background: var(--accent-tint); color: var(--accent); }
 .lgu-nav-item:not(.active):hover { background: var(--surface-alt); color: var(--ink); }
 
 .lgu-nav-label { font-size: 11.5px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin: 18px 10px 8px; }
@@ -68,7 +101,7 @@ a { color: inherit; }
     padding: 10px; margin-top: 10px;
 }
 .mesh-health-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
-.mesh-health-dot.degraded { background: var(--warning-dark); }
+.mesh-health-dot.degraded { background: var(--warning); }
 .lgu-mesh-health-text { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.4; }
 .lgu-mesh-health-sub { font-size: 12px; color: var(--ink-secondary); }
 
@@ -94,7 +127,7 @@ a { color: inherit; }
 .lgu-content { flex: 1; min-height: 0; display: flex; gap: 16px; padding: 4px 28px 24px; }
 
 .lgu-map-card { flex: 1.4; min-width: 320px; position: relative; background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
-#lguMap { width: 100%; height: 100%; background: var(--surface-alt); }
+#lguMap { width: 100%; height: 100%; background: var(--bg); }
 .map-fallback {
     height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 10px; color: var(--ink-secondary); text-align: center; padding: 20px;
@@ -138,27 +171,36 @@ a { color: inherit; }
 }
 .basemap-btn + .basemap-btn { border-left: 1px solid var(--border); }
 .basemap-btn:hover { background: var(--surface-alt); }
-.basemap-btn.is-active { background: var(--accent-tint); color: var(--accent-dark); }
+.basemap-btn.is-active { background: var(--accent-tint); color: var(--accent); }
 
 .claim-badge {
     display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: var(--radius-pill);
     background: var(--info-tint); color: var(--info); font-size: 10.5px; font-weight: 700;
     vertical-align: middle;
 }
-.claim-badge.is-resolved { background: var(--success-tint); color: var(--success-dark); }
+.claim-badge.is-resolved { background: var(--success-tint); color: var(--success); }
 
 .lgu-marker-icon { background: none; border: none; }
 .lgu-marker-dot { width: 15px; height: 15px; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 1px 4px rgba(20, 33, 61, 0.3); cursor: pointer; }
-.leaflet-container { background: var(--surface-alt); font-family: var(--font-body); }
+.leaflet-container { background: var(--bg); font-family: var(--font-body); }
 
-/* Real OSM tiles, tinted into the light Clean Care register. Aerial imagery
-   gets none of that desaturation — the point of switching to it is to read the
-   ground as it actually looks. */
-#lguMap:not(.is-satellite) .leaflet-tile-pane { filter: saturate(0.5) brightness(1.06) contrast(0.96); }
+/* Real OSM tiles, inverted into the night register rather than dimmed, which
+   is what keeps roads and water legible instead of turning the whole map to
+   sludge. Same treatment as the citizen map. */
+#lguMap:not(.is-satellite) .leaflet-tile-pane { filter: invert(1) hue-rotate(190deg) brightness(0.92) contrast(1.05) saturate(0.5); }
+/* Aerial imagery is never inverted — a negative of a photograph is unreadable
+   — only dimmed enough that the status dots still carry over it. */
+#lguMap.is-satellite .leaflet-tile-pane { filter: brightness(0.7) saturate(0.85) contrast(1.02); }
 .leaflet-control-attribution {
-    background: rgba(255, 255, 255, 0.88) !important; color: var(--ink-muted) !important;
+    background: rgba(11, 14, 21, 0.78) !important; color: var(--ink-muted) !important;
     font-size: 10px;
 }
+.leaflet-control-attribution a { color: var(--ink-secondary) !important; }
+/* Leaflet's own zoom buttons ship white with dark glyphs. */
+.leaflet-bar a, .leaflet-bar a:hover {
+    background: var(--surface); color: var(--ink); border-bottom-color: var(--border);
+}
+.leaflet-bar a:hover { background: var(--surface-alt); }
 .leaflet-control-attribution a { color: var(--ink-muted) !important; }
 
 .lgu-panel {
@@ -170,7 +212,7 @@ a { color: inherit; }
 /* --- TABS --- */
 .tabs { display: flex; gap: 4px; padding: 14px 16px 0; flex-shrink: 0; }
 .tab-btn { border: none; background: transparent; padding: 9px 14px; font-size: 12.5px; font-weight: 700; color: var(--ink-secondary); border-radius: var(--radius-sm); cursor: pointer; }
-.tab-btn.active { color: var(--accent-dark); background: var(--accent-tint); }
+.tab-btn.active { color: var(--accent); background: var(--accent-tint); }
 .tab-panel { display: none; flex: 1; overflow-y: auto; }
 .tab-panel.active { display: flex; flex-direction: column; }
 

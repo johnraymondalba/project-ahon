@@ -90,12 +90,12 @@
     }
 
     function needIconsHtml(needs) {
-        if (!needs) return '<span style="color:#c1c7d4">—</span>';
+        if (!needs) return '<span style="color:var(--ink-muted)">—</span>';
         let html = '';
         if (needs.water) html += '<i class="fa-solid fa-droplet" title="Water"></i>';
         if (needs.food) html += '<i class="fa-solid fa-utensils" title="Food"></i>';
         if (needs.meds) html += '<i class="fa-solid fa-briefcase-medical" title="Meds"></i>';
-        return html || '<span style="color:#c1c7d4">—</span>';
+        return html || '<span style="color:var(--ink-muted)">—</span>';
     }
 
     // Dispatch state a rescuer set from the field. Worth a badge on the list
@@ -117,7 +117,7 @@
                 : `<span class="tier-badge pending">…</span>`;
             return `
                 <tr data-id="${n.id}" class="${n.id === selectedNodeId ? 'selected' : ''}">
-                    <td><strong>${n.name}</strong><br><span style="color:var(--lgu-text-muted); font-size:10.5px;">${n.id}</span></td>
+                    <td><strong>${n.name}</strong><br><span style="color:var(--ink-muted); font-size:10.5px;">${n.id}</span></td>
                     <td>${n.status}${claimBadge(n)}</td>
                     <td>${n.town}</td>
                     <td class="need-icons">${needIconsHtml(n.needs)}</td>

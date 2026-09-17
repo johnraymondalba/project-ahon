@@ -12,6 +12,10 @@ colors:
   accent: "#E8452C"
   accent-dark: "#C23A22"
   accent-tint: "#FDEAE6"
+  bg-night: "#0B0E15"
+  surface-night: "#1A1F2B"
+  ink-night: "#F4F6FA"
+  accent-night: "#F1614A"
   success: "#22A06B"
   success-dark: "#146B49"
   success-tint: "#E3F5EC"
@@ -98,12 +102,12 @@ components:
 
 **Creative North Star: "Clean Care"**
 
-AHON's interface is a standard, trustworthy mobile-safety-app and admin-dashboard look — white soft-shadowed cards on a light grey ground, a single red accent, Inter throughout — not a chart-instrument metaphor. This replaces the prior "Typhoon Track Chart" world (near-black/cream chart-paper registers, graticule grids, dashed-instrument markers, Overpass/Overpass Mono type, near-universal 4px radius) in full, across all three surfaces: the landing page, the citizen app, and the LGU command center. The direction was user-pinned from two reference screenshots (a panic-button SOS app and a driving-safety dashboard app) — a "canon/standing-exit" choice explicitly favoring a UI a stressed citizen already knows how to use on sight, overriding that session's dice-rolled world set.
+AHON's interface is a standard, trustworthy mobile-safety-app and admin-dashboard look — soft-shadowed cards, a single red accent, Inter throughout. The landing page carries this on a light grey ground; the citizen app and the LGU command center both run it on the dark night-mesh ground, so the two surfaces a responder moves between read as one product — not a chart-instrument metaphor. This replaces the prior "Typhoon Track Chart" world (near-black/cream chart-paper registers, graticule grids, dashed-instrument markers, Overpass/Overpass Mono type, near-universal 4px radius) in full, across all three surfaces: the landing page, the citizen app, and the LGU command center. The direction was user-pinned from two reference screenshots (a panic-button SOS app and a driving-safety dashboard app) — a "canon/standing-exit" choice explicitly favoring a UI a stressed citizen already knows how to use on sight, overriding that session's dice-rolled world set.
 
 The system carries forward two pieces of prior-brand continuity deliberately, not as drift: the AHON critical-red accent, and the color roles of the 7-state mesh legend (SOS, civilian, rescuer, senior/PWD, volunteer, offline, self). Both are re-rendered in the new visual language — solid filled circles with white borders instead of dashed-ring instrument markers — but the meanings are unchanged from the system this replaces.
 
 **Key Characteristics:**
-- Soft-shadowed white cards on a light cool-grey ground (`#F4F6FA`) — elevation is now load-bearing, a full reversal of the prior "flat instrument, no shadow" rule.
+- Soft-shadowed cards on a neutral ground — light cool-grey (`#F4F6FA`) on the landing page, near-black (`#0B0E15`) in both apps — with elevation load-bearing, a full reversal of the prior "flat instrument, no shadow" rule.
 - One accent, one meaning: AHON red (`#E8452C`, solid fill `#C23A22`) spent only on SOS/critical/primary-emergency, never decoration — carried over from the prior brand for continuity, not reinvented.
 - Inter for everything, including tabular-nums on every live-updating figure — the prior system's monospace (Overpass Mono) identity is fully retired.
 - A generous, soft corner scale (10–24px, full circles/pills for buttons, avatars, badges, markers) replacing the prior near-universal 4px radius.
@@ -111,7 +115,13 @@ The system carries forward two pieces of prior-brand continuity deliberately, no
 
 ## Colors
 
-The palette is a light, neutral ground with a single warm-red accent and a small set of reserved status hues carried over from the prior mesh-node legend.
+The palette is a neutral ground with a single warm-red accent and a small set of reserved status hues carried over from the prior mesh-node legend. The tokens below are the light ground, which the landing page uses. The citizen app and the LGU command center both override the surface/ink half of that set locally, in their own stylesheets, to the shared night-mesh ground described under **Dark surfaces** — the hues and their meanings do not change between the two, only what they sit on.
+
+### Dark surfaces (citizen app + LGU dashboard)
+
+Both apps run on `--bg: #0B0E15` with `--ink: #F4F6FA`, and both tint their OpenStreetMap tiles into that register by inversion (`invert(1) hue-rotate(190deg)`) rather than by dimming, which is what keeps roads and water legible instead of turning the basemap to sludge. Satellite imagery is never inverted — a negative of a photograph is unreadable — only dimmed enough that markers still carry over it.
+
+Status hues switch to the bright half of each `*` / `*-dark` pair on these surfaces: the `-dark` variants exist to carry white text on white cards and read as mud against a dark tinted chip. AHON red is the exception that needed lifting rather than swapping — `#E8452C` lands at 4.17:1 on `--surface`, under AA, and it is the colour "Critical" is written in, so the LGU dark ground raises it to `#F1614A` (5.14:1 on `--surface`, 6.02:1 on `--bg`).
 
 ### Primary
 - **AHON Red** (`#E8452C` icon/border/tint, solid fill `#C23A22`): the system's one accent. Reserved for SOS, critical severity, and primary emergency actions only — never decorative. Carried over from the pre-redesign brand for continuity; the "one meaning" rule that governed it in the prior chart world is preserved unchanged.
@@ -124,7 +134,7 @@ The palette is a light, neutral ground with a single warm-red accent and a small
 - **Offline Grey** (`#98A2B3`): last-known/offline node state.
 
 ### Neutral
-- **Ground** (`#F4F6FA`): page background across all three surfaces.
+- **Ground** (`#F4F6FA` light / `#0B0E15` dark): page background. The landing page uses the light ground; both apps override to the dark one.
 - **Surface** (`#FFFFFF`) / **Surface Alt** (`#EEF1F6`): card fill and secondary/inset fill (chips, grid tiles, table toolbar inputs).
 - **Border** (`#E6E9F1`): hairline dividers and card/input borders.
 - **Ink** (`#16203D`): primary text and headings. **Ink Secondary** (`#545F70`): body/secondary text, tuned to clear 4.5:1 on both Surface and Surface Alt. **Ink Muted** (`#8891A0`): placeholder/disabled text and decorative glyphs only, never primary readable content.
@@ -196,7 +206,7 @@ Corners are drawn on a soft, generous scale: **10px** (small tiles, inputs, nav 
 
 ### Navigation
 - **Bottom Tab Bar (citizen, primary nav):** 5 icon+label items, white surface, top hairline border; inactive items `--ink-secondary`, active item `--accent`. Replaces the prior left spine-tab column.
-- **Left Sidebar (LGU, primary nav):** 216px fixed column, white surface, nav items at 10px radius; active item gets `--accent-tint` fill + `--accent-dark` text.
+- **Left Sidebar (LGU, primary nav):** 216px fixed column, `--surface`, nav items at 10px radius; active item gets `--accent-tint` fill + `--accent` text. Anything that is not running an incident — the Citizen app and Role select links — is folded into a collapsed Settings section below the spacer, so only Dashboard, Reports and AI Triage compete for attention during a response.
 
 ### SOS Confirm Sheet (citizen, signature)
 A bottom sheet (`border-radius: 28px 28px 0 0`) that slides up over a dimmed backdrop for the SOS confirm-before-broadcast step — replacing the prior system's full-screen gate. The confirm step itself (accidental-broadcast protection) is preserved product truth, only its presentation changed.
@@ -205,7 +215,7 @@ A bottom sheet (`border-radius: 28px 28px 0 0`) that slides up over a dimmed bac
 A 380–460px panel permanently docked beside the map card (24px radius, `--shadow-sm`), holding the priority table and AI Triage tabs — replacing the prior system's `translateX` drawer that slid over a full-bleed map. Selecting a priority row lifts it (bold, full color) while dimming (not fading, `--ink-secondary`) the rest of the list, preserving a behavior carried over from the prior drawer. Every report keeps its deep-linkable case-reference URL hash (`lgu.html#N04`), unchanged from the prior system.
 
 ### Map Markers (citizen + LGU, signature)
-Plotted nodes render as solid filled circles with white borders keyed to status color (`.marker-core`), with a dashed, reduced-opacity ring for "ghost" (last-known, offline) nodes — replacing the prior dashed-ring chart-instrument marker style while keeping the same shape-before-hue signal (solid vs. dashed) and the same 7-color legend. Real OpenStreetMap tiles sit underneath, tinted toward the light Clean Care register via a desaturating/brightening CSS filter on `.leaflet-tile-pane` in both apps.
+Plotted nodes render as solid filled circles with white borders keyed to status color (`.marker-core`), with a dashed, reduced-opacity ring for "ghost" (last-known, offline) nodes — replacing the prior dashed-ring chart-instrument marker style while keeping the same shape-before-hue signal (solid vs. dashed) and the same 7-color legend. Real OpenStreetMap tiles sit underneath, inverted into the night register via a CSS filter on `.leaflet-tile-pane` in both apps, with a Map/Satellite switch onto keyless Esri imagery that is dimmed rather than inverted.
 
 ### Icons
 Font Awesome Solid remains the system's icon library (unchanged from the prior system) — status-strip, tab bar, sidebar nav, SOS/report/volunteer icons, chevrons. No unicode symbol or emoji stands in for an icon.
