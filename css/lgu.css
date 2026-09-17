@@ -79,7 +79,7 @@ a { color: inherit; }
 .stat-label { font-size: 11.5px; color: var(--ink-secondary); font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; margin-top: 5px; }
 .stat-card.critical .stat-count { color: var(--tier-critical); }
 .stat-card.high .stat-count { color: var(--tier-high); }
-.stat-card.cleared .stat-count { color: var(--tier-low); }
+.stat-card.low .stat-count { color: var(--tier-low); }
 
 /* --- CONTENT: map card + docked report panel --- */
 .lgu-content { flex: 1; min-height: 0; display: flex; gap: 16px; padding: 4px 28px 24px; }
@@ -93,11 +93,24 @@ a { color: inherit; }
 .map-fallback i { font-size: 30px; color: var(--ink-muted); }
 .map-fallback code { background: var(--surface-alt); border: 1px solid var(--border); padding: 2px 6px; border-radius: var(--radius-sm); font-size: 12px; }
 
+/* Top-right, above the map's own layers.
+
+   z-index has to clear Leaflet's stack, not sit at some small local number:
+   .leaflet-container is positioned but has z-index auto, so it opens no
+   stacking context of its own and its panes (400) and control corners
+   (1000) compete directly with this element in the card. At z-index 5 the
+   legend was painted underneath the map tiles and never visible at all.
+
+   Top-right rather than bottom-left because bottom-left is where the Google
+   Maps logo sits once a key is configured, and that attribution must not be
+   covered. Leaflet keeps its zoom at top-left and attribution at
+   bottom-right, so this corner is clear in both implementations. */
 .map-legend {
-    position: absolute; left: 14px; bottom: 14px; z-index: 5;
+    position: absolute; right: 14px; top: 14px; z-index: 1200;
     display: flex; flex-wrap: wrap; gap: 7px 14px; padding: 10px 14px;
     border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-md);
-    max-width: 380px;
+    border: 1px solid var(--border);
+    max-width: 340px;
 }
 .map-legend .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-secondary); font-weight: 600; }
 .map-legend .l-dot { width: 9px; height: 9px; border-radius: 50%; }
