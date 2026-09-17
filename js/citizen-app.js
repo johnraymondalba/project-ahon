@@ -118,30 +118,66 @@
     // --- BROADCAST SOS ---
     window.isSOSActive = function () { return appState.sos; };
 
-    window.toggleSOS = function () {
-        appState.sos = !appState.sos;
-        [document.getElementById('sosBtn'), document.getElementById('sosFab'), document.getElementById('sosBtnMap')].forEach(btn => btn && btn.classList.toggle('active', appState.sos));
+    function applySOS(on) {
+        appState.sos = on;
+        [document.getElementById('sosBtn'), document.getElementById('sosFab'), document.getElementById('sosBtnMap')].forEach(btn => btn && btn.classList.toggle('active', on));
         const label = document.getElementById('sosLabel');
-        if (label) label.innerText = appState.sos ? 'SOS ACTIVE' : 'SOS';
+        if (label) label.innerText = on ? 'SOS ACTIVE' : 'SOS';
         const labelMap = document.getElementById('sosLabelMap');
-        if (labelMap) labelMap.innerText = appState.sos ? 'SOS ACTIVE' : 'Broadcast SOS';
+        if (labelMap) labelMap.innerText = on ? 'SOS ACTIVE' : 'Broadcast SOS';
         const banner = document.getElementById('sosBanner');
-        if (banner) banner.classList.toggle('visible', appState.sos);
-        if (window.realtime) window.realtime.sendSOS(appState.sos);
-        logActivity(appState.sos ? 'Broadcast SOS' : 'Cancelled SOS broadcast', 'fa-solid fa-tower-broadcast', '--accent');
+        if (banner) banner.classList.toggle('visible', on);
+        if (window.realtime) window.realtime.sendSOS(on);
+    }
+
+    window.toggleSOS = function () {
+        const on = !appState.sos;
+        // Needing help and being available to give it are mutually exclusive.
+        // A volunteer who broadcasts SOS is no longer available, and leaving
+        // both flags set would tell responders two contradictory things.
+        if (on && appState.volunteer) {
+            applyVolunteer(false);
+            logActivity('Volunteer mode ended — you broadcast SOS', 'fa-solid fa-hand-holding-heart', '--volunteer');
+        }
+        applySOS(on);
+        logActivity(on ? 'Broadcast SOS' : 'Cancelled SOS broadcast', 'fa-solid fa-tower-broadcast', '--accent');
         render();
     };
 
     // --- VOLUNTEER MODE ---
-    window.toggleVolunteer = function () {
+    function applyVolunteer(on) {
+        appState.volunteer = on;
         const checkbox = document.getElementById('volunteerCheck');
-        appState.volunteer = checkbox.checked;
-        if (window.realtime) window.realtime.sendVolunteer(appState.volunteer);
-        logActivity(appState.volunteer ? 'Turned on Volunteer mode' : 'Turned off Volunteer mode', 'fa-solid fa-hand-holding-heart', '--volunteer');
+        if (checkbox) checkbox.checked = on;
+        if (window.realtime) window.realtime.sendVolunteer(on);
         // Own status reporting pauses while volunteering — the map itself
         // (not a separate list) is where a volunteer sees nearby SOS/needs.
         const situation = document.getElementById('mapSheetSituation');
-        if (situation) situation.classList.toggle('is-disabled', appState.volunteer);
+        if (situation) situation.classList.toggle('is-disabled', on);
+    }
+
+    window.toggleVolunteer = function () {
+        const checkbox = document.getElementById('volunteerCheck');
+        if (!checkbox.checked) {
+            applyVolunteer(false);
+            logActivity('Turned off Volunteer mode', 'fa-solid fa-hand-holding-heart', '--volunteer');
+            render();
+            return;
+        }
+        // Going on duty is confirmed, because it can cancel an active SOS.
+        // Snap the switch back until the answer comes — a control that reads
+        // "on" while the sheet is still asking has already lied.
+        checkbox.checked = false;
+        window.openVolunteerSheet();
+    };
+
+    window.confirmVolunteer = function () {
+        if (appState.sos) {
+            applySOS(false);
+            logActivity('Cancelled SOS — you switched to Volunteer mode', 'fa-solid fa-tower-broadcast', '--accent');
+        }
+        applyVolunteer(true);
+        logActivity('Turned on Volunteer mode', 'fa-solid fa-hand-holding-heart', '--volunteer');
         render();
     };
 

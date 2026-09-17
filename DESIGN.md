@@ -21,6 +21,7 @@ colors:
   info: "#4C8DD9"
   info-tint: "#E9F1FC"
   volunteer: "#8B7FD1"
+  volunteer-dark: "#6E60BE"
   volunteer-tint: "#EFEDFA"
   offline: "#98A2B3"
   offline-tint: "#F1F2F4"

@@ -186,9 +186,8 @@
     // --- SOS "priority packet" traveling dots: visualizes a high-priority
     // broadcast flooding through the mesh, cutting ahead of normal traffic ---
     let sosParticles = [];
-    function buildSosParticles(selfPos) {
-        const selfId = window.realtime && window.realtime.selfId;
-        sosParticles = window.MESH_NODES.filter(n => n.type !== 'offline' && n.id !== selfId).map(n => ({
+    function buildSosParticles(selfPos, targets) {
+        sosParticles = targets.filter(n => n.type !== 'offline').map(n => ({
             from: selfPos,
             to: [n.lat, n.lng],
             t: Math.random(),
@@ -210,6 +209,73 @@
         requestAnimationFrame(animateSosParticles);
     }
 
+    // Who can come for you: the two node types that represent help on its way.
+    function isResponder(n) {
+        return n.type === 'rescuer' || n.type === 'volunteer';
+    }
+
+    // Who needs help: anyone in distress, anyone still asking for supplies
+    // even though they called themselves safe, and every ghost node — an
+    // unanswered "last seen" is exactly the address a volunteer should check.
+    const DISTRESS = ['SOS', 'INJURED', 'TRAPPED'];
+    function needsHelp(n) {
+        if (n.type === 'offline') return true;
+        if (DISTRESS.includes(n.status)) return true;
+        return !!(n.needs && (n.needs.water || n.needs.food || n.needs.meds));
+    }
+
+    // A map showing every node at once is the right default, but not while the
+    // user is doing something specific. Broadcasting SOS, the only dots that
+    // matter are the ones who can reach you. On duty as a volunteer, it
+    // inverts: the people asking, and the ones nobody has heard from.
+    function visibleNeighbors(neighbors, appState) {
+        if (appState.sos) return neighbors.filter(isResponder);
+        if (appState.volunteer) return neighbors.filter(needsHelp);
+        return neighbors;
+    }
+
+    // The key is built from the nodes actually on screen, in a fixed order, so
+    // it can never advertise a colour the current filter has hidden. Keys are
+    // node.type, the same thing typeToColorClass switches on.
+    const LEGEND_ROWS = [
+        { key: 'sos', label: 'SOS', color: 'var(--color-sos)' },
+        { key: 'senior', label: 'Senior/PWD', color: 'var(--color-senior)' },
+        { key: 'rescuer', label: 'Rescuer', color: 'var(--color-rescuer)' },
+        { key: 'volunteer', label: 'Volunteer', color: 'var(--color-volunteer)' },
+        { key: 'civilian', label: 'Safe', color: 'var(--color-user)' },
+        { key: 'offline', label: 'Last seen', color: 'var(--color-offline)' },
+    ];
+
+    function renderLegend(nodes) {
+        const el = document.getElementById('legendBox');
+        if (!el) return;
+        const present = new Set(nodes.map(n => n.type));
+        el.innerHTML = LEGEND_ROWS.filter(row => present.has(row.key)).map(row =>
+            `<div class="legend-item"><div class="l-dot" style="background:${row.color}"></div><span class="l-text">${row.label}</span></div>`
+        ).join('');
+    }
+
+    // Hiding half the map without saying so reads as a bug, so the filter
+    // always names itself — and says when it has nothing to show, which is
+    // itself the news when you are waiting on a rescuer.
+    function renderFilterNote(appState, shown) {
+        const el = document.getElementById('mapFilterNote');
+        if (!el) return;
+
+        let text = '';
+        if (appState.sos) {
+            text = shown
+                ? `<i class="fa-solid fa-tower-broadcast"></i> Showing responders only · ${shown}`
+                : `<i class="fa-solid fa-tower-broadcast"></i> No responders in range yet`;
+        } else if (appState.volunteer) {
+            text = shown
+                ? `<i class="fa-solid fa-hand-holding-heart"></i> Showing people needing help · ${shown}`
+                : `<i class="fa-solid fa-hand-holding-heart"></i> Nobody nearby needs help`;
+        }
+        el.innerHTML = text;
+        el.hidden = !text;
+    }
+
     function render(appState) {
         networkLayer.clearLayers();
         const selfPos = [appState.self.lat, appState.self.lng];
@@ -220,7 +286,10 @@
         // here so "you" isn't drawn twice, once as a neighbor and once as
         // the dedicated self marker below.
         const selfId = window.realtime && window.realtime.selfId;
-        const neighbors = window.MESH_NODES.filter(n => n.id !== selfId);
+        const all = window.MESH_NODES.filter(n => n.id !== selfId);
+        const neighbors = visibleNeighbors(all, appState);
+        renderFilterNote(appState, neighbors.length);
+        renderLegend(neighbors);
 
         // Mesh links: normal traffic is thin dashed green; while SOS is active,
         // links visually reroute (thicker, red) to show priority flooding.
@@ -247,7 +316,7 @@
 
         // Toggle the SOS particle-flood effect
         clearSosParticles();
-        if (appState.sos) buildSosParticles(selfPos);
+        if (appState.sos) buildSosParticles(selfPos, neighbors);
     }
 
     window.citizenMap = {

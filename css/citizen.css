@@ -196,7 +196,7 @@ body {
    .page's overflow-y and paints a desktop scrollbar down the phone screen. */
 .page--map { padding: 0; background: transparent; pointer-events: none; overflow: hidden; }
 .page--map .map-overlay-top,
-.page--map .legend-box,
+.page--map .map-overlay-left,
 .page--map .map-sheet { pointer-events: auto; }
 
 /* --- HOME --- */
@@ -291,8 +291,23 @@ body {
    translucent so the map still reads through it. At 172px wide and six
    stacked rows it used to cover half the width and a quarter of the height
    of the screen it was explaining. */
-.legend-box {
+/* Mirrors .map-overlay-top on the other side: the filter note explains what
+   the map is currently withholding, the legend explains the colours. */
+.map-overlay-left {
     position: absolute; top: 12px; left: 12px; z-index: 500;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    max-width: calc(100% - 72px);
+}
+.map-filter-note {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(26, 31, 43, 0.82);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border); border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md); padding: 6px 11px;
+    font-size: 11px; font-weight: 700; color: var(--ink-secondary); white-space: nowrap;
+}
+
+.legend-box {
     display: grid; grid-template-columns: repeat(2, auto); gap: 5px 12px;
     background: rgba(26, 31, 43, 0.82);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -480,7 +495,7 @@ input:checked + .slider:before { transform: translateX(19px); }
 
 @keyframes pulse-marker { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
-/* --- SOS CONFIRM BOTTOM SHEET --- */
+/* --- CONFIRM BOTTOM SHEET (SOS + Volunteer mode) --- */
 .sheet-backdrop { position: absolute; inset: 0; z-index: 3000; background: rgba(20, 33, 61, 0.4); display: none; align-items: flex-end; }
 .sheet-backdrop.open { display: flex; }
 .sheet {
@@ -496,6 +511,11 @@ input:checked + .slider:before { transform: translateX(19px); }
 .sheet-cancel-btn, .sheet-confirm-btn { flex: 1; padding: 13px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; cursor: pointer; border: none; }
 .sheet-cancel-btn { background: var(--surface-alt); color: var(--ink); }
 .sheet-confirm-btn { background: var(--accent-dark); color: #fff; }
+
+/* The sheet is shared, so it takes the colour of whatever it is confirming —
+   a red "Yes, I can help" would read as an emergency rather than an offer. */
+.sheet-backdrop.tone-volunteer .sheet-icon { background: var(--volunteer-tint); color: var(--volunteer-dark); }
+.sheet-backdrop.tone-volunteer .sheet-confirm-btn { background: var(--volunteer-dark); }
 
 /* --- BOTTOM TAB BAR --- */
 .tab-bar {
