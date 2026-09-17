@@ -37,17 +37,17 @@
     // --- SUMMARY CARDS ---
     function renderSummary() {
         const reports = getReports();
-        let critical = 0, high = 0, cleared = 0;
+        let critical = 0, high = 0, low = 0;
         reports.forEach(n => {
             const t = triageCache.get(n.id);
             if (!t) return;
             if (t.priorityTier === 'Critical') critical++;
             else if (t.priorityTier === 'High') high++;
-            else cleared++;
+            else low++;
         });
         document.getElementById('countCritical').textContent = critical;
         document.getElementById('countHigh').textContent = high;
-        document.getElementById('countCleared').textContent = cleared;
+        document.getElementById('countLow').textContent = low;
     }
 
     // --- MESH HEALTH STRIP ---

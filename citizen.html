@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AHON | Citizen</title>
+    <meta name="description" content="Broadcast your status, supply needs and SOS over the AHON mesh network — even with zero signal.">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <!-- Matches the citizen app's dark ground (--bg in css/citizen.css) so
+         the mobile browser chrome doesn't sit as a light band above it. -->
+    <meta name="theme-color" content="#0B0E15">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AHON">
+    <meta property="og:title" content="AHON Citizen — broadcast SOS with zero signal">
+    <meta property="og:description" content="Broadcast your status, supply needs and SOS over the AHON mesh network — even with zero signal.">
+    <meta name="twitter:card" content="summary">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -95,7 +106,7 @@
                     <div class="page page--map" id="page-map">
                         <div class="map-overlay-top">
                             <button class="map-icon-btn" onclick="toggleLegend()" aria-label="Toggle legend"><i class="fa-solid fa-list-ul"></i></button>
-                            <div class="legend-box minimized" id="legendBox">
+                            <div class="legend-box" id="legendBox">
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-sos)"></div><span class="l-text">SOS Active</span></div>
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-rescuer)"></div><span class="l-text">Rescuer</span></div>
                                 <div class="legend-item"><div class="l-dot" style="background:var(--color-user)"></div><span class="l-text">Civilian / Safe</span></div>
