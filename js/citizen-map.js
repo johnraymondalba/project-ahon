@@ -173,39 +173,137 @@
     let pulseCircle = null;
     function animateRangePulse() {
         if (pulseCircle) {
-            pulseRadius += 1.5;
-            const maxRange = 150;
-            if (pulseRadius > maxRange) pulseRadius = 0;
+            // Sweeps out to the same radius the links are built from, so the
+            // pulse reads as your radio reaching the peers it actually carries.
+            pulseRadius += MESH_RANGE_M / 100;
+            if (pulseRadius > MESH_RANGE_M) pulseRadius = 0;
             pulseCircle.setRadius(pulseRadius);
-            const ratio = pulseRadius / maxRange;
+            const ratio = pulseRadius / MESH_RANGE_M;
             pulseCircle.setStyle({ opacity: 1 - ratio, fillOpacity: (1 - ratio) * 0.2 });
         }
         requestAnimationFrame(animateRangePulse);
     }
 
-    // --- SOS "priority packet" traveling dots: visualizes a high-priority
-    // broadcast flooding through the mesh, cutting ahead of normal traffic ---
-    let sosParticles = [];
-    function buildSosParticles(selfPos, targets) {
-        sosParticles = targets.filter(n => n.type !== 'offline').map(n => ({
-            from: selfPos,
-            to: [n.lat, n.lng],
-            t: Math.random(),
-            marker: L.circleMarker(selfPos, { radius: 5, color: '#fff', weight: 1, fillColor: '#FF4D4D', fillOpacity: 1 }).addTo(sosPulseLayer),
-        }));
+    // --- MESH TOPOLOGY ---
+    // Radio reach of one node. The dataset spreads ~1.5km across Nabua, so at
+    // the old 150m personal ring nothing would link to anything; 500m is the
+    // order of a LoRa relay hop and gives the web its actual shape — dense
+    // where phones cluster, thin where they don't.
+    const MESH_RANGE_M = 500;
+    const M_PER_DEG_LAT = 111320;
+
+    function metersBetween(a, b) {
+        const latMid = ((a.lat + b.lat) / 2) * Math.PI / 180;
+        const dx = (a.lng - b.lng) * M_PER_DEG_LAT * Math.cos(latMid);
+        const dy = (a.lat - b.lat) * M_PER_DEG_LAT;
+        return Math.hypot(dx, dy);
     }
-    function clearSosParticles() {
-        sosParticles.forEach(p => sosPulseLayer.removeLayer(p.marker));
-        sosParticles = [];
+
+    // Every pair inside radio range, then the shortest extra hops needed to
+    // pull stranded clusters in. A real mesh would simply be partitioned here;
+    // the demo keeps it whole so a broadcast has somewhere to go, and marks
+    // those hops as bridges so they can be drawn as the weak links they are.
+    function buildMeshGraph(points) {
+        const edges = [];
+        for (let i = 0; i < points.length; i++) {
+            for (let j = i + 1; j < points.length; j++) {
+                if (metersBetween(points[i], points[j]) <= MESH_RANGE_M) edges.push({ a: i, b: j, bridge: false });
+            }
+        }
+
+        const parent = points.map((_, i) => i);
+        const find = i => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
+        const union = (i, j) => { const ra = find(i), rb = find(j); if (ra === rb) return false; parent[ra] = rb; return true; };
+        edges.forEach(e => union(e.a, e.b));
+
+        for (;;) {
+            if (new Set(points.map((_, i) => find(i))).size <= 1) break;
+            let best = null;
+            for (let i = 0; i < points.length; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    if (find(i) === find(j)) continue;
+                    const d = metersBetween(points[i], points[j]);
+                    if (!best || d < best.d) best = { a: i, b: j, d };
+                }
+            }
+            if (!best) break;
+            union(best.a, best.b);
+            edges.push({ a: best.a, b: best.b, bridge: true });
+        }
+        return edges;
     }
-    function animateSosParticles() {
-        sosParticles.forEach(p => {
-            p.t += 0.012;
-            if (p.t > 1) p.t = 0;
-            const lat = p.from[0] + (p.to[0] - p.from[0]) * p.t;
-            const lng = p.from[1] + (p.to[1] - p.from[1]) * p.t;
-            p.marker.setLatLng([lat, lng]);
+
+    // Breadth-first from the sender gives each node its hop count and the edge
+    // it first heard the message over — the spanning tree a flood actually
+    // travels, rather than every link firing at once.
+    function floodTree(points, edges, root) {
+        const adj = points.map(() => []);
+        edges.forEach(e => { adj[e.a].push(e.b); adj[e.b].push(e.a); });
+
+        const depth = points.map(() => -1);
+        depth[root] = 0;
+        const queue = [root];
+        const treeEdges = [];
+        while (queue.length) {
+            const cur = queue.shift();
+            adj[cur].forEach(next => {
+                if (depth[next] !== -1) return;
+                depth[next] = depth[cur] + 1;
+                treeEdges.push({ from: cur, to: next, depth: depth[cur] });
+                queue.push(next);
+            });
+        }
+        return treeEdges;
+    }
+
+    // --- SOS "priority packet" flood: one dot per tree edge, released only
+    // once the hop before it has delivered, so the broadcast visibly spreads
+    // outward through the network instead of teleporting to every node. ---
+    let floodEdges = [];
+    let floodClock = 0;
+    let floodDepth = 0;
+
+    function buildSosFlood(points, treeEdges) {
+        floodEdges = treeEdges.map(e => {
+            floodDepth = Math.max(floodDepth, e.depth);
+            return {
+                from: [points[e.from].lat, points[e.from].lng],
+                to: [points[e.to].lat, points[e.to].lng],
+                depth: e.depth,
+                marker: L.circleMarker([points[e.from].lat, points[e.from].lng], {
+                    radius: 5, color: '#fff', weight: 1, fillColor: '#FF4D4D', fillOpacity: 0, opacity: 0,
+                }).addTo(sosPulseLayer),
+            };
         });
+        floodClock = 0;
+    }
+
+    function clearSosParticles() {
+        floodEdges.forEach(e => sosPulseLayer.removeLayer(e.marker));
+        floodEdges = [];
+        floodDepth = 0;
+    }
+
+    function animateSosParticles() {
+        if (floodEdges.length) {
+            // One unit of the clock is one hop. The extra beat past the last
+            // hop is the pause before the next broadcast goes out.
+            floodClock += 0.02;
+            if (floodClock > floodDepth + 2) floodClock = 0;
+
+            floodEdges.forEach(e => {
+                const p = floodClock - e.depth;
+                if (p <= 0 || p >= 1) {
+                    e.marker.setStyle({ opacity: 0, fillOpacity: 0 });
+                    return;
+                }
+                e.marker.setStyle({ opacity: 1, fillOpacity: 1 });
+                e.marker.setLatLng([
+                    e.from[0] + (e.to[0] - e.from[0]) * p,
+                    e.from[1] + (e.to[1] - e.from[1]) * p,
+                ]);
+            });
+        }
         requestAnimationFrame(animateSosParticles);
     }
 
@@ -291,6 +389,17 @@
             : 'Widen the map to show the rest of the mesh');
     }
 
+    // How far the map's own centre sits below the centre of the strip left
+    // visible above the docked sheet. Measured rather than hardcoded, because
+    // the sheet is content-sized and collapses.
+    function sheetAwareOffset() {
+        const sheet = document.getElementById('mapSheet');
+        if (!sheet) return 0;
+        const box = map.getContainer().getBoundingClientRect();
+        const visibleBottom = Math.max(box.top, Math.min(sheet.getBoundingClientRect().top, box.bottom));
+        return (box.top + box.bottom) / 2 - (box.top + visibleBottom) / 2;
+    }
+
     // Held so the filter note can redraw the map on its own — it changes only
     // how the mesh is framed, so it has no business routing through the app.
     let lastAppState = null;
@@ -311,15 +420,23 @@
         renderFilterNote(appState, neighbors.length);
         renderLegend(neighbors);
 
-        // Mesh links: normal traffic is thin dashed green; while SOS is active,
-        // links visually reroute (thicker, red) to show priority flooding.
-        neighbors.forEach(n => {
-            if (n.type === 'offline') return;
-            L.polyline([selfPos, [n.lat, n.lng]], {
-                color: appState.sos ? '#FF4D4D' : 'rgba(46, 204, 113, 0.6)',
-                weight: appState.sos ? 2.5 : 1,
-                dashArray: appState.sos ? '2, 6' : '4, 8',
-                opacity: appState.sos ? 0.85 : 0.5,
+        // The mesh is peer-to-peer, so the links are too: every pair of live
+        // nodes within radio range of each other, not a star of spokes from
+        // you. Ghosts carry nothing — no live signal means no working radio —
+        // so they are plotted but left out of the graph.
+        const live = neighbors.filter(n => n.type !== 'offline');
+        const points = [{ lat: selfPos[0], lng: selfPos[1] }, ...live];
+        const edges = buildMeshGraph(points);
+
+        // Normal traffic is thin dashed green; while SOS is active the whole
+        // web reroutes (thicker, red) to show priority flooding. Bridges stay
+        // fainter either way — they are the hops the mesh is straining to make.
+        edges.forEach(e => {
+            L.polyline([[points[e.a].lat, points[e.a].lng], [points[e.b].lat, points[e.b].lng]], {
+                color: appState.sos ? '#FF4D4D' : '#2ECC71',
+                weight: appState.sos ? 2.5 : 1.4,
+                dashArray: e.bridge ? '2, 7' : (appState.sos ? '2, 6' : '5, 7'),
+                opacity: (appState.sos ? 0.9 : 0.6) * (e.bridge ? 0.5 : 1),
             }).addTo(networkLayer);
         });
 
@@ -327,8 +444,9 @@
             L.marker([n.lat, n.lng], { icon: neighborIcon(n) }).addTo(networkLayer);
         });
 
-        // Fixed comms range ring
-        L.circle(selfPos, { radius: 150, color: '#4D94FF', weight: 1, fill: false, dashArray: '6, 6', opacity: 0.6 }).addTo(networkLayer);
+        // Your own radio reach — the same range the links are built from, so
+        // the ring explains why the nodes inside it are the ones you carry.
+        L.circle(selfPos, { radius: MESH_RANGE_M, color: '#4D94FF', weight: 1, fill: false, dashArray: '6, 6', opacity: 0.6 }).addTo(networkLayer);
 
         pulseCircle = L.circle(selfPos, { radius: 0, color: '#4D94FF', weight: 2, fillColor: '#4D94FF', fillOpacity: 0.2 }).addTo(networkLayer);
 
@@ -336,7 +454,7 @@
 
         // Toggle the SOS particle-flood effect
         clearSosParticles();
-        if (appState.sos) buildSosParticles(selfPos, neighbors);
+        if (appState.sos) buildSosFlood(points, floodTree(points, edges, 0));
     }
 
     window.citizenMap = {
@@ -346,13 +464,22 @@
         zoomOut: () => map.zoomOut(),
         setBasemap,
         toggleBasemap: () => setBasemap(basemap === 'satellite' ? 'street' : 'satellite'),
+        recenterOffset: sheetAwareOffset,
         toggleMeshScope: () => {
             showWholeMesh = !showWholeMesh;
             if (lastAppState) render(lastAppState);
         },
         // Keep whatever zoom the user chose unless they had zoomed further out
         // than the default — recentring shouldn't silently reframe their view.
-        recenter: () => map.setView(lastSelfPos, Math.max(map.getZoom(), 15)),
+        recenter: () => {
+            map.setView(lastSelfPos, Math.max(map.getZoom(), 15), { animate: false });
+            // Leaflet centres on the container, but the docked sheet covers its
+            // bottom two thirds, so that put "you" — and the densest part of the
+            // mesh around you — underneath the sheet. Lift it into the strip
+            // that is actually visible.
+            const dy = sheetAwareOffset();
+            if (dy > 1) map.panBy([0, dy], { animate: false });
+        },
     };
     animateRangePulse();
     animateSosParticles();
