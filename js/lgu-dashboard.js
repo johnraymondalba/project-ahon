@@ -7,7 +7,6 @@
     const triageCache = new Map(); // node.id -> { priorityTier, reasoning, recommendedAction, source, fingerprint }
     let selectedNodeId = null;
     let sortKey = 'tier';
-    let sortDir = 1;
     let filterStatus = 'ALL';
     let searchText = '';
 
@@ -82,8 +81,8 @@
             } else if (sortKey === 'name') { av = a.name; bv = b.name; }
             else if (sortKey === 'status') { av = a.status; bv = b.status; }
             else { av = a.lastSignalMin; bv = b.lastSignalMin; }
-            if (av < bv) return -1 * sortDir;
-            if (av > bv) return 1 * sortDir;
+            if (av < bv) return -1;
+            if (av > bv) return 1;
             return 0;
         });
         return reports;
@@ -107,27 +106,45 @@
         return '';
     }
 
+    // Two lines per report rather than six columns. At 460px the table wanted
+    // 523px, so "Updated" — how stale a report is — was the column that fell
+    // off the edge, and 60 cells wrapped into uneven 51/66px rows. Rows cannot
+    // clip, and a list that has to be scanned under pressure needs one height.
+    //
+    // Location is gone: across the whole dataset it held two values, and the
+    // Details panel already gives exact coordinates.
     function renderTable() {
-        const tbody = document.getElementById('priorityTableBody');
+        const list = document.getElementById('priorityTableBody');
         const reports = sortedFilteredReports();
-        tbody.innerHTML = reports.map(n => {
+
+        if (!reports.length) {
+            list.innerHTML = '<div class="report-empty">No reports match this filter.</div>';
+            return;
+        }
+
+        list.innerHTML = reports.map(n => {
             const t = triageCache.get(n.id);
             const tierHtml = t
                 ? `<span class="tier-badge ${t.priorityTier}">${t.priorityTier}</span>`
                 : `<span class="tier-badge pending">…</span>`;
             return `
-                <tr data-id="${n.id}" class="${n.id === selectedNodeId ? 'selected' : ''}">
-                    <td><strong>${n.name}</strong><br><span style="color:var(--ink-muted); font-size:10.5px;">${n.id}</span></td>
-                    <td>${n.status}${claimBadge(n)}</td>
-                    <td>${n.town}</td>
-                    <td class="need-icons">${needIconsHtml(n.needs)}</td>
-                    <td>${tierHtml}</td>
-                    <td>${Math.round(n.lastSignalMin)}m ago</td>
-                </tr>`;
+                <button class="report-row${n.id === selectedNodeId ? ' selected' : ''}" data-id="${n.id}">
+                    <span class="report-row-head">
+                        <span class="report-name">${n.name}</span>
+                        <span class="report-id">${n.id}</span>
+                        ${tierHtml}
+                    </span>
+                    <span class="report-row-meta">
+                        <span class="report-status status-${String(n.status).toLowerCase()}">${n.status}</span>
+                        <span class="need-icons">${needIconsHtml(n.needs)}</span>
+                        <span class="report-age">${Math.round(n.lastSignalMin)}m ago</span>
+                        ${claimBadge(n)}
+                    </span>
+                </button>`;
         }).join('');
 
-        tbody.querySelectorAll('tr').forEach(tr => {
-            tr.addEventListener('click', () => selectNode(tr.getAttribute('data-id')));
+        list.querySelectorAll('.report-row').forEach(row => {
+            row.addEventListener('click', () => selectNode(row.getAttribute('data-id')));
         });
     }
 
@@ -321,13 +338,12 @@
     }
 
     function initTableControls() {
-        document.querySelectorAll('.priority-table th[data-sort]').forEach(th => {
-            th.addEventListener('click', () => {
-                const key = th.getAttribute('data-sort');
-                sortDir = sortKey === key ? -sortDir : 1;
-                sortKey = key;
-                renderTable();
-            });
+        // Each key has one sensible direction — worst first, freshest first,
+        // A-Z — so the reverse toggle went with the column headers that used
+        // to carry it. There is nothing left to click twice.
+        document.getElementById('sortSelect').addEventListener('change', e => {
+            sortKey = e.target.value;
+            renderTable();
         });
         document.getElementById('statusFilter').addEventListener('change', e => {
             filterStatus = e.target.value;

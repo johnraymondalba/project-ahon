@@ -106,8 +106,12 @@
                     </div>
 
                     <div class="tab-panel active" id="tabList">
+                        <!-- Search gets its own line: three controls abreast in a 460px
+                             panel left none of them usable. -->
                         <div class="table-toolbar">
                             <input type="text" id="searchInput" placeholder="Search name or ID…">
+                        </div>
+                        <div class="table-toolbar table-toolbar--filters">
                             <select id="statusFilter">
                                 <option value="ALL">All statuses</option>
                                 <option value="SOS">SOS</option>
@@ -116,21 +120,17 @@
                                 <option value="SAFE">Safe</option>
                                 <option value="OFFLINE">Offline</option>
                             </select>
+                            <!-- Sorting used to live in the column headers. With the
+                                 columns gone it needs a control of its own. -->
+                            <select id="sortSelect" aria-label="Sort reports by">
+                                <option value="tier">Sort: Priority</option>
+                                <option value="updated">Sort: Most recent</option>
+                                <option value="name">Sort: Name</option>
+                                <option value="status">Sort: Status</option>
+                            </select>
                         </div>
                         <div class="table-scroll">
-                            <table class="priority-table">
-                                <thead>
-                                    <tr>
-                                        <th data-sort="name">Reporter</th>
-                                        <th data-sort="status">Status</th>
-                                        <th>Location</th>
-                                        <th>Supplies</th>
-                                        <th data-sort="tier">Priority</th>
-                                        <th data-sort="updated">Updated</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="priorityTableBody"></tbody>
-                            </table>
+                            <div class="report-list" id="priorityTableBody"></div>
                         </div>
                     </div>
 

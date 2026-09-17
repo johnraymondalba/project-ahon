@@ -59,6 +59,24 @@
         ],
         "createdAt": "2026-09-14T15:18:00.754Z",
         "reason": "Two false positives: (1) .phone-screen is the device-mockup chassis container (0 padding by design) -- its children (.status-strip, .pages, .tab-bar) each carry their own real padding, so this isn't app content flush against a boundary. (2) .legend-box's collapsed default state (.minimized: height:0, padding:0, border:none) is a hidden/zero-size transition state -- the visible expanded legend-box has 14px padding on all sides."
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "lgu.html"
+        ],
+        "createdAt": "2026-09-17T10:16:25.315Z",
+        "reason": "user confirmed: picked the accent-bar selection marker over a red row wash and a neutral highlight. It marks only the single selected row in the priority list, not decoration on every card, which is what this rule targets."
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "css/lgu.css"
+        ],
+        "createdAt": "2026-09-17T10:17:38.547Z",
+        "reason": "user confirmed: picked the accent-bar selection marker over a red row wash and a neutral highlight. Marks only the single selected row in the priority list, not decoration on every card, which is what this rule targets."
       }
     ]
   }

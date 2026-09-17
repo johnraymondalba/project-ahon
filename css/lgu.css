@@ -48,6 +48,20 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
+
+/* Tells the browser to render its own furniture dark — native select
+   dropdowns and default scrollbars included. Without it the scrollbar under
+   the priority list painted light-mode white and became the brightest object
+   in the panel, pulling the eye to a scrollbar instead of to the Critical rows. */
+:root { color-scheme: dark; }
+* { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.16) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16); border-radius: var(--radius-pill);
+    border: 3px solid transparent; background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); background-clip: content-box; }
 body {
     margin: 0;
     background: var(--bg);
@@ -217,25 +231,68 @@ a { color: inherit; }
 .tab-panel.active { display: flex; flex-direction: column; }
 
 /* --- PRIORITY LIST TABLE --- */
-.table-toolbar { display: flex; align-items: center; gap: 10px; padding: 14px 16px; flex-shrink: 0; }
+.table-toolbar { display: flex; align-items: center; gap: 10px; padding: 14px 16px 0; flex-shrink: 0; }
+.table-toolbar--filters { padding-top: 10px; padding-bottom: 12px; }
 .table-toolbar select, .table-toolbar input {
     border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 12.5px; color: var(--ink);
     background: var(--surface-alt); font-family: var(--font-body);
 }
 .table-toolbar input { flex: 1; }
+/* Both selects share the row evenly rather than sizing to their longest
+   option, which is what let one of them squeeze the other to nothing. */
+.table-toolbar--filters select { flex: 1; min-width: 0; }
 
-.table-scroll { overflow: auto; flex: 1; }
-.priority-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-.priority-table th { text-align: left; padding: 9px 14px; color: var(--ink-secondary); font-weight: 700; text-transform: uppercase; font-size: 11.5px; letter-spacing: 0.02em; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; position: sticky; top: 0; background: var(--surface); }
-.priority-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-.priority-table tbody tr { cursor: pointer; transition: background 0.15s, color 0.15s; }
-.priority-table tbody tr:hover { background: var(--surface-alt); }
-.priority-table tbody tr.selected { background: var(--accent-tint); font-weight: 600; }
-/* Raise: selecting a row lifts/expands it (bolder, full-color) while the
-   rest of the list quietly dims — via a muted text color, not opacity, so
-   dimmed rows stay legible (>=4.5:1) for time-pressured triage reading. */
-.priority-table:has(tr.selected) tbody tr:not(.selected):not(:hover) { color: var(--ink-secondary); }
-.priority-table:has(tr.selected) tbody tr:not(.selected):not(:hover) .tier-badge { opacity: 0.75; }
+.table-scroll { overflow-y: auto; overflow-x: hidden; flex: 1; }
+
+/* --- PRIORITY LIST ---
+   Rows, not a table. Six columns needed 523px inside a 460px panel, so
+   "Updated" was clipped off the right edge and 60 cells wrapped into uneven
+   51/66px rows — the two worst things you can do to a list whose whole job is
+   being scanned under time pressure. Two lines per report can't clip, and
+   every row is the same height at any panel width. */
+.report-list { display: flex; flex-direction: column; }
+.report-row {
+    display: flex; flex-direction: column; gap: 5px;
+    width: 100%; text-align: left; cursor: pointer;
+    font-family: inherit; font-size: 12.5px; color: var(--ink);
+    background: none; border: none; border-bottom: 1px solid var(--border);
+    /* The left pad leaves room for the selection bar so nothing shifts when a
+       row is picked. */
+    padding: 11px 14px 11px 18px; position: relative;
+    transition: background 0.15s, color 0.15s;
+}
+.report-row:hover { background: var(--surface-alt); }
+
+/* Selection is a bar plus a lift, not a red wash: red is severity here, and a
+   red row sitting beside a red Critical badge made the two read as one thing. */
+.report-row.selected { background: var(--surface-alt); }
+.report-row.selected::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--accent);
+}
+.report-row.selected .report-name { font-weight: 800; }
+
+/* Raise: selecting a row lifts it while the rest of the list quietly dims —
+   via a muted text color, not opacity, so dimmed rows stay legible (>=4.5:1)
+   for time-pressured triage reading. */
+.report-list:has(.report-row.selected) .report-row:not(.selected):not(:hover) { color: var(--ink-secondary); }
+.report-list:has(.report-row.selected) .report-row:not(.selected):not(:hover) .tier-badge { opacity: 0.75; }
+
+.report-row-head { display: flex; align-items: center; gap: 8px; }
+.report-name { font-weight: 700; color: inherit; }
+.report-id { font-size: 11px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+/* Pushes the tier badge to the right edge without a fixed column. */
+.report-row-head .tier-badge { margin-left: auto; flex-shrink: 0; }
+
+.report-row-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: 11.5px; color: var(--ink-secondary); }
+.report-status { font-weight: 700; letter-spacing: 0.02em; }
+.report-status.status-sos, .report-status.status-injured { color: var(--accent); }
+.report-status.status-trapped { color: var(--warning); }
+.report-status.status-safe { color: var(--success); }
+.report-status.status-offline { color: var(--ink-muted); }
+.report-age { margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.report-empty { padding: 28px 18px; text-align: center; color: var(--ink-secondary); font-size: 12.5px; }
 
 .tier-badge { display: inline-block; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 700; letter-spacing: 0.01em; }
 .tier-badge.Critical { background: var(--tier-critical-bg); color: var(--tier-critical); }
@@ -243,7 +300,8 @@ a { color: inherit; }
 .tier-badge.Low { background: var(--tier-low-bg); color: var(--tier-low); }
 .tier-badge.pending { background: var(--surface-alt); color: var(--ink-secondary); }
 
-.need-icons i { margin-right: 5px; font-size: 12px; color: var(--ink-secondary); }
+.need-icons { display: inline-flex; align-items: center; gap: 5px; }
+.need-icons i { font-size: 12px; color: var(--ink-secondary); }
 
 /* --- AI TRIAGE PANEL --- */
 .ai-triage-list { padding: 12px 16px 18px; display: flex; flex-direction: column; gap: 10px; }
