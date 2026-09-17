@@ -330,6 +330,8 @@ body {
 .legend-box.minimized { opacity: 0; transform: scale(0.92) translateY(-10px); height: 0; padding: 0; border: none; box-shadow: none; }
 .legend-item { display: flex; align-items: center; gap: 6px; }
 .l-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+/* The key carries the shape difference too, or it explains half the map. */
+.l-dot.is-square { border-radius: 2px; }
 .l-text { color: var(--ink-secondary); font-size: 11px; font-weight: 600; white-space: nowrap; }
 
 /* --- MAP BOTTOM SHEET: situation, supplies, volunteer mode and SOS
@@ -501,6 +503,8 @@ input:checked + .slider:before { transform: translateX(19px); }
 .bg-user { background: var(--color-user); }
 .bg-sos { background: var(--color-sos); animation: pulse-marker 1.2s infinite; }
 .bg-rescuer { background: var(--color-rescuer); }
+/* The gateway is a square, not a dot — infrastructure, not a person. */
+.bg-command { background: var(--color-user); border-radius: 5px; }
 .bg-senior { background: var(--color-senior); }
 .bg-volunteer { background: var(--color-volunteer); }
 .bg-last-seen { background: var(--color-offline); opacity: 0.8; }

@@ -44,7 +44,7 @@ function computeDisplay(node) {
 
 function releaseClaimsBy(rescuerId) {
     nodes.forEach(n => {
-        if (n.claimedBy === rescuerId) { n.claimedBy = null; n.claimedByName = null; }
+        if (n.claimedBy === rescuerId) { n.claimedBy = null; n.claimedByName = null; n.claimedAt = null; }
     });
 }
 
@@ -58,11 +58,12 @@ function broadcast() {
 // Ambient drift for the seeded mock nodes only — real ("live") nodes are
 // only ever moved by their own citizen client's messages, below.
 function ambientTick() {
-    nodes.forEach(n => { if (!n.live) n.lastSignalMin += Math.random() * 1.5; });
+    // The command centre is mains-powered and wired — it never ages out.
+    nodes.forEach(n => { if (!n.live && n.type !== 'lgu') n.lastSignalMin += Math.random() * 1.5; });
 
     // Resolved cases stop drifting — a node a rescuer has just cleared must not
     // flip itself back to TRAPPED on the next ambient tick.
-    const drifting = nodes.filter(n => !n.live && !n.resolved && n.type !== 'offline' && n.type !== 'rescuer' && n.type !== 'volunteer');
+    const drifting = nodes.filter(n => !n.live && !n.resolved && n.type !== 'offline' && n.type !== 'rescuer' && n.type !== 'volunteer' && n.type !== 'lgu');
     const hops = Math.min(2, drifting.length);
     for (let i = 0; i < hops; i++) {
         const node = drifting[Math.floor(Math.random() * drifting.length)];
@@ -126,6 +127,25 @@ wss.on('connection', (ws) => {
             return;
         }
 
+        // Dispatch comes from the command centre, which never registers a node
+        // of its own, so it has to be handled above the citizen guard below.
+        // It writes the same claim a rescuer sets from the field — one piece of
+        // state, whether the assignment was taken or given.
+        if (msg.type === 'dispatch') {
+            const target = nodes.find(n => n.id === msg.targetId);
+            const team = nodes.find(n => n.id === msg.rescuerId && n.type === 'rescuer');
+            if (!target || !team) return;
+            // A team already on a case is not available for another, and a case
+            // someone has taken is not the command centre's to reassign.
+            if (target.claimedBy || nodes.some(n => n.claimedBy === team.id)) return;
+            target.claimedBy = team.id;
+            target.claimedByName = team.name;
+            target.claimedAt = Date.now();
+            target.dispatchedByLgu = true;
+            broadcast();
+            return;
+        }
+
         const nodeId = citizens.get(ws);
         const node = nodes.find(n => n.id === nodeId);
         if (!node) return;
@@ -157,9 +177,11 @@ wss.on('connection', (ws) => {
                 if (target.claimedBy && target.claimedBy !== node.id) return;
                 target.claimedBy = node.id;
                 target.claimedByName = node.name;
+                target.claimedAt = Date.now();
             } else if (target.claimedBy === node.id) {
                 target.claimedBy = null;
                 target.claimedByName = null;
+                target.claimedAt = null;
             }
         } else if (msg.type === 'resolve') {
             const target = nodes.find(n => n.id === msg.targetId);
@@ -168,6 +190,7 @@ wss.on('connection', (ws) => {
             target.resolvedByName = node.name;
             target.claimedBy = null;
             target.claimedByName = null;
+            target.claimedAt = null;
             target.needs = {};
             target.statusLabel = 'SAFE';
             target.sos = false;

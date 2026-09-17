@@ -83,6 +83,7 @@
             case 'senior': return { cls: 'bg-senior', color: 'var(--color-senior)' };
             case 'volunteer': return { cls: 'bg-volunteer', color: 'var(--color-volunteer)' };
             case 'offline': return { cls: 'bg-last-seen', color: 'var(--color-offline)' };
+            case 'lgu': return { cls: 'bg-command', color: 'var(--color-user)' };
             default: return { cls: 'bg-user', color: 'var(--color-user)' };
         }
     }
@@ -193,76 +194,11 @@
     }
 
     // --- MESH TOPOLOGY ---
-    // Radio reach of one node. The dataset spreads ~1.5km across Nabua, so at
-    // the old 150m personal ring nothing would link to anything; 500m is the
-    // order of a LoRa relay hop and gives the web its actual shape — dense
-    // where phones cluster, thin where they don't.
-    const MESH_RANGE_M = 500;
-    const M_PER_DEG_LAT = 111320;
-
-    function metersBetween(a, b) {
-        const latMid = ((a.lat + b.lat) / 2) * Math.PI / 180;
-        const dx = (a.lng - b.lng) * M_PER_DEG_LAT * Math.cos(latMid);
-        const dy = (a.lat - b.lat) * M_PER_DEG_LAT;
-        return Math.hypot(dx, dy);
-    }
-
-    // Every pair inside radio range, then the shortest extra hops needed to
-    // pull stranded clusters in. A real mesh would simply be partitioned here;
-    // the demo keeps it whole so a broadcast has somewhere to go, and marks
-    // those hops as bridges so they can be drawn as the weak links they are.
-    function buildMeshGraph(points) {
-        const edges = [];
-        for (let i = 0; i < points.length; i++) {
-            for (let j = i + 1; j < points.length; j++) {
-                if (metersBetween(points[i], points[j]) <= MESH_RANGE_M) edges.push({ a: i, b: j, bridge: false });
-            }
-        }
-
-        const parent = points.map((_, i) => i);
-        const find = i => { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; };
-        const union = (i, j) => { const ra = find(i), rb = find(j); if (ra === rb) return false; parent[ra] = rb; return true; };
-        edges.forEach(e => union(e.a, e.b));
-
-        for (;;) {
-            if (new Set(points.map((_, i) => find(i))).size <= 1) break;
-            let best = null;
-            for (let i = 0; i < points.length; i++) {
-                for (let j = i + 1; j < points.length; j++) {
-                    if (find(i) === find(j)) continue;
-                    const d = metersBetween(points[i], points[j]);
-                    if (!best || d < best.d) best = { a: i, b: j, d };
-                }
-            }
-            if (!best) break;
-            union(best.a, best.b);
-            edges.push({ a: best.a, b: best.b, bridge: true });
-        }
-        return edges;
-    }
-
-    // Breadth-first from the sender gives each node its hop count and the edge
-    // it first heard the message over — the spanning tree a flood actually
-    // travels, rather than every link firing at once.
-    function floodTree(points, edges, root) {
-        const adj = points.map(() => []);
-        edges.forEach(e => { adj[e.a].push(e.b); adj[e.b].push(e.a); });
-
-        const depth = points.map(() => -1);
-        depth[root] = 0;
-        const queue = [root];
-        const treeEdges = [];
-        while (queue.length) {
-            const cur = queue.shift();
-            adj[cur].forEach(next => {
-                if (depth[next] !== -1) return;
-                depth[next] = depth[cur] + 1;
-                treeEdges.push({ from: cur, to: next, depth: depth[cur] });
-                queue.push(next);
-            });
-        }
-        return treeEdges;
-    }
+    // Built by js/mesh-graph.js, shared with the LGU dashboard so the two
+    // never draw different networks over the same nodes.
+    const MESH_RANGE_M = window.meshGraph.RANGE_M;
+    const buildMeshGraph = window.meshGraph.build;
+    const floodTree = (points, edges, root) => window.meshGraph.hops(points, edges, root).treeEdges;
 
     // --- SOS "priority packet" flood: one dot per tree edge, released only
     // once the hop before it has delivered, so the broadcast visibly spreads
@@ -316,8 +252,10 @@
     }
 
     // Who can come for you: the two node types that represent help on its way.
+    // The command centre counts too: when you are broadcasting SOS, the gateway
+    // that carries it out of the barangay is exactly as relevant as the teams.
     function isResponder(n) {
-        return n.type === 'rescuer' || n.type === 'volunteer';
+        return n.type === 'rescuer' || n.type === 'volunteer' || n.type === 'lgu';
     }
 
     // Who needs help: anyone in distress, anyone still asking for supplies
@@ -358,6 +296,7 @@
         { key: 'volunteer', label: 'Volunteer', color: 'var(--color-volunteer)' },
         { key: 'civilian', label: 'Safe', color: 'var(--color-user)' },
         { key: 'offline', label: 'Last seen', color: 'var(--color-offline)' },
+        { key: 'lgu', label: 'LGU gateway', color: 'var(--color-user)', square: true },
     ];
 
     function renderLegend(nodes) {
@@ -365,7 +304,7 @@
         if (!el) return;
         const present = new Set(nodes.map(n => n.type));
         el.innerHTML = LEGEND_ROWS.filter(row => present.has(row.key)).map(row =>
-            `<div class="legend-item"><div class="l-dot" style="background:${row.color}"></div><span class="l-text">${row.label}</span></div>`
+            `<div class="legend-item"><div class="l-dot${row.square ? ' is-square' : ''}" style="background:${row.color}"></div><span class="l-text">${row.label}</span></div>`
         ).join('');
     }
 

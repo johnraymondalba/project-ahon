@@ -25,7 +25,10 @@
         VOLUNTEER: '#8B7FD1',
         SAFE: '#4C8DD9',
         OFFLINE: '#98A2B3',
+        COMMAND: '#4D94FF',
     };
+
+    const MESH_LINK_COLOR = '#2ECC71';
 
     // The dispatch route has to beat both the dark basemap and the status dots
     // it runs between, so it takes the citizen map's route blue rather than the
@@ -54,6 +57,9 @@
     // markup, so a colour can never be changed here and left stale in the
     // key — a legend that quietly disagrees with the map is worse than none.
     // Ordered by how urgently a row needs attention, not by object order.
+    // `square: true` is not decoration — the command centre is infrastructure,
+    // not a responder, and telling them apart by hue alone would break the
+    // shape-before-hue rule the ghost markers already follow.
     const LEGEND = [
         { label: 'SOS / Injured', color: STATUS_COLOR.SOS },
         { label: 'Trapped', color: STATUS_COLOR.TRAPPED },
@@ -61,21 +67,40 @@
         { label: 'Volunteer', color: STATUS_COLOR.VOLUNTEER },
         { label: 'Safe / Civilian', color: STATUS_COLOR.SAFE },
         { label: 'Last signal', color: STATUS_COLOR.OFFLINE },
+        { label: 'Command Center', color: STATUS_COLOR.COMMAND, square: true },
     ];
 
     function renderLegend() {
         const el = document.getElementById('mapLegend');
         if (!el) return;
-        el.innerHTML = LEGEND.map(({ label, color }) =>
-            `<div class="legend-item"><span class="l-dot" style="background:${color}"></span>${label}</div>`
+        el.innerHTML = LEGEND.map(({ label, color, square }) =>
+            `<div class="legend-item"><span class="l-dot${square ? ' is-square' : ''}" style="background:${color}"></span>${label}</div>`
         ).join('');
     }
 
     let impl = null; // set to googleImpl or chartImpl once load() decides
 
+    // Off by default: the link web is context for a dispatcher who asks how
+    // this report reached us, not something to read past on every glance.
+    let meshVisible = false;
+
     function onReady(cb) { impl.onReady(cb); }
     function renderMarkers(nodes, onClick) { impl.renderMarkers(nodes, onClick); }
-    function drawRouteTo(node) { impl.drawRouteTo(node); }
+    // The caller passes the team, because the command centre decides who is
+    // being suggested. Picking one in here is how the drawn route ended up
+    // naming a different team from the one the Details panel recommended.
+    function drawRouteTo(node, rescuer) { impl.drawRouteTo(node, rescuer); }
+
+    function toggleMesh() {
+        meshVisible = !meshVisible;
+        const btn = document.getElementById('meshToggle');
+        if (btn) {
+            btn.classList.toggle('is-active', meshVisible);
+            btn.setAttribute('aria-pressed', String(meshVisible));
+        }
+        if (impl) impl.drawMesh(window.MESH_NODES);
+        return meshVisible;
+    }
 
     // Street/satellite switch, shared by both implementations — Google swaps
     // its own map type, the Leaflet fallback swaps tile layers.
@@ -90,19 +115,37 @@
 
     // --- GOOGLE MAPS IMPLEMENTATION ---
     const googleImpl = (function () {
-        let map = null, markers = [], routeLine = null;
+        let map = null, markers = [], meshLines = [], routeLine = null;
         const readyCallbacks = [];
         let ready = false;
 
-        function markerIcon(color, isGhost) {
+        // A square for the command centre, circles for everyone else — the same
+        // shape-before-hue split the Leaflet markers make.
+        function markerIcon(node) {
+            const color = STATUS_COLOR[node.status] || STATUS_COLOR.SAFE;
+            if (node.type === 'lgu') {
+                return {
+                    path: 'M -9,-9 9,-9 9,9 -9,9 z',
+                    fillColor: color, fillOpacity: 1,
+                    strokeColor: '#ffffff', strokeWeight: 2,
+                };
+            }
             return {
                 path: google.maps.SymbolPath.CIRCLE,
                 scale: 9,
                 fillColor: color,
-                fillOpacity: isGhost ? 0.45 : 1,
+                fillOpacity: node.type === 'offline' ? 0.45 : 1,
                 strokeColor: '#ffffff',
                 strokeWeight: 2,
             };
+        }
+
+        function markerLabel(node) {
+            if (node.type === 'lgu') return { text: 'Command Center', color: '#C9D3E3', fontSize: '11px', fontWeight: '700' };
+            if (node.type === 'rescuer' || node.type === 'volunteer') {
+                return { text: node.name, color: '#C9D3E3', fontSize: '11px', fontWeight: '700' };
+            }
+            return null;
         }
 
         window.initLguMap = function () {
@@ -146,18 +189,39 @@
                         const marker = new google.maps.Marker({
                             position: { lat: node.lat, lng: node.lng },
                             map,
-                            icon: markerIcon(STATUS_COLOR[node.status] || STATUS_COLOR.SAFE, node.type === 'offline'),
+                            icon: markerIcon(node),
+                            label: markerLabel(node),
                             title: `${node.name} — ${node.status}`,
+                            zIndex: node.type === 'lgu' ? 1000 : 1,
                         });
                         marker.addListener('click', () => onClick(node));
                         return marker;
                     });
+                    if (meshVisible) this.drawMesh(nodes);
                 });
             },
-            drawRouteTo(node) {
+            drawMesh(nodes) {
+                this.onReady(() => {
+                    meshLines.forEach(l => l.setMap(null));
+                    meshLines = [];
+                    if (!meshVisible) return;
+                    const live = nodes.filter(n => n.type !== 'offline');
+                    meshLines = window.meshGraph.build(live).map(e => new google.maps.Polyline({
+                        path: [
+                            { lat: live[e.a].lat, lng: live[e.a].lng },
+                            { lat: live[e.b].lat, lng: live[e.b].lng },
+                        ],
+                        strokeColor: MESH_LINK_COLOR,
+                        strokeOpacity: e.bridge ? 0.3 : 0.55,
+                        strokeWeight: e.bridge ? 1 : 1.4,
+                        map,
+                    }));
+                });
+            },
+            drawRouteTo(node, rescuer) {
                 this.onReady(() => {
                     if (routeLine) routeLine.setMap(null);
-                    const rescuer = window.MESH_NODES.find(n => n.type === 'rescuer');
+                    routeLine = null;
                     if (!rescuer || !node) return;
                     routeLine = new google.maps.Polyline({
                         path: [{ lat: rescuer.lat, lng: rescuer.lng }, { lat: node.lat, lng: node.lng }],
@@ -176,13 +240,37 @@
 
     // --- CHART-NATIVE FALLBACK (no key, no tiles) ---
     const chartImpl = (function () {
-        let map = null, markersLayer = null, routeLine = null;
+        let map = null, markersLayer = null, meshLayer = null, routeLine = null;
         let streetLayer = null, satelliteLayer = null;
         const readyCallbacks = [];
         let ready = false;
 
-        function dotIcon(color, isGhost) {
-            const html = `<div class="lgu-marker-dot" style="background:${color};opacity:${isGhost ? 0.5 : 1}"></div>`;
+        // Three marker shapes, because three things are on this map and hue
+        // alone cannot separate them: the command centre is a square building
+        // glyph, rescue teams are circles carrying their team name, and
+        // everyone reporting is an unlabelled circle.
+        function nodeIcon(node) {
+            const color = STATUS_COLOR[node.status] || STATUS_COLOR.SAFE;
+
+            if (node.type === 'lgu') {
+                const html = `
+                    <div class="lgu-marker-hq" style="--hq-color:${color}">
+                        <i class="fa-solid fa-building-shield"></i>
+                        <span class="lgu-marker-label">Command Center</span>
+                    </div>`;
+                return L.divIcon({ className: 'lgu-marker-icon', html, iconSize: [26, 26], iconAnchor: [13, 13] });
+            }
+
+            if (node.type === 'rescuer' || node.type === 'volunteer') {
+                const html = `
+                    <div class="lgu-marker-team">
+                        <div class="lgu-marker-dot" style="background:${color}"></div>
+                        <span class="lgu-marker-label">${node.name}</span>
+                    </div>`;
+                return L.divIcon({ className: 'lgu-marker-icon', html, iconSize: [16, 16], iconAnchor: [8, 8] });
+            }
+
+            const html = `<div class="lgu-marker-dot" style="background:${color};opacity:${node.type === 'offline' ? 0.5 : 1}"></div>`;
             return L.divIcon({ className: 'lgu-marker-icon', html, iconSize: [16, 16], iconAnchor: [8, 8] });
         }
 
@@ -216,6 +304,8 @@
                 }),
             ]);
 
+            // Below the markers on purpose: links are context, not the data.
+            meshLayer = L.layerGroup().addTo(map);
             markersLayer = L.layerGroup().addTo(map);
 
             ready = true;
@@ -245,18 +335,38 @@
                     markersLayer.clearLayers();
                     nodes.forEach(node => {
                         const marker = L.marker([node.lat, node.lng], {
-                            icon: dotIcon(STATUS_COLOR[node.status] || STATUS_COLOR.SAFE, node.type === 'offline'),
+                            icon: nodeIcon(node),
                             title: `${node.name} — ${node.status}`,
+                            // HQ sits above the reports it is receiving.
+                            zIndexOffset: node.type === 'lgu' ? 1000 : 0,
                         });
                         marker.on('click', () => onClick(node));
                         marker.addTo(markersLayer);
                     });
+                    if (meshVisible) this.drawMesh(nodes);
                 });
             },
-            drawRouteTo(node) {
+            drawMesh(nodes) {
+                this.onReady(() => {
+                    meshLayer.clearLayers();
+                    if (!meshVisible) return;
+                    // Ghosts carry nothing: no live signal means no radio.
+                    const live = nodes.filter(n => n.type !== 'offline');
+                    const edges = window.meshGraph.build(live);
+                    edges.forEach(e => {
+                        L.polyline([[live[e.a].lat, live[e.a].lng], [live[e.b].lat, live[e.b].lng]], {
+                            color: MESH_LINK_COLOR,
+                            weight: e.bridge ? 1 : 1.4,
+                            dashArray: e.bridge ? '2, 7' : '5, 7',
+                            opacity: e.bridge ? 0.3 : 0.55,
+                        }).addTo(meshLayer);
+                    });
+                });
+            },
+            drawRouteTo(node, rescuer) {
                 this.onReady(() => {
                     if (routeLine) markersLayer.removeLayer(routeLine);
-                    const rescuer = window.MESH_NODES.find(n => n.type === 'rescuer');
+                    routeLine = null;
                     if (!rescuer || !node) return;
                     routeLine = L.polyline(
                         [[rescuer.lat, rescuer.lng], [node.lat, node.lng]],
@@ -280,5 +390,5 @@
         }
     }
 
-    window.lguMap = { onReady, renderMarkers, drawRouteTo, load, setBasemap };
+    window.lguMap = { onReady, renderMarkers, drawRouteTo, load, setBasemap, toggleMesh };
 })();

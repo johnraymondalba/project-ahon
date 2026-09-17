@@ -96,12 +96,21 @@
                         <button class="basemap-btn is-active" id="basemapStreet" onclick="lguMap.setBasemap('street')">Map</button>
                         <button class="basemap-btn" id="basemapSatellite" onclick="lguMap.setBasemap('satellite')">Satellite</button>
                     </div>
+
+                    <!-- Mesh overlay. Off by default: the link web answers "how did
+                         this report reach us", which is a question you ask about one
+                         report, not something to read past on every glance. -->
+                    <button class="map-mesh-toggle" id="meshToggle" onclick="lguMap.toggleMesh()"
+                            aria-pressed="false" title="Show the mesh network links">
+                        <i class="fa-solid fa-diagram-project"></i> Mesh
+                    </button>
                 </div>
 
                 <aside class="lgu-panel">
                     <div class="tabs">
                         <button class="tab-btn active" data-tab="tabList">Priority list</button>
                         <button class="tab-btn" data-tab="tabAi">AI triage</button>
+                        <button class="tab-btn" data-tab="tabProgress">In progress</button>
                         <button class="tab-btn" data-tab="tabDetail">Details</button>
                     </div>
 
@@ -142,6 +151,14 @@
                         <div class="ai-triage-list" id="aiTriageList"></div>
                     </div>
 
+                    <!-- Every case a team is currently on. Filled by
+                         renderInProgress() in js/lgu-dashboard.js. -->
+                    <div class="tab-panel" id="tabProgress">
+                        <div class="table-scroll">
+                            <div class="report-list" id="inProgressList"></div>
+                        </div>
+                    </div>
+
                     <div class="tab-panel" id="tabDetail">
                         <div class="panel-header" style="border-bottom:none;"><span class="hint">Select a marker or a priority-list row to see victim details and route</span></div>
                         <div id="detailPanelBody"></div>
@@ -156,6 +173,7 @@
     <script>window.AHON_ROLE = 'lgu';</script>
     <script src="js/config.js"></script>
     <script src="js/mock-data.js"></script>
+    <script src="js/mesh-graph.js"></script>
     <script src="js/mesh-simulator.js"></script>
     <script src="js/realtime-client.js"></script>
     <script src="js/gemini-triage.js"></script>

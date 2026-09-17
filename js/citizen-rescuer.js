@@ -27,11 +27,7 @@
     function distanceTo(node) {
         const self = window.citizenMap && window.citizenMap.selfPosition();
         if (!self) return null;
-        const M_PER_DEG_LAT = 111320;
-        const latMid = ((self.lat + node.lat) / 2) * Math.PI / 180;
-        const dx = (self.lng - node.lng) * M_PER_DEG_LAT * Math.cos(latMid);
-        const dy = (self.lat - node.lat) * M_PER_DEG_LAT;
-        return Math.hypot(dx, dy);
+        return window.meshGraph.metersBetween(self, node);
     }
 
     // ~1.1 m/s: walking pace through floodwater, well under the 1.4 m/s a dry

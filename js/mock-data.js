@@ -38,17 +38,29 @@ const MESH_NODES = [
     { id: 'N13', name: 'Carlo M.',     type: 'civilian',  status: 'TRAPPED',  lat: 13.3999, lng: 123.3040, needs: { water: true },               flags: {},               lastSignalMin: 12, medical: null, town: 'Nabua' },
 ];
 
+// The LGU Command Center itself — the gateway every report is ultimately
+// travelling toward, and what the citizen app's "N hops to LGU" is counting
+// toward. It is a node, not just a map anchor: without it on the mesh there is
+// nothing for that hop count to point at. Placed at the Nabua municipal hall,
+// and pushed onto MESH_NODES so it plots and relays like any other node.
+const LGU_HQ = {
+    id: 'LGU', name: 'LGU Command Center', type: 'lgu', status: 'COMMAND',
+    lat: 13.4088, lng: 123.2871, needs: {}, flags: {}, lastSignalMin: 0, town: 'Nabua',
+};
+MESH_NODES.push(LGU_HQ);
+
 // Central reference for the "You" node on the citizen app.
 const SELF_NODE_START = { lat: 13.4045, lng: 123.2968 };
 
 if (typeof window !== 'undefined') {
     window.NABUA_CENTER = NABUA_CENTER;
     window.MESH_NODES = MESH_NODES;
+    window.LGU_HQ = LGU_HQ;
     window.SELF_NODE_START = SELF_NODE_START;
 }
 
 // Node.js reuse (server/index.js loads this same file as the seed dataset
 // for the live-sync server, so the two never drift apart).
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { NABUA_CENTER, MESH_NODES, SELF_NODE_START };
+    module.exports = { NABUA_CENTER, MESH_NODES, LGU_HQ, SELF_NODE_START };
 }

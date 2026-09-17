@@ -10,10 +10,32 @@
     let filterStatus = 'ALL';
     let searchText = '';
 
-    // "Reports" = anything a person/ghost node filed. Rescuers/volunteers are
-    // mesh assets, not incoming reports, so they're excluded from the table.
+    // "Reports" = anything a person/ghost node filed. Rescuers, volunteers and
+    // the command centre are mesh assets, not incoming reports, so they're
+    // excluded from the list.
+    const ASSET_TYPES = ['rescuer', 'volunteer', 'lgu'];
     function getReports() {
-        return window.MESH_NODES.filter(n => n.type !== 'rescuer' && n.type !== 'volunteer');
+        return window.MESH_NODES.filter(n => !ASSET_TYPES.includes(n.type));
+    }
+
+    // --- MESH DISTANCE TO THE GATEWAY ---
+    // How many relays a report's data crossed to reach the command centre.
+    // A report five hops out is the one whose information is oldest and most
+    // likely to have gone stale in transit, which is dispatch-relevant and was
+    // previously invisible. Recomputed per render because the mesh moves.
+    let hopByNodeId = new Map();
+    function recomputeHops() {
+        hopByNodeId = new Map();
+        const live = window.MESH_NODES.filter(n => n.type !== 'offline');
+        const hqIndex = live.findIndex(n => n.type === 'lgu');
+        if (hqIndex === -1) return;
+        const { depth } = window.meshGraph.hops(live, window.meshGraph.build(live), hqIndex);
+        live.forEach((n, i) => { if (depth[i] > 0) hopByNodeId.set(n.id, depth[i]); });
+    }
+    function hopBadge(n) {
+        const h = hopByNodeId.get(n.id);
+        if (!h) return '';
+        return `<span class="hop-badge" title="${h} mesh hop${h === 1 ? '' : 's'} from the Command Center">${h}<i class="fa-solid fa-tower-broadcast"></i></span>`;
     }
 
     function haversineKm(a, b) {
@@ -24,13 +46,30 @@
         return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
     }
 
-    function nearestRescuer(node) {
+    // A team already on a case is not available for another one. The claim
+    // data has always been here; the suggestion just never consulted it, so a
+    // committed team could be recommended for a second call-out.
+    function isCommitted(rescuer) {
+        return window.MESH_NODES.some(n => n.claimedBy === rescuer.id && !n.resolved);
+    }
+
+    // One calculation, used by both the Details panel and the route drawn on
+    // the map. They used to disagree: the panel named the nearest team while
+    // drawRouteTo drew from whichever rescuer sat first in the array.
+    function suggestResponder(node) {
         const rescuers = window.MESH_NODES.filter(n => n.type === 'rescuer');
         if (!rescuers.length) return null;
-        return rescuers.reduce((best, r) => {
-            const d = haversineKm(node, r);
-            return !best || d < best.d ? { rescuer: r, d } : best;
-        }, null);
+        const ranked = rescuers
+            .map(r => ({ rescuer: r, d: haversineKm(node, r), committed: isCommitted(r) }))
+            .sort((a, b) => (a.committed - b.committed) || (a.d - b.d));
+        return ranked[0];
+    }
+
+    // ~18 km/h: a rescue vehicle through flooded barangay roads, well under
+    // any open-road figure. Straight-line distance, so it is a floor, not a
+    // promise — the label says "est".
+    function etaMinutes(km) {
+        return Math.max(1, Math.round((km / 18) * 60));
     }
 
     // --- SUMMARY CARDS ---
@@ -138,6 +177,7 @@
                         <span class="report-status status-${String(n.status).toLowerCase()}">${n.status}</span>
                         <span class="need-icons">${needIconsHtml(n.needs)}</span>
                         <span class="report-age">${Math.round(n.lastSignalMin)}m ago</span>
+                        ${hopBadge(n)}
                         ${claimBadge(n)}
                     </span>
                 </button>`;
@@ -174,6 +214,95 @@
         });
     }
 
+    function medicalSummary(med) {
+        const parts = [med.blood, med.allergies && `Allergies: ${med.allergies}`, med.conditions]
+            .filter(Boolean);
+        // An unfilled record is an unknown, not a clean bill of health.
+        return parts.length ? parts.join(' · ') : '<span style="color:var(--ink-muted)">Not provided</span>';
+    }
+
+    // The suggestion and the Dispatch button that acts on it. Dispatching
+    // writes the same claim a rescuer sets from the field — one piece of state
+    // whether the assignment was taken or given — so the team sees it as their
+    // active case in the citizen app.
+    function responderBlock(node, suggested) {
+        if (node.resolved) {
+            return `<div class="responder-block is-done">
+                <div class="responder-label">Resolved</div>
+                <div class="responder-name">Reached and cleared${node.resolvedByName ? ` by ${node.resolvedByName}` : ''}</div>
+            </div>`;
+        }
+        if (node.claimedByName) {
+            return `<div class="responder-block is-assigned">
+                <div class="responder-label">Responding</div>
+                <div class="responder-name">${node.claimedByName}</div>
+                <div class="responder-meta">${node.dispatchedByLgu ? 'Dispatched from the Command Center' : 'Self-assigned from the field'}${enRouteLabel(node)}</div>
+            </div>`;
+        }
+        if (!suggested) {
+            return `<div class="responder-block"><div class="responder-label">Suggested responder</div>
+                <div class="responder-meta">No rescue teams on the mesh.</div></div>`;
+        }
+        const { rescuer, d, committed } = suggested;
+        return `<div class="responder-block">
+            <div class="responder-label">Suggested responder</div>
+            <div class="responder-name">${rescuer.name}</div>
+            <div class="responder-meta">${d.toFixed(2)} km · ~${etaMinutes(d)} min est · ${committed ? 'already on another case' : 'available'}</div>
+            <button class="btn primary responder-dispatch" id="dispatchBtn" data-rescuer="${rescuer.id}"${committed ? ' disabled' : ''}>
+                <i class="fa-solid fa-paper-plane"></i> Dispatch ${rescuer.name}
+            </button>
+        </div>`;
+    }
+
+    function enRouteLabel(node) {
+        if (!node.claimedAt) return '';
+        const mins = Math.max(0, Math.round((Date.now() - node.claimedAt) / 60000));
+        return ` · en route ${mins} min`;
+    }
+
+    function dispatchTo(targetId, rescuerId) {
+        if (!rescuerId || !window.realtime) return;
+        window.realtime.sendDispatch(targetId, rescuerId);
+    }
+
+    // --- IN PROGRESS TAB ---
+    // The question "what is happening right now" had nowhere to be answered:
+    // a claim only showed as a badge on whichever row you happened to be
+    // looking at. This is every case a team is currently on, in one place.
+    function renderInProgress() {
+        const el = document.getElementById('inProgressList');
+        if (!el) return;
+        const active = getReports().filter(n => n.claimedBy && !n.resolved);
+
+        if (!active.length) {
+            el.innerHTML = '<div class="report-empty">No rescues in progress. Dispatch a team from a report’s Details tab.</div>';
+            return;
+        }
+
+        el.innerHTML = active.map(n => {
+            const med = n.medical || {};
+            const flags = Object.keys(n.flags || {}).filter(k => n.flags[k]);
+            return `
+                <button class="report-row progress-row" data-id="${n.id}">
+                    <span class="report-row-head">
+                        <span class="report-name">${n.name}</span>
+                        <span class="report-id">${n.id}</span>
+                        <span class="claim-badge">${n.claimedByName || 'Assigned'}</span>
+                    </span>
+                    <span class="report-row-meta">
+                        <span class="report-status status-${String(n.status).toLowerCase()}">${n.status}</span>
+                        <span class="need-icons">${needIconsHtml(n.needs)}</span>
+                        <span class="report-age">${n.claimedAt ? `en route ${Math.max(0, Math.round((Date.now() - n.claimedAt) / 60000))} min` : 'just assigned'}</span>
+                    </span>
+                    <span class="progress-detail">${medicalSummary(med)}${flags.length ? ` · ${flags.join(', ')}` : ''}</span>
+                </button>`;
+        }).join('');
+
+        el.querySelectorAll('.report-row').forEach(row => {
+            row.addEventListener('click', () => selectNode(row.getAttribute('data-id')));
+        });
+    }
+
     // --- DETAIL PANEL ---
     function renderDetail() {
         const panel = document.getElementById('detailPanelBody');
@@ -184,8 +313,10 @@
         }
 
         const t = triageCache.get(node.id);
-        const nearest = nearestRescuer(node);
+        const suggested = suggestResponder(node);
         const flags = Object.keys(node.flags || {}).filter(k => node.flags[k]);
+        const med = node.medical || {};
+        const hops = hopByNodeId.get(node.id);
 
         panel.innerHTML = `
             <div class="detail-body">
@@ -198,10 +329,14 @@
                 <div><div class="detail-field-label">Vulnerability flags</div><div class="detail-field-value" style="font-size:13px;">${flags.length ? flags.join(', ') : 'None'}</div></div>
 
                 <div><div class="detail-field-label">Last signal</div><div class="detail-field-value">${Math.round(node.lastSignalMin)} min ago</div></div>
-                <div><div class="detail-field-label">Responding</div><div class="detail-field-value" style="font-size:13px;">${node.resolved ? `Reached and cleared${node.resolvedByName ? ` by ${node.resolvedByName}` : ''}` : (node.claimedByName || 'Nobody yet')}</div></div>
-                <div><div class="detail-field-label">Nearest rescue team</div><div class="detail-field-value" style="font-size:13px;">${nearest ? `${nearest.rescuer.name} — ${nearest.d.toFixed(2)} km` : 'None available'}</div></div>
+                <div><div class="detail-field-label">Mesh distance</div><div class="detail-field-value" style="font-size:13px;">${hops ? `${hops} hop${hops === 1 ? '' : 's'} from the Command Center` : 'Direct / unknown'}</div></div>
+                <div><div class="detail-field-label">Medical</div><div class="detail-field-value" style="font-size:13px;">${medicalSummary(med)}</div></div>
                 <div><div class="detail-field-label">Recommended action</div><div class="detail-field-value" style="font-size:13px;">${t ? t.recommendedAction : 'Analyzing…'}</div></div>
-            </div>`;
+            </div>
+            ${responderBlock(node, suggested)}`;
+
+        const btn = document.getElementById('dispatchBtn');
+        if (btn) btn.addEventListener('click', () => dispatchTo(node.id, btn.dataset.rescuer));
     }
 
     function selectNode(id) {
@@ -209,7 +344,12 @@
         const node = getReports().find(n => n.id === id);
         renderTable();
         renderDetail();
-        if (node) window.lguMap.drawRouteTo(node);
+        // The route is drawn from the team the panel is recommending, so the
+        // line and the text can never name different teams.
+        const suggested = node && (node.claimedBy
+            ? { rescuer: window.MESH_NODES.find(r => r.id === node.claimedBy) }
+            : suggestResponder(node));
+        window.lguMap.drawRouteTo(node, suggested && suggested.rescuer);
         // Deep-linkable case reference: reflect the selection in the URL
         // (no new history entry, no re-triggering hashchange) so a report
         // can be bookmarked or shared and reopened directly. See lgu-deeplink.js.
@@ -308,7 +448,7 @@
     // to), so "Dashboard" is the resting/overview state rather than a tab of
     // its own; opening a report's Details (via a row/marker click, not a nav
     // click) also reads as "Dashboard" since it isn't a top-level destination.
-    const NAV_FOR_TAB = { tabList: 'navReports', tabAi: 'navAi', tabDetail: 'navDashboard' };
+    const NAV_FOR_TAB = { tabList: 'navReports', tabAi: 'navAi', tabProgress: 'navReports', tabDetail: 'navDashboard' };
 
     function setActiveNav(navId) {
         document.querySelectorAll('.lgu-nav-item').forEach(n => n.classList.toggle('active', n.id === navId));
@@ -357,12 +497,18 @@
     }
 
     function refreshAll() {
+        // Hops first: the list, the detail panel and the map all read the map
+        // it builds, so it has to be current before any of them render.
+        recomputeHops();
         renderSummary();
         renderMeshHealth();
         renderTable();
+        renderInProgress();
         renderAiTab();
         renderDetail();
-        window.lguMap.renderMarkers(getReports().concat(window.MESH_NODES.filter(n => n.type === 'rescuer' || n.type === 'volunteer')), n => selectNode(n.id));
+        // Everything plots, assets included — the command centre and the teams
+        // are as much a part of the picture as the reports.
+        window.lguMap.renderMarkers(window.MESH_NODES, n => selectNode(n.id));
     }
 
     document.addEventListener('DOMContentLoaded', () => {

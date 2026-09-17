@@ -86,6 +86,7 @@
         sendVolunteer: (active) => send({ type: 'volunteer', active }),
         sendRescuer: (active) => send({ type: 'rescuer', active }),
         sendClaim: (targetId, active) => send({ type: 'claim', targetId, active }),
+        sendDispatch: (targetId, rescuerId) => send({ type: 'dispatch', targetId, rescuerId }),
         sendResolve: (targetId) => send({ type: 'resolve', targetId }),
         sendStatus: (value) => send({ type: 'status', value }),
         sendNeed: (key, value) => send({ type: 'need', key, value }),
