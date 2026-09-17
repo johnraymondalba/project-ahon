@@ -151,9 +151,16 @@
         return L.divIcon({ className: 'custom-div-icon', html, iconSize: [40, 40], iconAnchor: [20, 20] });
     }
 
+    // Your own marker wears whichever role you are in, in the same colour the
+    // mesh already shows you to everyone else — the server sets type/status
+    // from the same flags, so an on-duty rescuer was green on the LGU board
+    // and on every other phone while still blue on their own screen.
+    // Precedence matches citizen-app's: the roles are mutually exclusive, and
+    // needing help outranks being able to give it.
     function selfIcon(appState) {
         let cls = 'bg-user', color = 'var(--color-user)', label = appState.statusLabel;
         if (appState.sos) { cls = 'bg-sos'; color = 'var(--color-sos)'; label = 'SOS'; }
+        else if (appState.rescuer) { cls = 'bg-rescuer'; color = 'var(--color-rescuer)'; label = 'RESCUER'; }
         else if (appState.volunteer) { cls = 'bg-volunteer'; color = 'var(--color-volunteer)'; label = 'VOLUNTEER'; }
 
         const badge = needsBadgeHtml(appState.needs);
